@@ -1,0 +1,85 @@
+[
+  {
+    "id": "tasbih_subhanallah",
+    "arabic": "سُبْحَانَ اللهِ",
+    "transliteration": "Subhana Allah",
+    "translation": "Glory be to Allah",
+    "count": 33,
+    "reference": "رواه مسلم"
+  },
+  {
+    "id": "tasbih_alhamdulillah",
+    "arabic": "الْحَمْدُ لِلَّهِ",
+    "transliteration": "Al-Hamdu Lillah",
+    "translation": "All praise is due to Allah",
+    "count": 33,
+    "reference": "رواه مسلم"
+  },
+  {
+    "id": "tasbih_allahuakbar",
+    "arabic": "اللهُ أَكْبَرُ",
+    "transliteration": "Allahu Akbar",
+    "translation": "Allah is the Greatest",
+    "count": 33,
+    "reference": "رواه مسلم"
+  },
+  {
+    "id": "khatm_tasbih",
+    "arabic": "لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+    "transliteration": "La ilaha illallah wahdahu la sharika lah, lahul mulku walahul hamd, wahuwa ala kulli shayin qadir",
+    "translation": "There is no god but Allah alone, with no partner. His is the dominion, His is the praise, and He is over all things powerful.",
+    "count": 1,
+    "reference": "رواه مسلم"
+  },
+  {
+    "id": "ayat_al_kursi",
+    "arabic": "اللهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+    "transliteration": "Ayat al-Kursi",
+    "translation": "آية الكرسي — البقرة: 255",
+    "count": 1,
+    "reference": "البقرة: 255"
+  },
+  {
+    "id": "dua_maghrib_fajr_1",
+    "arabic": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إِلاَّ اللهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+    "transliteration": "Asbahna wa asbahal mulku lillah...",
+    "translation": "ذكر الصباح — يُقرأ بعد صلاة الفجر",
+    "count": 1,
+    "reference": "رواه أبو داود",
+    "prayerSpecific": ["fajr"]
+  },
+  {
+    "id": "dua_maghrib_fajr_2",
+    "arabic": "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ",
+    "transliteration": "Allahumma bika asbahna...",
+    "translation": "اللهم بك أصبحنا — يُقرأ بعد صلاة الفجر",
+    "count": 1,
+    "reference": "رواه الترمذي",
+    "prayerSpecific": ["fajr"]
+  },
+  {
+    "id": "dua_asr_maghrib_1",
+    "arabic": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إِلاَّ اللهُ وَحْدَهُ لاَ شَرِيكَ لَهُ",
+    "transliteration": "Amsayna wa amsal mulku lillah...",
+    "translation": "ذكر المساء — يُقرأ بعد صلاة المغرب والعصر",
+    "count": 1,
+    "reference": "رواه أبو داود",
+    "prayerSpecific": ["maghrib", "asr"]
+  },
+  {
+    "id": "istighfar",
+    "arabic": "أَسْتَغْفِرُ اللهَ",
+    "transliteration": "Astaghfirullah",
+    "translation": "أستغفر الله العظيم وأتوب إليه",
+    "count": 3,
+    "reference": "رواه مسلم"
+  },
+  {
+    "id": "salawat",
+    "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ",
+    "transliteration": "Allahumma salli ala Muhammad wa ala ali Muhammad",
+    "translation": "اللهم صلِّ وسلم وبارك على سيدنا محمد ﷺ",
+    "count": 10,
+    "reference": "صحيح البخاري ومسلم"
+  }
+]

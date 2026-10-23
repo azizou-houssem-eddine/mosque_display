@@ -1,0 +1,60 @@
+name: mosque_display
+description: "Flutter Android TV prayer times and announcement display application for Algerian mosques."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+  flutter: ">=3.41.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+
+  # State Management & Local Persistence
+  provider: ^6.1.5+1
+  shared_preferences: ^2.5.4
+
+  # Prayer Times Calculation & Hijri Calendar
+  adhan: ^2.0.0+1
+  hijri: ^3.0.1
+
+  # Android TV Hardware & Display Management
+  wakelock_plus: ^1.7.0
+  flutter_svg: ^2.3.0
+  marquee: ^2.3.0
+  audioplayers: ^6.0.0
+  google_fonts: ^8.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/data/
+    - assets/fonts/
+    - assets/audio/
+    - assets/images/
+
+  fonts:
+    - family: Cairo
+      fonts:
+        - asset: assets/fonts/Cairo-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Cairo-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Cairo-Bold.ttf
+          weight: 700
+    - family: Amiri
+      fonts:
+        - asset: assets/fonts/Amiri-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Amiri-Bold.ttf
+          weight: 700
