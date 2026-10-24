@@ -18,6 +18,7 @@ class MosqueSettings {
   final String pinCode;
   final String islamicFont;
   final String tickerCategory;
+  final bool showFastingTimes;
 
   const MosqueSettings({
     this.selectedWilayaCode = 16,
@@ -34,6 +35,7 @@ class MosqueSettings {
     this.pinCode = '0000',
     this.islamicFont = 'amiriQuran',
     this.tickerCategory = 'all',
+    this.showFastingTimes = true,
   })  : assert(selectedWilayaCode >= 1 && selectedWilayaCode <= 58,
             'Wilaya code must be between 1 and 58'),
         assert(blackoutDurationMinutes >= 5 && blackoutDurationMinutes <= 45,
@@ -63,6 +65,7 @@ class MosqueSettings {
     String? pinCode,
     String? islamicFont,
     String? tickerCategory,
+    bool? showFastingTimes,
   }) {
     return MosqueSettings(
       selectedWilayaCode: selectedWilayaCode ?? this.selectedWilayaCode,
@@ -83,6 +86,7 @@ class MosqueSettings {
       pinCode: pinCode ?? this.pinCode,
       islamicFont: islamicFont ?? this.islamicFont,
       tickerCategory: tickerCategory ?? this.tickerCategory,
+      showFastingTimes: showFastingTimes ?? this.showFastingTimes,
     );
   }
 
@@ -101,6 +105,7 @@ class MosqueSettings {
       'pinCode': pinCode,
       'islamicFont': islamicFont,
       'tickerCategory': tickerCategory,
+      'showFastingTimes': showFastingTimes,
     };
   }
 
@@ -133,6 +138,7 @@ class MosqueSettings {
           : '0000',
       islamicFont: (json['islamicFont'] as String?) ?? 'amiriQuran',
       tickerCategory: (json['tickerCategory'] as String?) ?? 'all',
+      showFastingTimes: (json['showFastingTimes'] as bool?) ?? true,
     );
   }
 
@@ -153,7 +159,8 @@ class MosqueSettings {
           marqueeText == other.marqueeText &&
           pinCode == other.pinCode &&
           islamicFont == other.islamicFont &&
-          tickerCategory == other.tickerCategory;
+          tickerCategory == other.tickerCategory &&
+          showFastingTimes == other.showFastingTimes;
 
   @override
   int get hashCode => Object.hash(
@@ -170,9 +177,10 @@ class MosqueSettings {
         pinCode,
         islamicFont,
         tickerCategory,
+        showFastingTimes,
       );
 
   @override
   String toString() =>
-      'MosqueSettings(wilaya: $selectedWilayaCode, commune: $selectedCommuneCode ("$selectedCommuneName"), blackout: ${blackoutDurationMinutes}m, dim: $blackoutDimMode, hijriOffset: $hijriOffsetDays, mosque: "$mosqueName", pin: "$pinCode")';
+      'MosqueSettings(wilaya: $selectedWilayaCode, commune: $selectedCommuneCode ("$selectedCommuneName"), blackout: ${blackoutDurationMinutes}m, dim: $blackoutDimMode, hijriOffset: $hijriOffsetDays, mosque: "$mosqueName", pin: "$pinCode", fasting: $showFastingTimes)';
 }

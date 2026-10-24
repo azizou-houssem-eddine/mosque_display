@@ -41,6 +41,8 @@ class DisplayProvider extends ChangeNotifier {
   bool _isSimulationActive = false;
   bool _isManualStateSimulated = false;
   DateTime? _simulatedDate;
+  DateTime? _simulatedAnchorTime;
+  DateTime? _simulationStartedAt;
   OccasionType? _activeSimulatedOccasion;
 
   DisplayProvider({
@@ -64,23 +66,83 @@ class DisplayProvider extends ChangeNotifier {
   String? get error => _error;
   bool get adhkarShortcutActive => _adhkarShortcutActive;
   bool get isSimulationActive => _isSimulationActive;
-  DateTime get effectiveDate => _simulatedDate ?? DateTime.now();
+
+  /// Effective date-time currently active.
+  /// When simulation is active, anchors to the simulated representative time
+  /// and ticks synchronously second-by-second for live TV inspection.
+  DateTime get effectiveDate {
+    if (_simulatedDate != null) {
+      final base = _simulatedAnchorTime ?? _simulatedDate!;
+      final elapsed = _simulationStartedAt != null
+          ? DateTime.now().difference(_simulationStartedAt!)
+          : Duration.zero;
+      return base.add(elapsed);
+    }
+    return DateTime.now();
+  }
+
   OccasionType? get activeSimulatedOccasion => _activeSimulatedOccasion;
 
   Future<List<Commune>> getCommunesForWilaya(int wilayaCode) {
     return _prayerRepo.getCommunesForWilaya(wilayaCode);
   }
 
-  List<IslamicOccasion> get activeOccasions =>
-      IslamicOccasionsEngine.getOccasions(
-        effectiveDate,
-        hijriOffsetDays: _settings.hijriOffsetDays,
-      );
+  List<IslamicOccasion> get activeOccasions {
+    final list = IslamicOccasionsEngine.getOccasions(
+      effectiveDate,
+      hijriOffsetDays: _settings.hijriOffsetDays,
+    );
+    if (_activeSimulatedOccasion != null) {
+      final idx = list.indexWhere((o) => o.type == _activeSimulatedOccasion);
+      if (idx > 0) {
+        final occ = list.removeAt(idx);
+        list.insert(0, occ);
+      } else if (idx == -1) {
+        final occ = IslamicOccasionsEngine.getOccasionForType(
+          _activeSimulatedOccasion!,
+          date: effectiveDate,
+          hijriOffsetDays: _settings.hijriOffsetDays,
+        );
+        list.insert(0, occ);
+      }
+    }
+    return list;
+  }
 
   IslamicOccasion? get primaryOccasion {
     final list = activeOccasions;
     return list.isNotEmpty ? list.first : null;
   }
+
+  bool get isRamadan {
+    if (_activeSimulatedOccasion == OccasionType.ramadan) return true;
+    final hijri = HijriCalculator.calculate(
+      gregorianDate: effectiveDate,
+      offsetDays: _settings.hijriOffsetDays,
+    );
+    return hijri.month == 9;
+  }
+
+  bool get isEid {
+    if (_activeSimulatedOccasion == OccasionType.eidFitr ||
+        _activeSimulatedOccasion == OccasionType.eidAdha) {
+      return true;
+    }
+    return activeOccasions.any(
+      (o) => o.type == OccasionType.eidFitr || o.type == OccasionType.eidAdha,
+    );
+  }
+
+  bool get isFastingDay {
+    if (isRamadan) return true;
+    return activeOccasions.any(
+      (o) => o.type == OccasionType.arafah || o.type == OccasionType.ashura,
+    );
+  }
+
+  DateTime? get imsakTime => _todaySchedule?.imsak;
+  DateTime? get iftarTime => _todaySchedule?.iftar;
+  DateTime? get eidPrayerTime => _todaySchedule?.eidPrayer;
 
   List<String> get occasionDuas {
     final list = activeOccasions;
@@ -298,7 +360,7 @@ class DisplayProvider extends ChangeNotifier {
   Duration get countdownToNextAdhan {
     final schedule = _todaySchedule;
     if (schedule == null) return Duration.zero;
-    return schedule.getTimeRemainingToNextPrayer(DateTime.now());
+    return schedule.getTimeRemainingToNextPrayer(effectiveDate);
   }
 
   /// Format duration as "HH:MM:SS".
@@ -352,10 +414,20 @@ class DisplayProvider extends ChangeNotifier {
   }
 
   /// Simulates a specific religious occasion by date manipulation.
-  Future<void> simulateOccasion(OccasionType type) async {
+  /// Anchors the clock to a realistic daytime hour and advances second-by-second.
+  Future<void> simulateOccasion(
+    OccasionType type, {
+    DateTime? customDateTime,
+  }) async {
     _isSimulationActive = true;
+    _isManualStateSimulated = false;
     _activeSimulatedOccasion = type;
-    _simulatedDate = IslamicOccasionsEngine.getRepresentativeDate(type);
+    final repDate = customDateTime ?? IslamicOccasionsEngine.getRepresentativeDate(type);
+    _simulatedDate = repDate;
+    _simulatedAnchorTime = repDate;
+    _simulationStartedAt = DateTime.now();
+    _displayState = DisplayState.standard;
+    _activePrayer = null;
     await _loadTodaySchedule();
     _refreshHijriDate();
   }
@@ -365,6 +437,8 @@ class DisplayProvider extends ChangeNotifier {
     _isSimulationActive = false;
     _isManualStateSimulated = false;
     _simulatedDate = null;
+    _simulatedAnchorTime = null;
+    _simulationStartedAt = null;
     _activeSimulatedOccasion = null;
     _displayState = DisplayState.standard;
     _activePrayer = null;

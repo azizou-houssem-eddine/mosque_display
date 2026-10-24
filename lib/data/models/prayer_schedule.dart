@@ -88,6 +88,27 @@ class PrayerSchedule {
     }
   }
 
+  /// Official Algerian Imsak time: exactly 10 minutes before Fajr Adhan.
+  DateTime get imsak => fajr.subtract(const Duration(minutes: 10));
+
+  /// Official Algerian Iftar time: coincident with Maghrib Adhan.
+  DateTime get iftar => maghrib;
+
+  /// Official Algerian Eid Prayer time: 30 minutes after Sunrise (Duha).
+  DateTime get eidPrayer => sunrise.add(const Duration(minutes: 30));
+
+  /// Formatted Imsak string "HH:mm".
+  String get imsakFormatted =>
+      '${imsak.hour.toString().padLeft(2, '0')}:${imsak.minute.toString().padLeft(2, '0')}';
+
+  /// Formatted Iftar string "HH:mm".
+  String get iftarFormatted =>
+      '${iftar.hour.toString().padLeft(2, '0')}:${iftar.minute.toString().padLeft(2, '0')}';
+
+  /// Formatted Eid Prayer string "HH:mm".
+  String get eidPrayerFormatted =>
+      '${eidPrayer.hour.toString().padLeft(2, '0')}:${eidPrayer.minute.toString().padLeft(2, '0')}';
+
   /// Applies communal calibration offsets (±15 min) to each prayer time.
   PrayerSchedule applyOffsets(PrayerOffsets offsets) {
     return PrayerSchedule(

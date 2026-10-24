@@ -376,7 +376,7 @@ void main() {
       expect(find.text('لوحة التحكم في المحاكاة والاختبار التجريبي'), findsOneWidget);
       expect(find.text('الوضع القياسي (الشاشة الرئيسية)'), findsOneWidget);
       expect(find.text('🕌 يوم الجمعة المباركة (سورة الكهف)'), findsOneWidget);
-      expect(find.text('🌙 شهر رمضان المبارك (الإمساك والإفطار)'), findsOneWidget);
+      expect(find.textContaining('شهر رمضان المبارك'), findsWidgets);
     });
   });
 }

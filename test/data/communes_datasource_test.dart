@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mosque_display/data/datasources/communes_datasource.dart';
 import 'package:mosque_display/data/datasources/bundled_timetable_datasource.dart';
-import 'package:mosque_display/data/models/commune.dart';
 import 'package:mosque_display/data/models/prayer_offsets.dart';
 import 'package:mosque_display/data/repositories/prayer_repository.dart';
 

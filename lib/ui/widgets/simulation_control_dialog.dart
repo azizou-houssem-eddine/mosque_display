@@ -263,7 +263,7 @@ class SimulationControlDialog extends StatelessWidget {
                     },
                   ),
                   _SimButton(
-                    label: '🌙 شهر رمضان المبارك (الإمساك والإفطار)',
+                    label: '🌙 شهر رمضان المبارك (قبل الإفطار بـ 15 دقيقة)',
                     isSelected: provider.activeSimulatedOccasion ==
                         OccasionType.ramadan,
                     onTap: () async {
@@ -272,7 +272,19 @@ class SimulationControlDialog extends StatelessWidget {
                     },
                   ),
                   _SimButton(
-                    label: '🍬 عيد الفطر المبارك (التكبيرات والتهنئة)',
+                    label: '🌙 سحر رمضان (قبل الإمساك بـ 20 دقيقة)',
+                    onTap: () async {
+                      final rep = IslamicOccasionsEngine.getRepresentativeDate(OccasionType.ramadan);
+                      final suhoorTime = DateTime(rep.year, rep.month, rep.day, 5, 10);
+                      await provider.simulateOccasion(
+                        OccasionType.ramadan,
+                        customDateTime: suhoorTime,
+                      );
+                      if (context.mounted) Navigator.of(context).pop();
+                    },
+                  ),
+                  _SimButton(
+                    label: '🍬 عيد الفطر المبارك (صباح العيد والتكبيرات)',
                     isSelected: provider.activeSimulatedOccasion ==
                         OccasionType.eidFitr,
                     onTap: () async {
@@ -281,7 +293,7 @@ class SimulationControlDialog extends StatelessWidget {
                     },
                   ),
                   _SimButton(
-                    label: '🐑 عيد الأضحى المبارك (التكبيرات والتهنئة)',
+                    label: '🐑 عيد الأضحى المبارك (التكبيرات وصلاة العيد)',
                     isSelected: provider.activeSimulatedOccasion ==
                         OccasionType.eidAdha,
                     onTap: () async {
@@ -290,7 +302,7 @@ class SimulationControlDialog extends StatelessWidget {
                     },
                   ),
                   _SimButton(
-                    label: '⛰️ يوم عرفة (حديث فضل الصيام)',
+                    label: '⛰️ يوم عرفة المبارك (فضل الصيام والدعاء)',
                     isSelected: provider.activeSimulatedOccasion ==
                         OccasionType.arafah,
                     onTap: () async {

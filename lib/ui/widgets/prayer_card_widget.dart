@@ -11,6 +11,8 @@ class PrayerCardWidget extends StatelessWidget {
   final bool isNext; // Next upcoming prayer (warm gold accent highlight)
   final bool isFocused; // D-pad focus
   final double? width;
+  final String? auxiliaryLabel; // e.g. "الإمساك" or "الإفطار"
+  final String? auxiliaryTime; // e.g. "05:12"
 
   const PrayerCardWidget({
     super.key,
@@ -20,6 +22,8 @@ class PrayerCardWidget extends StatelessWidget {
     this.isNext = false,
     this.isFocused = false,
     this.width,
+    this.auxiliaryLabel,
+    this.auxiliaryTime,
   });
 
   @override
@@ -282,6 +286,51 @@ class PrayerCardWidget extends StatelessWidget {
               ],
             ),
           ),
+          if (auxiliaryLabel != null && auxiliaryTime != null) ...[
+            SizedBox(height: scale.scale(4, min: 2, max: 8)),
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: scale.scale(8, min: 6, max: 14),
+                vertical: scale.scale(2, min: 1, max: 4),
+              ),
+              decoration: BoxDecoration(
+                color: AppTheme.emeraldDeep.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(scale.scale(8, min: 6, max: 12)),
+                border: Border.all(
+                  color: AppTheme.goldPrimary.withValues(alpha: 0.55),
+                  width: 1,
+                ),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      auxiliaryLabel!,
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: scale.scale(12, min: 10, max: 18),
+                        color: AppTheme.goldLight,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textDirection: TextDirection.rtl,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      auxiliaryTime!,
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: scale.scale(13, min: 11, max: 20),
+                        color: AppTheme.goldPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

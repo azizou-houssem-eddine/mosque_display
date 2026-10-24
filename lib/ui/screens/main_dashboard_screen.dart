@@ -36,9 +36,11 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
   @override
   void initState() {
     super.initState();
+    _now = context.read<DisplayProvider>().effectiveDate;
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() => _now = DateTime.now());
+      if (!mounted) return;
       context.read<DisplayProvider>().tick();
+      setState(() => _now = context.read<DisplayProvider>().effectiveDate);
     });
   }
 
@@ -61,10 +63,7 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<DisplayProvider>();
     final schedule = provider.todaySchedule;
-    final occasions = IslamicOccasionsEngine.getOccasions(
-      provider.effectiveDate,
-      hijriOffsetDays: provider.settings.hijriOffsetDays,
-    );
+    final occasions = provider.activeOccasions;
 
     // State routing
     switch (provider.displayState) {
@@ -159,7 +158,7 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                   children: [
                     _buildHeader(provider, schedule, occasions),
                     if (occasions.isNotEmpty)
-                      _buildOccasionBanner(occasions.first),
+                      _buildOccasionBanner(occasions.first, schedule),
                     Expanded(
                       child: _buildBody(provider, schedule),
                     ),
@@ -184,8 +183,13 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
       (w) => w.code == provider.settings.selectedWilayaCode,
       orElse: () => algerianWilayas.first,
     );
-    final occasionBanner =
+    String? occasionBanner =
         occasions.isNotEmpty ? occasions.first.titleAr : null;
+    if (provider.isRamadan && schedule != null && occasions.isNotEmpty) {
+      occasionBanner = '🌙 ${occasions.first.titleAr} (الإمساك: ${schedule.imsakFormatted} — الإفطار: ${schedule.iftarFormatted})';
+    } else if (provider.isEid && schedule != null && occasions.isNotEmpty) {
+      occasionBanner = '🍬 ${occasions.first.titleAr} (صلاة العيد: ${schedule.eidPrayerFormatted})';
+    }
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -507,12 +511,52 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
       );
     }
 
+    final effectiveNow = provider.effectiveDate;
     final countdown = provider.countdownToNextAdhan;
     const totalDay = Duration(hours: 24);
     final progress =
         1.0 - (countdown.inSeconds / totalDay.inSeconds).clamp(0.0, 1.0);
-    final nextPrayer = schedule.getNextPrayer(_now);
-    final currentPrayer = schedule.getCurrentPrayer(_now);
+    final nextPrayer = schedule.getNextPrayer(effectiveNow);
+    final currentPrayer = schedule.getCurrentPrayer(effectiveNow);
+
+    final showFastingTimes = provider.settings.showFastingTimes &&
+        (provider.isRamadan || provider.isFastingDay);
+
+    // Compute contextual subtitle and label for Central Gauge
+    String gaugeSubtitle = 'حتى ${nextPrayer.nameAr}';
+    String gaugeCenterLabel = DisplayProvider.formatDuration(countdown);
+    double gaugeProgress = progress;
+
+    if (provider.isRamadan) {
+      if (effectiveNow.isAfter(schedule.fajr) &&
+          effectiveNow.isBefore(schedule.maghrib)) {
+        final fastingRemaining = schedule.maghrib.difference(effectiveNow);
+        if (!fastingRemaining.isNegative) {
+          gaugeSubtitle = 'متبقي على موعد الإفطار (المغرب)';
+          gaugeCenterLabel = DisplayProvider.formatDuration(fastingRemaining);
+          final fastingTotal = schedule.maghrib.difference(schedule.fajr);
+          if (fastingTotal.inSeconds > 0) {
+            gaugeProgress = (effectiveNow.difference(schedule.fajr).inSeconds /
+                    fastingTotal.inSeconds)
+                .clamp(0.0, 1.0);
+          }
+        }
+      } else if (effectiveNow.isAfter(schedule.maghrib)) {
+        gaugeSubtitle = 'متبقي على موعد الإمساك';
+      }
+    } else if (provider.isEid) {
+      if (effectiveNow.isBefore(schedule.eidPrayer)) {
+        final eidRemaining = schedule.eidPrayer.difference(effectiveNow);
+        if (!eidRemaining.isNegative && eidRemaining.inHours < 12) {
+          gaugeSubtitle = 'حتى صلاة العيد المبارك';
+          gaugeCenterLabel = DisplayProvider.formatDuration(eidRemaining);
+        } else {
+          gaugeSubtitle = 'عيد مبارك وتقبل الله طاعتكم';
+        }
+      } else {
+        gaugeSubtitle = 'عيد مبارك وتقبل الله صالح أعمالكم';
+      }
+    }
 
     // Left cards: Fajr, Shuruk, Dhuhr
     final leftPrayers = [Prayer.fajr, Prayer.sunrise, Prayer.dhuhr];
@@ -541,12 +585,17 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                     final t = schedule.getTime(p);
                     final timeStr =
                         '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+                    final isFajr = p == Prayer.fajr;
                     return PrayerCardWidget(
                       prayerNameAr: p.nameAr,
                       time: timeStr,
                       isActive: currentPrayer == p,
                       isNext: nextPrayer == p,
                       width: cardWidth,
+                      auxiliaryLabel:
+                          showFastingTimes && isFajr ? 'الإمساك' : null,
+                      auxiliaryTime:
+                          showFastingTimes && isFajr ? schedule.imsakFormatted : null,
                     );
                   }).toList(),
                 ),
@@ -557,9 +606,9 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
               flex: 3,
               child: Center(
                 child: CircularGaugeWidget(
-                  progress: progress,
-                  centerLabel: DisplayProvider.formatDuration(countdown),
-                  subtitle: 'حتى ${nextPrayer.nameAr}',
+                  progress: gaugeProgress,
+                  centerLabel: gaugeCenterLabel,
+                  subtitle: gaugeSubtitle,
                   size: gaugeSize,
                 ),
               ),
@@ -575,12 +624,17 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                     final t = schedule.getTime(p);
                     final timeStr =
                         '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+                    final isMaghrib = p == Prayer.maghrib;
                     return PrayerCardWidget(
                       prayerNameAr: p.nameAr,
                       time: timeStr,
                       isActive: currentPrayer == p,
                       isNext: nextPrayer == p,
                       width: cardWidth,
+                      auxiliaryLabel:
+                          showFastingTimes && isMaghrib ? 'الإفطار' : null,
+                      auxiliaryTime:
+                          showFastingTimes && isMaghrib ? schedule.iftarFormatted : null,
                     );
                   }).toList(),
                 ),
@@ -630,11 +684,26 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
     SimulationControlDialog.show(context);
   }
 
-  Widget _buildOccasionBanner(IslamicOccasion occ) {
+  Widget _buildOccasionBanner(IslamicOccasion occ, PrayerSchedule? schedule) {
     final scale = ScreenScale.of(context);
-    final displayText = occ.primaryDuaAr != null
+    String displayText = occ.primaryDuaAr != null
         ? '✦ ${occ.titleAr} ✦   ${occ.primaryDuaAr!}'
         : '✦ ${occ.titleAr} ✦   ${occ.messageAr ?? ""}';
+
+    if (schedule != null) {
+      if (occ.type == OccasionType.ramadan) {
+        displayText =
+            '✦ ${occ.titleAr} ✦   🌙 الإمساك: ${schedule.imsakFormatted}   |   🌴 الإفطار: ${schedule.iftarFormatted}   |   ${occ.primaryDuaAr ?? occ.messageAr ?? ""}';
+      } else if (occ.type == OccasionType.eidFitr ||
+          occ.type == OccasionType.eidAdha) {
+        displayText =
+            '✦ ${occ.titleAr} ✦   🕌 موعد صلاة العيد: ${schedule.eidPrayerFormatted} صباحاً   |   ${occ.primaryDuaAr ?? occ.messageAr ?? ""}';
+      } else if (occ.type == OccasionType.arafah ||
+          occ.type == OccasionType.ashura) {
+        displayText =
+            '✦ ${occ.titleAr} ✦   🌙 الإمساك: ${schedule.imsakFormatted}   |   🌴 الإفطار: ${schedule.iftarFormatted}   |   ${occ.primaryDuaAr ?? occ.messageAr ?? ""}';
+      }
+    }
 
     return Container(
       margin: EdgeInsets.symmetric(

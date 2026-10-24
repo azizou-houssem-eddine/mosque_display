@@ -991,7 +991,25 @@ class _HijriPage extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.emeraldDeep,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.goldDim.withValues(alpha: 0.4)),
+            ),
+            child: _ToggleRow(
+              label: 'إظهار أوقات الإمساك والإفطار (في رمضان ومواسم الصيام)',
+              value: settings.showFastingTimes,
+              onChanged: (val) async {
+                final newSettings = settings.copyWith(showFastingTimes: val);
+                await context.read<DisplayProvider>().updateSettings(newSettings);
+                await SettingsRepository.save(newSettings);
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
           const Text(
             'اختر التعديل المناسب حسب إعلان لجنة الأهلة الرسمية:',
             style: TextStyle(

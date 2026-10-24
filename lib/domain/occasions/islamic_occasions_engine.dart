@@ -47,27 +47,6 @@ class IslamicOccasionsEngine {
     final d = hijri.day;
     final weekday = date.weekday; // 1=Mon, 5=Fri, 7=Sun
 
-    // ── Friday ──────────────────────────────────────────────────────────────
-    if (weekday == DateTime.friday) {
-      occasions.add(const IslamicOccasion(
-        titleAr: 'الجمعة المباركة',
-        messageAr:
-            'اقرأ سورة الكهف وأكثر من الصلاة على النبي ﷺ وسل الله من فضله في ساعة الإجابة',
-        hadithAr:
-            'قال رسول الله ﷺ: «إِنَّ فِي الْجُمُعَةِ لَسَاعَةً لَا يُوَافِقُهَا عَبْدٌ مُسْلِمٌ يَسْأَلُ اللَّهَ شَيْئًا إِلَّا أَعْطَاهُ إِيَّاهُ» (متفق عليه)',
-        primaryDuaAr:
-            '«اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ، اللَّهُمَّ اغْفِرْ لَنَا فِي هَذِهِ السَّاعَةِ الْمُبَارَكَةِ، وَاشْرَحْ صُدُورَنَا وَيَسِّرْ أُمُورَنَا وَتَقَبَّلْ دُعَاءَنَا»',
-        duasAr: [
-          '«اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ»',
-          '«اللَّهُمَّ فِي يَوْمِ الْجُمُعَةِ عَافِ كُلَّ مَرِيضٍ، وَارْحَمْ كُلَّ مَيِّتٍ، وَفَرِّجْ هَمَّ كُلِّ مَهْمُومٍ، وَاجْعَلْ لَنَا مِنْ كُلِّ ضِيقٍ مَخْرَجًا»',
-          '«يَا رَبِّ لَا تَدَعْ لَنَا فِي هَذَا الْيَوْمِ الْمُبَارَكِ ذَنْبًا إِلَّا غَفَرْتَهُ، وَلَا هَمًّا إِلَّا فَرَّجْتَهُ، وَلَا دَيْنًا إِلَّا قَضَيْتَهُ»',
-          '«مَنْ قَرَأَ سُورَةَ الْكَهْفِ فِي يَوْمِ الْجُمُعَةِ أَضَاءَ لَهُ مِنَ النُّورِ مَا بَيْنَ الْجُمُعَتَيْنِ»',
-          '«اللَّهُمَّ احْفَظْ بِلَادَنَا الْجَزَائِرَ وَسَائِرَ بِلَادِ الْمُسْلِمِينَ مِنَ الْفِتَنِ وَسُوءِ الْمَحْيَا وَالْمَمَاتِ»',
-        ],
-        type: OccasionType.friday,
-      ));
-    }
-
     // ── Ramadan (month 9) ───────────────────────────────────────────────────
     if (m == 9) {
       final isLaylat = (d == 21 || d == 23 || d == 25 || d == 27 || d == 29);
@@ -202,7 +181,109 @@ class IslamicOccasionsEngine {
       ));
     }
 
+    // ── Friday (weekly occasion evaluated after annual events) ───────────────
+    if (weekday == DateTime.friday) {
+      occasions.add(const IslamicOccasion(
+        titleAr: 'الجمعة المباركة',
+        messageAr:
+            'اقرأ سورة الكهف وأكثر من الصلاة على النبي ﷺ وسل الله من فضله في ساعة الإجابة',
+        hadithAr:
+            'قال رسول الله ﷺ: «إِنَّ فِي الْجُمُعَةِ لَسَاعَةً لَا يُوَافِقُهَا عَبْدٌ مُسْلِمٌ يَسْأَلُ اللَّهَ شَيْئًا إِلَّا أَعْطَاهُ إِيَّاهُ» (متفق عليه)',
+        primaryDuaAr:
+            '«اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ، اللَّهُمَّ اغْفِرْ لَنَا فِي هَذِهِ السَّاعَةِ الْمُبَارَكَةِ، وَاشْرَحْ صُدُورَنَا وَيَسِّرْ أُمُورَنَا وَتَقَبَّلْ دُعَاءَنَا»',
+        duasAr: [
+          '«اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ»',
+          '«اللَّهُمَّ فِي يَوْمِ الْجُمُعَةِ عَافِ كُلَّ مَرِيضٍ، وَارْحَمْ كُلَّ مَيِّتٍ، وَفَرِّجْ هَمَّ كُلِّ مَهْمُومٍ، وَاجْعَلْ لَنَا مِنْ كُلِّ ضِيقٍ مَخْرَجًا»',
+          '«يَا رَبِّ لَا تَدَعْ لَنَا فِي هَذَا الْيَوْمِ الْمُبَارَكِ ذَنْبًا إِلَّا غَفَرْتَهُ، وَلَا هَمًّا إِلَّا فَرَّجْتَهُ، وَلَا دَيْنًا إِلَّا قَضَيْتَهُ»',
+          '«مَنْ قَرَأَ سُورَةَ الْكَهْفِ فِي يَوْمِ الْجُمُعَةِ أَضَاءَ لَهُ مِنَ النُّورِ مَا بَيْنَ الْجُمُعَتَيْنِ»',
+          '«اللَّهُمَّ احْفَظْ بِلَادَنَا الْجَزَائِرَ وَسَائِرَ بِلَادِ الْمُسْلِمِينَ مِنَ الْفِتَنِ وَسُوءِ الْمَحْيَا وَالْمَمَاتِ»',
+        ],
+        type: OccasionType.friday,
+      ));
+    }
+
     return occasions;
+  }
+
+  /// Returns an [IslamicOccasion] instance representing the specified [type].
+  static IslamicOccasion getOccasionForType(
+    OccasionType type, {
+    DateTime? date,
+    int hijriOffsetDays = 0,
+  }) {
+    final effectiveDate = date ?? getRepresentativeDate(type);
+    final list = getOccasions(effectiveDate, hijriOffsetDays: hijriOffsetDays);
+    return list.firstWhere(
+      (o) => o.type == type,
+      orElse: () => _createFallbackOccasion(type),
+    );
+  }
+
+  static IslamicOccasion _createFallbackOccasion(OccasionType type) {
+    switch (type) {
+      case OccasionType.ramadan:
+        return const IslamicOccasion(
+          titleAr: 'شهر رمضان المبارك',
+          messageAr: 'شهر الصيام والقرآن والرحمة والمغفرة والعتق من النيران',
+          hadithAr:
+              'قال رسول الله ﷺ: «مَنْ صَامَ رَمَضَانَ إِيمَانًا وَاحْتِسَابًا غُفِرَ لَهُ مَا تَقَدَّمَ مِنْ ذَنْبِهِ»',
+          primaryDuaAr:
+              '«اللَّهُمَّ لَكَ صُمْتُ، وَعَلَى رِزْقِكَ أَفْطَرْتُ، ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ»',
+          type: OccasionType.ramadan,
+        );
+      case OccasionType.eidFitr:
+        return const IslamicOccasion(
+          titleAr: 'عيد الفطر المبارك',
+          messageAr: 'عيد مبارك سعيد — تقبل الله منا ومنكم صالح الأعمال والطاعات',
+          hadithAr: '«تَقَبَّلَ اللهُ مِنَّا وَمِنْكُمُ الصِّيَامَ وَالْقِيَامَ وَصَالِحَ الْأَعْمَالِ»',
+          primaryDuaAr:
+              '«اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللهُ، اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، وَلِلَّهِ الْحَمْدُ»',
+          type: OccasionType.eidFitr,
+        );
+      case OccasionType.eidAdha:
+        return const IslamicOccasion(
+          titleAr: 'عيد الأضحى المبارك وأيام التشريق',
+          messageAr: 'أيام أكل وشرب وذكر لله تعالى — تقبل الله منا ومنكم الأضاحي والطاعات',
+          hadithAr: '«أَعْظَمُ الْأَيَّامِ عِنْدَ اللهِ تَبَارَكَ وَتَعَالَى يَوْمُ النَّحْرِ، ثُمَّ يَوْمُ الْقَرِّ»',
+          primaryDuaAr:
+              '«اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللهُ، اللهُ أَكْبَرُ، اللهُ أَكْبَرُ، وَلِلَّهِ الْحَمْدُ»',
+          type: OccasionType.eidAdha,
+        );
+      case OccasionType.arafah:
+        return const IslamicOccasion(
+          titleAr: 'يوم عرفة المبارك',
+          messageAr: 'يوم المغفرة والعتق من النيران — يُستحب صيامه والإكثار من الدعاء فيه',
+          primaryDuaAr:
+              '«لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ»',
+          type: OccasionType.arafah,
+        );
+      case OccasionType.friday:
+        return const IslamicOccasion(
+          titleAr: 'الجمعة المباركة',
+          messageAr: 'اقرأ سورة الكهف وأكثر من الصلاة على النبي ﷺ وسل الله من فضله في ساعة الإجابة',
+          primaryDuaAr:
+              '«اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ، اللَّهُمَّ اغْفِرْ لَنَا وَاشْرَحْ صُدُورَنَا وَتَقَبَّلْ دُعَاءَنَا»',
+          type: OccasionType.friday,
+        );
+      case OccasionType.ashura:
+        return const IslamicOccasion(
+          titleAr: 'يوم عاشوراء المبارك',
+          messageAr: 'يوم نجاة موسى عليه السلام — يُستحب صيامه وصيام يوم قبله أو بعده',
+          type: OccasionType.ashura,
+        );
+      case OccasionType.mawlid:
+        return const IslamicOccasion(
+          titleAr: 'ذكرى المولد النبوي الشريف',
+          messageAr: 'مولد الهدى والرحمة المهداة للعالمين ﷺ — أكثروا من الصلاة والسلام عليه',
+          type: OccasionType.mawlid,
+        );
+      case OccasionType.islamicNewYear:
+        return const IslamicOccasion(
+          titleAr: 'رأس السنة الهجرية',
+          messageAr: 'فاتح العام الهجري — نسأل الله أن يجعله عام أمن وبركة ونصر',
+          type: OccasionType.islamicNewYear,
+        );
+    }
   }
 
   /// Returns Imsak time (10 min before Fajr) during Ramadan.
@@ -218,34 +299,42 @@ class IslamicOccasionsEngine {
   }
 
   /// Calculates a representative Gregorian date that triggers the given [type] occasion.
-  /// Useful for testing, simulation, and preview modes.
+  /// Pre-configured with optimal daytime hours for realistic TV visual inspection.
   static DateTime getRepresentativeDate(OccasionType type) {
     final now = DateTime.now();
     switch (type) {
       case OccasionType.friday:
         final diff = (DateTime.friday - now.weekday) % 7;
-        return now.add(Duration(days: diff == 0 ? 0 : diff));
+        final d = now.add(Duration(days: diff == 0 ? 0 : diff));
+        return DateTime(d.year, d.month, d.day, 11, 30); // Friday morning before Dhuhr
 
       case OccasionType.ramadan:
-        return _findDateForHijri(9, 1);
+        final d = _findDateForHijri(9, 1);
+        return DateTime(d.year, d.month, d.day, 18, 15); // Fasting evening 15m before Iftar
 
       case OccasionType.eidFitr:
-        return _findDateForHijri(10, 1);
-
-      case OccasionType.arafah:
-        return _findDateForHijri(12, 9);
+        final d = _findDateForHijri(10, 1);
+        return DateTime(d.year, d.month, d.day, 6, 40); // Eid morning before Eid prayer
 
       case OccasionType.eidAdha:
-        return _findDateForHijri(12, 10);
+        final d = _findDateForHijri(12, 10);
+        return DateTime(d.year, d.month, d.day, 6, 40); // Eid morning before Eid prayer
+
+      case OccasionType.arafah:
+        final d = _findDateForHijri(12, 9);
+        return DateTime(d.year, d.month, d.day, 17, 30); // Arafah fasting afternoon
 
       case OccasionType.ashura:
-        return _findDateForHijri(1, 10);
+        final d = _findDateForHijri(1, 10);
+        return DateTime(d.year, d.month, d.day, 12, 0);
 
       case OccasionType.mawlid:
-        return _findDateForHijri(3, 12);
+        final d = _findDateForHijri(3, 12);
+        return DateTime(d.year, d.month, d.day, 12, 0);
 
       case OccasionType.islamicNewYear:
-        return _findDateForHijri(1, 1);
+        final d = _findDateForHijri(1, 1);
+        return DateTime(d.year, d.month, d.day, 10, 0);
     }
   }
 
