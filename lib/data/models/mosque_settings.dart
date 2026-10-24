@@ -6,6 +6,8 @@ import 'iqamah_delays.dart';
 @immutable
 class MosqueSettings {
   final int selectedWilayaCode;
+  final int? selectedCommuneCode;
+  final String? selectedCommuneName;
   final PrayerOffsets offsets;
   final IqamahDelays iqamahDelays;
   final int blackoutDurationMinutes;
@@ -19,6 +21,8 @@ class MosqueSettings {
 
   const MosqueSettings({
     this.selectedWilayaCode = 16,
+    this.selectedCommuneCode,
+    this.selectedCommuneName,
     this.offsets = const PrayerOffsets(),
     this.iqamahDelays = const IqamahDelays(),
     this.blackoutDurationMinutes = 20,
@@ -46,6 +50,9 @@ class MosqueSettings {
 
   MosqueSettings copyWith({
     int? selectedWilayaCode,
+    int? selectedCommuneCode,
+    String? selectedCommuneName,
+    bool clearCommune = false,
     PrayerOffsets? offsets,
     IqamahDelays? iqamahDelays,
     int? blackoutDurationMinutes,
@@ -59,6 +66,12 @@ class MosqueSettings {
   }) {
     return MosqueSettings(
       selectedWilayaCode: selectedWilayaCode ?? this.selectedWilayaCode,
+      selectedCommuneCode: clearCommune
+          ? null
+          : (selectedCommuneCode ?? this.selectedCommuneCode),
+      selectedCommuneName: clearCommune
+          ? null
+          : (selectedCommuneName ?? this.selectedCommuneName),
       offsets: offsets ?? this.offsets,
       iqamahDelays: iqamahDelays ?? this.iqamahDelays,
       blackoutDurationMinutes:
@@ -76,6 +89,8 @@ class MosqueSettings {
   Map<String, dynamic> toJson() {
     return {
       'selectedWilayaCode': selectedWilayaCode,
+      'selectedCommuneCode': selectedCommuneCode,
+      'selectedCommuneName': selectedCommuneName,
       'offsets': offsets.toJson(),
       'iqamahDelays': iqamahDelays.toJson(),
       'blackoutDurationMinutes': blackoutDurationMinutes,
@@ -93,6 +108,8 @@ class MosqueSettings {
     return MosqueSettings(
       selectedWilayaCode: ((json['selectedWilayaCode'] as num?)?.toInt() ?? 16)
           .clamp(1, 58),
+      selectedCommuneCode: (json['selectedCommuneCode'] as num?)?.toInt(),
+      selectedCommuneName: json['selectedCommuneName'] as String?,
       offsets: json['offsets'] != null
           ? PrayerOffsets.fromJson(json['offsets'] as Map<String, dynamic>)
           : const PrayerOffsets(),
@@ -125,6 +142,8 @@ class MosqueSettings {
       other is MosqueSettings &&
           runtimeType == other.runtimeType &&
           selectedWilayaCode == other.selectedWilayaCode &&
+          selectedCommuneCode == other.selectedCommuneCode &&
+          selectedCommuneName == other.selectedCommuneName &&
           offsets == other.offsets &&
           iqamahDelays == other.iqamahDelays &&
           blackoutDurationMinutes == other.blackoutDurationMinutes &&
@@ -139,6 +158,8 @@ class MosqueSettings {
   @override
   int get hashCode => Object.hash(
         selectedWilayaCode,
+        selectedCommuneCode,
+        selectedCommuneName,
         offsets,
         iqamahDelays,
         blackoutDurationMinutes,
@@ -153,5 +174,5 @@ class MosqueSettings {
 
   @override
   String toString() =>
-      'MosqueSettings(wilaya: $selectedWilayaCode, blackout: ${blackoutDurationMinutes}m, dim: $blackoutDimMode, hijriOffset: $hijriOffsetDays, mosque: "$mosqueName", pin: "$pinCode")';
+      'MosqueSettings(wilaya: $selectedWilayaCode, commune: $selectedCommuneCode ("$selectedCommuneName"), blackout: ${blackoutDurationMinutes}m, dim: $blackoutDimMode, hijriOffset: $hijriOffsetDays, mosque: "$mosqueName", pin: "$pinCode")';
 }

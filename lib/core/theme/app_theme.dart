@@ -365,6 +365,7 @@ class IslamicDivider extends StatelessWidget {
 }
 
 /// Responsive screen scaling helper for TV displays (720p HD Ready, 1080p Full HD, 4K Ultra HD).
+/// Calibrated for distant 10-15m mosque viewing readability without clipping.
 class ScreenScale {
   final double width;
   final double height;
@@ -376,8 +377,8 @@ class ScreenScale {
     return ScreenScale(width: size.width, height: size.height);
   }
 
-  /// Compact TV display (720p HD Ready, height < 800)
-  bool get isCompact => height < 800;
+  /// Compact TV display (720p HD Ready / dense viewports, height < 750)
+  bool get isCompact => height < 750;
 
   /// Large TV display (4K Ultra HD / QHD, width >= 2560 or height >= 1440)
   bool get is4k => width >= 2560 || height >= 1440;
@@ -385,14 +386,20 @@ class ScreenScale {
   /// Full HD display (1080p, standard TV baseline)
   bool get is1080p => !isCompact && !is4k;
 
-  /// Scaling factor relative to 1080p Full HD (1.0 = standard 1080p baseline).
+  /// Continuous aspect-preserving scaling factor relative to 1920x1080 design canvas.
+  /// Enforces a minimum legibility floor so distant prayer texts remain readable.
   double get factor {
+    final scaleW = width / 1920.0;
+    final scaleH = height / 1080.0;
+    final base = scaleW < scaleH ? scaleW : scaleH;
+
     if (is4k) {
-      return (height / 1080.0).clamp(1.4, 2.0);
+      return base.clamp(1.35, 2.2);
     } else if (isCompact) {
-      return (height / 1080.0).clamp(0.72, 0.85);
+      // In compact or scaled TV viewports, maintain a comfortable legibility floor
+      return base.clamp(0.84, 1.0);
     }
-    return 1.0;
+    return base.clamp(0.92, 1.15);
   }
 
   /// Proportionally scales a base dimension (defined for 1080p) with optional bounds.

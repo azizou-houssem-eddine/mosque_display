@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mosque_display/core/providers/display_provider.dart';
 import 'package:mosque_display/core/theme/app_theme.dart';
+import 'package:mosque_display/data/models/commune.dart';
 import 'package:mosque_display/data/models/prayer_offsets.dart';
 import 'package:mosque_display/data/models/prayer_schedule.dart';
 import 'package:mosque_display/data/models/wilaya.dart';
@@ -28,6 +29,7 @@ class _FakePrayerRepo implements IPrayerRepository {
   @override
   Future<PrayerSchedule> getPrayerTimes({
     required int wilayaCode,
+    Commune? commune,
     required DateTime date,
     PrayerOffsets offsets = const PrayerOffsets(),
   }) async {
@@ -40,6 +42,12 @@ class _FakePrayerRepo implements IPrayerRepository {
       isha: DateTime(date.year, date.month, date.day, 19, 45),
     ).applyOffsets(offsets);
   }
+
+  @override
+  Future<List<Commune>> getCommunesForWilaya(int wilayaCode) async => [];
+
+  @override
+  Future<Commune?> getCommuneByCode(int communeCode) async => null;
 }
 
 Widget _wrapWithProvider(

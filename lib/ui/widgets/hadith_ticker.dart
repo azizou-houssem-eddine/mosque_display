@@ -1,14 +1,16 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:marquee/marquee.dart';
 import '../../core/theme/app_theme.dart';
 
-/// Scrolling Hadith & Announcement ticker for the bottom of the mosque dashboard.
-/// Supports multiple cycling messages joined by an ornamental Islamic separator.
-class HadithTicker extends StatelessWidget {
+/// TV-Optimized Hadith & Announcement Carousel for the bottom of the mosque dashboard.
+/// Cycles through Quranic supplications, prophetic prayers, and mosque announcements
+/// using zero-overhead discrete fade transitions (0% CPU/GPU overhead when static).
+class HadithTicker extends StatefulWidget {
   final List<String> items;
   final double fontSize;
   final double height;
   final String fontKey;
+  final Duration itemDuration;
 
   /// Large collection of authentic Quranic supplications, prophetic prayers, and hadiths.
   static const List<String> defaultHadiths = [
@@ -54,117 +56,193 @@ class HadithTicker extends StatelessWidget {
     this.fontSize = 26,
     this.height = 52,
     this.fontKey = 'amiriQuran',
+    this.itemDuration = const Duration(seconds: 10),
   }) : items = items ??
             (text != null && text.trim().isNotEmpty
                 ? [text.trim(), ...defaultHadiths]
                 : defaultHadiths);
 
   @override
+  State<HadithTicker> createState() => _HadithTickerState();
+}
+
+class _HadithTickerState extends State<HadithTicker> {
+  int _currentIndex = 0;
+  Timer? _cycleTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  @override
+  void didUpdateWidget(HadithTicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.items != oldWidget.items || widget.itemDuration != oldWidget.itemDuration) {
+      _cycleTimer?.cancel();
+      _currentIndex = _currentIndex % (widget.items.isEmpty ? 1 : widget.items.length);
+      _startTimer();
+    }
+  }
+
+  void _startTimer() {
+    if (widget.items.length <= 1) return;
+    _cycleTimer = Timer.periodic(widget.itemDuration, (_) {
+      if (mounted) {
+        setState(() {
+          _currentIndex = (_currentIndex + 1) % widget.items.length;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _cycleTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final combinedText = items.join(separator);
+    if (widget.items.isEmpty) return SizedBox(height: widget.height);
 
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        color: AppTheme.emeraldDeep.withValues(alpha: 0.85),
-      ),
-      child: Stack(
-        children: [
-          // Top metallic gold divider
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 1.2,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0x00D4AF37),
-                    Color(0xFFF2C94C),
-                    Color(0xFFFFF176),
-                    Color(0xFFF2C94C),
-                    Color(0x00D4AF37),
+    final currentText = widget.items[_currentIndex % widget.items.length];
+
+    return RepaintBoundary(
+      child: Container(
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: AppTheme.emeraldDeep.withValues(alpha: 0.92),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Top metallic gold divider
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 1.2,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0x00D4AF37),
+                      Color(0xFFF2C94C),
+                      Color(0xFFFFF176),
+                      Color(0xFFF2C94C),
+                      Color(0x00D4AF37),
+                    ],
+                    stops: [0.0, 0.25, 0.5, 0.75, 1.0],
+                  ),
+                ),
+              ),
+            ),
+
+            // Animated Item Content (Zero GPU load while reading)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 48),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 600),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0.0, 0.15),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: Row(
+                  key: ValueKey<int>(_currentIndex),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '✦  ',
+                      style: TextStyle(
+                        color: AppTheme.goldDim,
+                        fontSize: 18,
+                      ),
+                    ),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.center,
+                        child: Text(
+                          currentText,
+                          style: AppTheme.getIslamicStyle(
+                            fontKey: widget.fontKey,
+                            fontSize: widget.fontSize,
+                            color: AppTheme.goldPrimary,
+                          ),
+                          textDirection: TextDirection.rtl,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      '  ✦',
+                      style: TextStyle(
+                        color: AppTheme.goldDim,
+                        fontSize: 18,
+                      ),
+                    ),
                   ],
-                  stops: [0.0, 0.25, 0.5, 0.75, 1.0],
                 ),
               ),
             ),
-          ),
 
-          // Central Marquee Content
-          Positioned.fill(
-            child: Marquee(
-              text: combinedText,
-              style: AppTheme.getIslamicStyle(
-                fontKey: fontKey,
-                fontSize: fontSize,
-                color: AppTheme.goldPrimary,
-                shadows: [
-                  Shadow(
-                    color: AppTheme.goldPrimary.withValues(alpha: 0.35),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              textDirection: TextDirection.rtl,
-              scrollAxis: Axis.horizontal,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              blankSpace: 120,
-              velocity: 55,
-              pauseAfterRound: const Duration(seconds: 1),
-              startPadding: 32,
-              accelerationDuration: const Duration(milliseconds: 500),
-              accelerationCurve: Curves.easeIn,
-              decelerationDuration: const Duration(milliseconds: 500),
-              decelerationCurve: Curves.easeOut,
-            ),
-          ),
-
-          // Left edge fade overlay
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: 48,
-            child: IgnorePointer(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      AppTheme.emeraldDeep,
-                      AppTheme.emeraldDeep.withValues(alpha: 0.0),
-                    ],
+            // Left edge fade overlay
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 32,
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        AppTheme.emeraldDeep,
+                        AppTheme.emeraldDeep.withValues(alpha: 0.0),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Right edge fade overlay
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: 48,
-            child: IgnorePointer(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerRight,
-                    end: Alignment.centerLeft,
-                    colors: [
-                      AppTheme.emeraldDeep,
-                      AppTheme.emeraldDeep.withValues(alpha: 0.0),
-                    ],
+            // Right edge fade overlay
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 32,
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerRight,
+                      end: Alignment.centerLeft,
+                      colors: [
+                        AppTheme.emeraldDeep,
+                        AppTheme.emeraldDeep.withValues(alpha: 0.0),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

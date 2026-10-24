@@ -1,0 +1,2774 @@
+[
+  {
+    "code": 101,
+    "wilayaCode": 1,
+    "nameAr": "أدرار",
+    "nameFr": "Adrar",
+    "latitude": 27.8743,
+    "longitude": -0.2939,
+    "minuteOffset": 0
+  },
+  {
+    "code": 102,
+    "wilayaCode": 1,
+    "nameAr": "تيميمون",
+    "nameFr": "Timimoun",
+    "latitude": 29.2639,
+    "longitude": 0.231,
+    "minuteOffset": -2
+  },
+  {
+    "code": 103,
+    "wilayaCode": 1,
+    "nameAr": "رقان",
+    "nameFr": "Reggane",
+    "latitude": 26.7189,
+    "longitude": 0.1714,
+    "minuteOffset": -2
+  },
+  {
+    "code": 104,
+    "wilayaCode": 1,
+    "nameAr": "زاوية كنتة",
+    "nameFr": "Zaouiet Kounta",
+    "latitude": 27.2189,
+    "longitude": -0.1989,
+    "minuteOffset": 0
+  },
+  {
+    "code": 105,
+    "wilayaCode": 1,
+    "nameAr": "أولف",
+    "nameFr": "Aoulef",
+    "latitude": 26.9667,
+    "longitude": 1.0833,
+    "minuteOffset": -6
+  },
+  {
+    "code": 106,
+    "wilayaCode": 1,
+    "nameAr": "فنوغيل",
+    "nameFr": "Fenoughil",
+    "latitude": 27.65,
+    "longitude": -0.3167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 107,
+    "wilayaCode": 1,
+    "nameAr": "تسابيت",
+    "nameFr": "Tsabit",
+    "latitude": 28.3833,
+    "longitude": -0.2667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 201,
+    "wilayaCode": 2,
+    "nameAr": "الشلف",
+    "nameFr": "Chlef",
+    "latitude": 36.1647,
+    "longitude": 1.3317,
+    "minuteOffset": 0
+  },
+  {
+    "code": 202,
+    "wilayaCode": 2,
+    "nameAr": "تنس",
+    "nameFr": "Ténès",
+    "latitude": 36.5111,
+    "longitude": 1.3061,
+    "minuteOffset": 0
+  },
+  {
+    "code": 203,
+    "wilayaCode": 2,
+    "nameAr": "بوقادير",
+    "nameFr": "Boukadir",
+    "latitude": 36.0667,
+    "longitude": 1.1333,
+    "minuteOffset": 1
+  },
+  {
+    "code": 204,
+    "wilayaCode": 2,
+    "nameAr": "وادي الفضة",
+    "nameFr": "Oued Fodda",
+    "latitude": 36.1833,
+    "longitude": 1.5333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 205,
+    "wilayaCode": 2,
+    "nameAr": "عين مران",
+    "nameFr": "Ain Merane",
+    "latitude": 36.1628,
+    "longitude": 0.9678,
+    "minuteOffset": 1
+  },
+  {
+    "code": 206,
+    "wilayaCode": 2,
+    "nameAr": "أولاد فارس",
+    "nameFr": "Ouled Fares",
+    "latitude": 36.2333,
+    "longitude": 1.25,
+    "minuteOffset": 0
+  },
+  {
+    "code": 207,
+    "wilayaCode": 2,
+    "nameAr": "بني حواء",
+    "nameFr": "Beni Haoua",
+    "latitude": 36.5333,
+    "longitude": 1.5667,
+    "minuteOffset": -1
+  },
+  {
+    "code": 301,
+    "wilayaCode": 3,
+    "nameAr": "الأغواط",
+    "nameFr": "Laghouat",
+    "latitude": 33.8,
+    "longitude": 2.8651,
+    "minuteOffset": 0
+  },
+  {
+    "code": 302,
+    "wilayaCode": 3,
+    "nameAr": "أفلو",
+    "nameFr": "Aflou",
+    "latitude": 34.1167,
+    "longitude": 2.1,
+    "minuteOffset": 3
+  },
+  {
+    "code": 303,
+    "wilayaCode": 3,
+    "nameAr": "قصر الحيران",
+    "nameFr": "Ksar El Hirane",
+    "latitude": 33.7833,
+    "longitude": 3.1333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 304,
+    "wilayaCode": 3,
+    "nameAr": "عين ماضي",
+    "nameFr": "Ain Madhi",
+    "latitude": 33.7833,
+    "longitude": 2.4833,
+    "minuteOffset": 2
+  },
+  {
+    "code": 305,
+    "wilayaCode": 3,
+    "nameAr": "حاسي الرمل",
+    "nameFr": "Hassi R'mel",
+    "latitude": 32.9333,
+    "longitude": 3.2667,
+    "minuteOffset": -2
+  },
+  {
+    "code": 306,
+    "wilayaCode": 3,
+    "nameAr": "بريدة",
+    "nameFr": "Brida",
+    "latitude": 34.0833,
+    "longitude": 1.8333,
+    "minuteOffset": 4
+  },
+  {
+    "code": 401,
+    "wilayaCode": 4,
+    "nameAr": "أم البواقي",
+    "nameFr": "Oum El Bouaghi",
+    "latitude": 35.8753,
+    "longitude": 7.1135,
+    "minuteOffset": 0
+  },
+  {
+    "code": 402,
+    "wilayaCode": 4,
+    "nameAr": "عين البيضاء",
+    "nameFr": "Ain Beida",
+    "latitude": 35.7964,
+    "longitude": 7.3928,
+    "minuteOffset": -1
+  },
+  {
+    "code": 403,
+    "wilayaCode": 4,
+    "nameAr": "عين مليلة",
+    "nameFr": "Ain M'lila",
+    "latitude": 36.0333,
+    "longitude": 6.5833,
+    "minuteOffset": 2
+  },
+  {
+    "code": 404,
+    "wilayaCode": 4,
+    "nameAr": "مسكيانة",
+    "nameFr": "Meskiana",
+    "latitude": 35.6333,
+    "longitude": 7.6667,
+    "minuteOffset": -2
+  },
+  {
+    "code": 405,
+    "wilayaCode": 4,
+    "nameAr": "عين فكرون",
+    "nameFr": "Ain Fakroun",
+    "latitude": 35.9667,
+    "longitude": 6.8667,
+    "minuteOffset": 1
+  },
+  {
+    "code": 406,
+    "wilayaCode": 4,
+    "nameAr": "سيقوس",
+    "nameFr": "Sigus",
+    "latitude": 36.1167,
+    "longitude": 6.8333,
+    "minuteOffset": 1
+  },
+  {
+    "code": 501,
+    "wilayaCode": 5,
+    "nameAr": "باتنة",
+    "nameFr": "Batna",
+    "latitude": 35.556,
+    "longitude": 6.1741,
+    "minuteOffset": 0
+  },
+  {
+    "code": 502,
+    "wilayaCode": 5,
+    "nameAr": "بريكة",
+    "nameFr": "Barika",
+    "latitude": 35.3833,
+    "longitude": 5.3667,
+    "minuteOffset": 3
+  },
+  {
+    "code": 503,
+    "wilayaCode": 5,
+    "nameAr": "عين التوتة",
+    "nameFr": "Ain Touta",
+    "latitude": 35.3833,
+    "longitude": 5.9,
+    "minuteOffset": 1
+  },
+  {
+    "code": 504,
+    "wilayaCode": 5,
+    "nameAr": "مروانة",
+    "nameFr": "Merouana",
+    "latitude": 35.6167,
+    "longitude": 5.9167,
+    "minuteOffset": 1
+  },
+  {
+    "code": 505,
+    "wilayaCode": 5,
+    "nameAr": "تازولت",
+    "nameFr": "Tazoult",
+    "latitude": 35.4833,
+    "longitude": 6.2667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 506,
+    "wilayaCode": 5,
+    "nameAr": "آريس",
+    "nameFr": "Arris",
+    "latitude": 35.1833,
+    "longitude": 6.5,
+    "minuteOffset": -1
+  },
+  {
+    "code": 507,
+    "wilayaCode": 5,
+    "nameAr": "نقاوس",
+    "nameFr": "N'Gaous",
+    "latitude": 35.5667,
+    "longitude": 5.6167,
+    "minuteOffset": 2
+  },
+  {
+    "code": 508,
+    "wilayaCode": 5,
+    "nameAr": "تيمقاد",
+    "nameFr": "Timgad",
+    "latitude": 35.4833,
+    "longitude": 6.4667,
+    "minuteOffset": -1
+  },
+  {
+    "code": 601,
+    "wilayaCode": 6,
+    "nameAr": "بجاية",
+    "nameFr": "Béjaïa",
+    "latitude": 36.7511,
+    "longitude": 5.0567,
+    "minuteOffset": 0
+  },
+  {
+    "code": 602,
+    "wilayaCode": 6,
+    "nameAr": "أقبو",
+    "nameFr": "Akbou",
+    "latitude": 36.45,
+    "longitude": 4.5333,
+    "minuteOffset": 2
+  },
+  {
+    "code": 603,
+    "wilayaCode": 6,
+    "nameAr": "سيدي عيش",
+    "nameFr": "Sidi Aich",
+    "latitude": 36.6167,
+    "longitude": 4.6833,
+    "minuteOffset": 2
+  },
+  {
+    "code": 604,
+    "wilayaCode": 6,
+    "nameAr": "أميزور",
+    "nameFr": "Amizour",
+    "latitude": 36.6333,
+    "longitude": 4.9,
+    "minuteOffset": 1
+  },
+  {
+    "code": 605,
+    "wilayaCode": 6,
+    "nameAr": "خراطة",
+    "nameFr": "Kherrata",
+    "latitude": 36.4833,
+    "longitude": 5.2833,
+    "minuteOffset": -1
+  },
+  {
+    "code": 606,
+    "wilayaCode": 6,
+    "nameAr": "تيشي",
+    "nameFr": "Tichy",
+    "latitude": 36.6667,
+    "longitude": 5.1667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 607,
+    "wilayaCode": 6,
+    "nameAr": "سوق الاثنين",
+    "nameFr": "Souk El Tenine",
+    "latitude": 36.6167,
+    "longitude": 5.3333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 701,
+    "wilayaCode": 7,
+    "nameAr": "بسكرة",
+    "nameFr": "Biskra",
+    "latitude": 34.8516,
+    "longitude": 5.7281,
+    "minuteOffset": 0
+  },
+  {
+    "code": 702,
+    "wilayaCode": 7,
+    "nameAr": "طولقة",
+    "nameFr": "Tolga",
+    "latitude": 34.7167,
+    "longitude": 5.3833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 703,
+    "wilayaCode": 7,
+    "nameAr": "سيدي عقبة",
+    "nameFr": "Sidi Okba",
+    "latitude": 34.75,
+    "longitude": 5.9,
+    "minuteOffset": -1
+  },
+  {
+    "code": 704,
+    "wilayaCode": 7,
+    "nameAr": "زريبة الوادي",
+    "nameFr": "Zeribet El Oued",
+    "latitude": 34.6833,
+    "longitude": 6.5167,
+    "minuteOffset": -3
+  },
+  {
+    "code": 705,
+    "wilayaCode": 7,
+    "nameAr": "القنطرة",
+    "nameFr": "El Kantara",
+    "latitude": 35.2167,
+    "longitude": 5.7,
+    "minuteOffset": 0
+  },
+  {
+    "code": 706,
+    "wilayaCode": 7,
+    "nameAr": "فوغالة",
+    "nameFr": "Foughala",
+    "latitude": 34.7167,
+    "longitude": 5.3167,
+    "minuteOffset": 2
+  },
+  {
+    "code": 707,
+    "wilayaCode": 7,
+    "nameAr": "مشونش",
+    "nameFr": "M'Chouneche",
+    "latitude": 34.95,
+    "longitude": 6.0,
+    "minuteOffset": -1
+  },
+  {
+    "code": 708,
+    "wilayaCode": 7,
+    "nameAr": "لوطاية",
+    "nameFr": "El Outaya",
+    "latitude": 34.9333,
+    "longitude": 5.5833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 801,
+    "wilayaCode": 8,
+    "nameAr": "بشار",
+    "nameFr": "Béchar",
+    "latitude": 31.6167,
+    "longitude": -2.2167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 802,
+    "wilayaCode": 8,
+    "nameAr": "القنادسة",
+    "nameFr": "Kenadsa",
+    "latitude": 31.5667,
+    "longitude": -2.4167,
+    "minuteOffset": 1
+  },
+  {
+    "code": 803,
+    "wilayaCode": 8,
+    "nameAr": "تاغيت",
+    "nameFr": "Taghit",
+    "latitude": 30.9167,
+    "longitude": -2.0333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 804,
+    "wilayaCode": 8,
+    "nameAr": "العبادلة",
+    "nameFr": "Abadla",
+    "latitude": 31.0167,
+    "longitude": -2.7333,
+    "minuteOffset": 2
+  },
+  {
+    "code": 805,
+    "wilayaCode": 8,
+    "nameAr": "بني ونيف",
+    "nameFr": "Beni Ounif",
+    "latitude": 32.05,
+    "longitude": -1.25,
+    "minuteOffset": -4
+  },
+  {
+    "code": 901,
+    "wilayaCode": 9,
+    "nameAr": "البليدة",
+    "nameFr": "Blida",
+    "latitude": 36.4701,
+    "longitude": 2.8288,
+    "minuteOffset": 0
+  },
+  {
+    "code": 902,
+    "wilayaCode": 9,
+    "nameAr": "بوفاريك",
+    "nameFr": "Boufarik",
+    "latitude": 36.5667,
+    "longitude": 2.9167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 903,
+    "wilayaCode": 9,
+    "nameAr": "بوقرة",
+    "nameFr": "Bougara",
+    "latitude": 36.5333,
+    "longitude": 3.0833,
+    "minuteOffset": -1
+  },
+  {
+    "code": 904,
+    "wilayaCode": 9,
+    "nameAr": "أولاد يعيش",
+    "nameFr": "Ouled Yaich",
+    "latitude": 36.5,
+    "longitude": 2.8667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 905,
+    "wilayaCode": 9,
+    "nameAr": "موزاية",
+    "nameFr": "Mouzaia",
+    "latitude": 36.4667,
+    "longitude": 2.6833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 906,
+    "wilayaCode": 9,
+    "nameAr": "العفرون",
+    "nameFr": "El Affroun",
+    "latitude": 36.4667,
+    "longitude": 2.6333,
+    "minuteOffset": 1
+  },
+  {
+    "code": 907,
+    "wilayaCode": 9,
+    "nameAr": "الأربعاء",
+    "nameFr": "Larbaa",
+    "latitude": 36.5667,
+    "longitude": 3.15,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1001,
+    "wilayaCode": 10,
+    "nameAr": "البويرة",
+    "nameFr": "Bouira",
+    "latitude": 36.3749,
+    "longitude": 3.902,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1002,
+    "wilayaCode": 10,
+    "nameAr": "الأخضرية",
+    "nameFr": "Lakhdaria",
+    "latitude": 36.5667,
+    "longitude": 3.5833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1003,
+    "wilayaCode": 10,
+    "nameAr": "سور الغزلان",
+    "nameFr": "Sour El Ghozlane",
+    "latitude": 36.15,
+    "longitude": 3.7,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1004,
+    "wilayaCode": 10,
+    "nameAr": "عين بسام",
+    "nameFr": "Ain Bessem",
+    "latitude": 36.3,
+    "longitude": 3.6667,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1005,
+    "wilayaCode": 10,
+    "nameAr": "مشدالة",
+    "nameFr": "M'Chedallah",
+    "latitude": 36.3667,
+    "longitude": 4.2833,
+    "minuteOffset": -2
+  },
+  {
+    "code": 1101,
+    "wilayaCode": 11,
+    "nameAr": "تمنراست",
+    "nameFr": "Tamanrasset",
+    "latitude": 22.785,
+    "longitude": 5.5228,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1102,
+    "wilayaCode": 11,
+    "nameAr": "عين أمقل",
+    "nameFr": "Ain Amguel",
+    "latitude": 23.6833,
+    "longitude": 5.1667,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1103,
+    "wilayaCode": 11,
+    "nameAr": "أبلسة",
+    "nameFr": "Abalessa",
+    "latitude": 22.9,
+    "longitude": 4.85,
+    "minuteOffset": 3
+  },
+  {
+    "code": 1104,
+    "wilayaCode": 11,
+    "nameAr": "تازروك",
+    "nameFr": "Tazrouk",
+    "latitude": 23.4333,
+    "longitude": 6.2667,
+    "minuteOffset": -3
+  },
+  {
+    "code": 1105,
+    "wilayaCode": 11,
+    "nameAr": "إيدلس",
+    "nameFr": "Idles",
+    "latitude": 23.8167,
+    "longitude": 5.9333,
+    "minuteOffset": -2
+  },
+  {
+    "code": 1201,
+    "wilayaCode": 12,
+    "nameAr": "تبسة",
+    "nameFr": "Tébessa",
+    "latitude": 35.4042,
+    "longitude": 8.1242,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1202,
+    "wilayaCode": 12,
+    "nameAr": "بئر العاتر",
+    "nameFr": "Bir El Ater",
+    "latitude": 34.75,
+    "longitude": 8.0667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1203,
+    "wilayaCode": 12,
+    "nameAr": "الشريعة",
+    "nameFr": "Cheria",
+    "latitude": 35.2667,
+    "longitude": 7.75,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1204,
+    "wilayaCode": 12,
+    "nameAr": "الونزة",
+    "nameFr": "Ouenza",
+    "latitude": 35.9667,
+    "longitude": 8.35,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1205,
+    "wilayaCode": 12,
+    "nameAr": "العوينات",
+    "nameFr": "El Aouinet",
+    "latitude": 35.8667,
+    "longitude": 7.9833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1301,
+    "wilayaCode": 13,
+    "nameAr": "تلمسان",
+    "nameFr": "Tlemcen",
+    "latitude": 34.8783,
+    "longitude": -1.315,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1302,
+    "wilayaCode": 13,
+    "nameAr": "مغنية",
+    "nameFr": "Maghnia",
+    "latitude": 34.85,
+    "longitude": -1.7333,
+    "minuteOffset": 2
+  },
+  {
+    "code": 1303,
+    "wilayaCode": 13,
+    "nameAr": "منصورة",
+    "nameFr": "Mansourah",
+    "latitude": 34.8667,
+    "longitude": -1.3333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1304,
+    "wilayaCode": 13,
+    "nameAr": "الغزوات",
+    "nameFr": "Ghazaouet",
+    "latitude": 35.1,
+    "longitude": -1.8667,
+    "minuteOffset": 2
+  },
+  {
+    "code": 1305,
+    "wilayaCode": 13,
+    "nameAr": "الرمشي",
+    "nameFr": "Remchi",
+    "latitude": 35.0667,
+    "longitude": -1.4333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1306,
+    "wilayaCode": 13,
+    "nameAr": "سبدو",
+    "nameFr": "Sebdou",
+    "latitude": 34.6333,
+    "longitude": -1.3333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1307,
+    "wilayaCode": 13,
+    "nameAr": "ندرومة",
+    "nameFr": "Nedroma",
+    "latitude": 35.0167,
+    "longitude": -1.75,
+    "minuteOffset": 2
+  },
+  {
+    "code": 1308,
+    "wilayaCode": 13,
+    "nameAr": "شتوان",
+    "nameFr": "Chetouane",
+    "latitude": 34.9167,
+    "longitude": -1.2833,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1401,
+    "wilayaCode": 14,
+    "nameAr": "تيارت",
+    "nameFr": "Tiaret",
+    "latitude": 35.371,
+    "longitude": 1.317,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1402,
+    "wilayaCode": 14,
+    "nameAr": "فرندة",
+    "nameFr": "Frenda",
+    "latitude": 35.0667,
+    "longitude": 1.05,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1403,
+    "wilayaCode": 14,
+    "nameAr": "السوقر",
+    "nameFr": "Sougueur",
+    "latitude": 35.1833,
+    "longitude": 1.5,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1404,
+    "wilayaCode": 14,
+    "nameAr": "قصر الشلالة",
+    "nameFr": "Ksar Chellala",
+    "latitude": 35.1667,
+    "longitude": 2.3167,
+    "minuteOffset": -4
+  },
+  {
+    "code": 1405,
+    "wilayaCode": 14,
+    "nameAr": "مهدية",
+    "nameFr": "Mahdia",
+    "latitude": 35.5,
+    "longitude": 1.75,
+    "minuteOffset": -2
+  },
+  {
+    "code": 1501,
+    "wilayaCode": 15,
+    "nameAr": "تيزي وزو",
+    "nameFr": "Tizi Ouzou",
+    "latitude": 36.7118,
+    "longitude": 4.0459,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1502,
+    "wilayaCode": 15,
+    "nameAr": "ذراع الميزان",
+    "nameFr": "Draa El Mizan",
+    "latitude": 36.55,
+    "longitude": 3.8333,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1503,
+    "wilayaCode": 15,
+    "nameAr": "عزازقة",
+    "nameFr": "Azazga",
+    "latitude": 36.75,
+    "longitude": 4.3667,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1504,
+    "wilayaCode": 15,
+    "nameAr": "أزفون",
+    "nameFr": "Azeffoun",
+    "latitude": 36.9,
+    "longitude": 4.4167,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1505,
+    "wilayaCode": 15,
+    "nameAr": "بوغني",
+    "nameFr": "Boghni",
+    "latitude": 36.55,
+    "longitude": 3.95,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1506,
+    "wilayaCode": 15,
+    "nameAr": "عين الحمام",
+    "nameFr": "Ain El Hammam",
+    "latitude": 36.5667,
+    "longitude": 4.3,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1507,
+    "wilayaCode": 15,
+    "nameAr": "الأربعاء نايث إيراثن",
+    "nameFr": "Larbaa Nath Irathen",
+    "latitude": 36.6333,
+    "longitude": 4.2,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1601,
+    "wilayaCode": 16,
+    "nameAr": "الجزائر الوسطى",
+    "nameFr": "Alger Centre",
+    "latitude": 36.7538,
+    "longitude": 3.0588,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1602,
+    "wilayaCode": 16,
+    "nameAr": "باب الواد",
+    "nameFr": "Bab El Oued",
+    "latitude": 36.79,
+    "longitude": 3.05,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1603,
+    "wilayaCode": 16,
+    "nameAr": "القصبة",
+    "nameFr": "Casbah",
+    "latitude": 36.785,
+    "longitude": 3.06,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1604,
+    "wilayaCode": 16,
+    "nameAr": "الحراش",
+    "nameFr": "El Harrach",
+    "latitude": 36.72,
+    "longitude": 3.13,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1605,
+    "wilayaCode": 16,
+    "nameAr": "الرويبة",
+    "nameFr": "Rouiba",
+    "latitude": 36.7333,
+    "longitude": 3.2833,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1606,
+    "wilayaCode": 16,
+    "nameAr": "زرالدة",
+    "nameFr": "Zeralda",
+    "latitude": 36.7167,
+    "longitude": 2.85,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1607,
+    "wilayaCode": 16,
+    "nameAr": "الشراقة",
+    "nameFr": "Cheraga",
+    "latitude": 36.7667,
+    "longitude": 2.95,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1608,
+    "wilayaCode": 16,
+    "nameAr": "الدار البيضاء",
+    "nameFr": "Dar El Beida",
+    "latitude": 36.7133,
+    "longitude": 3.2125,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1609,
+    "wilayaCode": 16,
+    "nameAr": "بئر مراد رايس",
+    "nameFr": "Bir Mourad Rais",
+    "latitude": 36.7333,
+    "longitude": 3.05,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1610,
+    "wilayaCode": 16,
+    "nameAr": "بئر توتة",
+    "nameFr": "Birtouta",
+    "latitude": 36.65,
+    "longitude": 3.0,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1611,
+    "wilayaCode": 16,
+    "nameAr": "حسين داي",
+    "nameFr": "Hussein Dey",
+    "latitude": 36.74,
+    "longitude": 3.09,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1612,
+    "wilayaCode": 16,
+    "nameAr": "براقي",
+    "nameFr": "Baraki",
+    "latitude": 36.6667,
+    "longitude": 3.1,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1613,
+    "wilayaCode": 16,
+    "nameAr": "بوزريعة",
+    "nameFr": "Bouzareah",
+    "latitude": 36.7833,
+    "longitude": 3.0167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1614,
+    "wilayaCode": 16,
+    "nameAr": "درقانة / برج الكيفان",
+    "nameFr": "Bordj El Kiffan",
+    "latitude": 36.75,
+    "longitude": 3.1833,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1701,
+    "wilayaCode": 17,
+    "nameAr": "الجلفة",
+    "nameFr": "Djelfa",
+    "latitude": 34.6728,
+    "longitude": 3.263,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1702,
+    "wilayaCode": 17,
+    "nameAr": "عين وسارة",
+    "nameFr": "Ain Oussera",
+    "latitude": 35.45,
+    "longitude": 2.9,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1703,
+    "wilayaCode": 17,
+    "nameAr": "حاسي بحبح",
+    "nameFr": "Hassi Bahbah",
+    "latitude": 35.0833,
+    "longitude": 3.0333,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1704,
+    "wilayaCode": 17,
+    "nameAr": "مسعد",
+    "nameFr": "Messaad",
+    "latitude": 34.1667,
+    "longitude": 3.5,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1705,
+    "wilayaCode": 17,
+    "nameAr": "الإدريسية",
+    "nameFr": "El Idrissia",
+    "latitude": 34.45,
+    "longitude": 2.5333,
+    "minuteOffset": 3
+  },
+  {
+    "code": 1706,
+    "wilayaCode": 17,
+    "nameAr": "دار الشيوخ",
+    "nameFr": "Dar Chioukh",
+    "latitude": 34.8833,
+    "longitude": 3.4833,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1801,
+    "wilayaCode": 18,
+    "nameAr": "جيجل",
+    "nameFr": "Jijel",
+    "latitude": 36.8206,
+    "longitude": 5.7667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1802,
+    "wilayaCode": 18,
+    "nameAr": "الطاهير",
+    "nameFr": "Taher",
+    "latitude": 36.7667,
+    "longitude": 5.9,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1803,
+    "wilayaCode": 18,
+    "nameAr": "الميلية",
+    "nameFr": "El Milia",
+    "latitude": 36.75,
+    "longitude": 6.2667,
+    "minuteOffset": -2
+  },
+  {
+    "code": 1804,
+    "wilayaCode": 18,
+    "nameAr": "العوانة",
+    "nameFr": "El Aouana",
+    "latitude": 36.7667,
+    "longitude": 5.5667,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1805,
+    "wilayaCode": 18,
+    "nameAr": "زيامة منصورية",
+    "nameFr": "Ziama Mansouriah",
+    "latitude": 36.6833,
+    "longitude": 5.4833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1901,
+    "wilayaCode": 19,
+    "nameAr": "سطيف",
+    "nameFr": "Sétif",
+    "latitude": 36.1911,
+    "longitude": 5.4137,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1902,
+    "wilayaCode": 19,
+    "nameAr": "العلمة",
+    "nameFr": "El Eulma",
+    "latitude": 36.15,
+    "longitude": 5.6833,
+    "minuteOffset": -1
+  },
+  {
+    "code": 1903,
+    "wilayaCode": 19,
+    "nameAr": "عين ولمان",
+    "nameFr": "Ain Oulmene",
+    "latitude": 35.9167,
+    "longitude": 5.3,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1904,
+    "wilayaCode": 19,
+    "nameAr": "عين أرنات",
+    "nameFr": "Ain Arnat",
+    "latitude": 36.1833,
+    "longitude": 5.3167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1905,
+    "wilayaCode": 19,
+    "nameAr": "بوقاعة",
+    "nameFr": "Bougaa",
+    "latitude": 36.3333,
+    "longitude": 5.0833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 1906,
+    "wilayaCode": 19,
+    "nameAr": "عين الكبيرة",
+    "nameFr": "Ain El Kebira",
+    "latitude": 36.3667,
+    "longitude": 5.5,
+    "minuteOffset": 0
+  },
+  {
+    "code": 1907,
+    "wilayaCode": 19,
+    "nameAr": "جميلة",
+    "nameFr": "Djemila",
+    "latitude": 36.3167,
+    "longitude": 5.7333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 2001,
+    "wilayaCode": 20,
+    "nameAr": "سعيدة",
+    "nameFr": "Saïda",
+    "latitude": 34.8303,
+    "longitude": 0.1517,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2002,
+    "wilayaCode": 20,
+    "nameAr": "يوب",
+    "nameFr": "Youb",
+    "latitude": 34.9833,
+    "longitude": 0.05,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2003,
+    "wilayaCode": 20,
+    "nameAr": "عين الحجر",
+    "nameFr": "Ain El Hadjar",
+    "latitude": 34.75,
+    "longitude": 0.15,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2004,
+    "wilayaCode": 20,
+    "nameAr": "الحساسنة",
+    "nameFr": "Hassasna",
+    "latitude": 34.8167,
+    "longitude": 0.3333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 2101,
+    "wilayaCode": 21,
+    "nameAr": "سكيكدة",
+    "nameFr": "Skikda",
+    "latitude": 36.8762,
+    "longitude": 6.9092,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2102,
+    "wilayaCode": 21,
+    "nameAr": "القل",
+    "nameFr": "Collo",
+    "latitude": 37.0167,
+    "longitude": 6.5667,
+    "minuteOffset": 1
+  },
+  {
+    "code": 2103,
+    "wilayaCode": 21,
+    "nameAr": "الحروش",
+    "nameFr": "El Harrouch",
+    "latitude": 36.7333,
+    "longitude": 6.8333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2104,
+    "wilayaCode": 21,
+    "nameAr": "عزابة",
+    "nameFr": "Azzaba",
+    "latitude": 36.75,
+    "longitude": 7.1,
+    "minuteOffset": -1
+  },
+  {
+    "code": 2105,
+    "wilayaCode": 21,
+    "nameAr": "تمالوس",
+    "nameFr": "Tamalous",
+    "latitude": 36.8333,
+    "longitude": 6.6333,
+    "minuteOffset": 1
+  },
+  {
+    "code": 2201,
+    "wilayaCode": 22,
+    "nameAr": "سيدي بلعباس",
+    "nameFr": "Sidi Bel Abbès",
+    "latitude": 35.1899,
+    "longitude": -0.6308,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2202,
+    "wilayaCode": 22,
+    "nameAr": "سفيزف",
+    "nameFr": "Sfisef",
+    "latitude": 35.2333,
+    "longitude": -0.2333,
+    "minuteOffset": -2
+  },
+  {
+    "code": 2203,
+    "wilayaCode": 22,
+    "nameAr": "تلاغ",
+    "nameFr": "Telagh",
+    "latitude": 34.7833,
+    "longitude": -0.5667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2204,
+    "wilayaCode": 22,
+    "nameAr": "بن باديس",
+    "nameFr": "Ben Badis",
+    "latitude": 35.15,
+    "longitude": -0.9167,
+    "minuteOffset": 1
+  },
+  {
+    "code": 2205,
+    "wilayaCode": 22,
+    "nameAr": "عين البرد",
+    "nameFr": "Ain El Berd",
+    "latitude": 35.3667,
+    "longitude": -0.5167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2301,
+    "wilayaCode": 23,
+    "nameAr": "عنابة",
+    "nameFr": "Annaba",
+    "latitude": 36.9,
+    "longitude": 7.7667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2302,
+    "wilayaCode": 23,
+    "nameAr": "البوني",
+    "nameFr": "El Bouni",
+    "latitude": 36.8667,
+    "longitude": 7.7333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2303,
+    "wilayaCode": 23,
+    "nameAr": "الحجار",
+    "nameFr": "El Hadjar",
+    "latitude": 36.8,
+    "longitude": 7.75,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2304,
+    "wilayaCode": 23,
+    "nameAr": "برحال",
+    "nameFr": "Berrahal",
+    "latitude": 36.8333,
+    "longitude": 7.45,
+    "minuteOffset": 1
+  },
+  {
+    "code": 2305,
+    "wilayaCode": 23,
+    "nameAr": "سيدي عمار",
+    "nameFr": "Sidi Amar",
+    "latitude": 36.8167,
+    "longitude": 7.7,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2401,
+    "wilayaCode": 24,
+    "nameAr": "قالمة",
+    "nameFr": "Guelma",
+    "latitude": 36.4621,
+    "longitude": 7.4261,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2402,
+    "wilayaCode": 24,
+    "nameAr": "وادي الزناتي",
+    "nameFr": "Oued Zenati",
+    "latitude": 36.3167,
+    "longitude": 7.1667,
+    "minuteOffset": 1
+  },
+  {
+    "code": 2403,
+    "wilayaCode": 24,
+    "nameAr": "بوشقوف",
+    "nameFr": "Bouchegouf",
+    "latitude": 36.4667,
+    "longitude": 7.7167,
+    "minuteOffset": -1
+  },
+  {
+    "code": 2404,
+    "wilayaCode": 24,
+    "nameAr": "حمام دباغ",
+    "nameFr": "Hammam Debagh",
+    "latitude": 36.45,
+    "longitude": 7.2667,
+    "minuteOffset": 1
+  },
+  {
+    "code": 2405,
+    "wilayaCode": 24,
+    "nameAr": "هيليوبوليس",
+    "nameFr": "Héliopolis",
+    "latitude": 36.5,
+    "longitude": 7.4333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2501,
+    "wilayaCode": 25,
+    "nameAr": "قسنطينة",
+    "nameFr": "Constantine",
+    "latitude": 36.365,
+    "longitude": 6.6147,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2502,
+    "wilayaCode": 25,
+    "nameAr": "الخروب",
+    "nameFr": "El Khroub",
+    "latitude": 36.2667,
+    "longitude": 6.7,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2503,
+    "wilayaCode": 25,
+    "nameAr": "علي منجلي",
+    "nameFr": "Ali Mendjeli",
+    "latitude": 36.24,
+    "longitude": 6.57,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2504,
+    "wilayaCode": 25,
+    "nameAr": "عين سمارة",
+    "nameFr": "Ain Smara",
+    "latitude": 36.2667,
+    "longitude": 6.5,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2505,
+    "wilayaCode": 25,
+    "nameAr": "حامة بوزيان",
+    "nameFr": "Hamma Bouziane",
+    "latitude": 36.4167,
+    "longitude": 6.6,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2506,
+    "wilayaCode": 25,
+    "nameAr": "ديدوش مراد",
+    "nameFr": "Didouche Mourad",
+    "latitude": 36.45,
+    "longitude": 6.6333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2507,
+    "wilayaCode": 25,
+    "nameAr": "زيغود يوسف",
+    "nameFr": "Zighoud Youcef",
+    "latitude": 36.5333,
+    "longitude": 6.7167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2601,
+    "wilayaCode": 26,
+    "nameAr": "المدية",
+    "nameFr": "Médéa",
+    "latitude": 36.2642,
+    "longitude": 2.7539,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2602,
+    "wilayaCode": 26,
+    "nameAr": "البرواقية",
+    "nameFr": "Berrouaghia",
+    "latitude": 36.1333,
+    "longitude": 2.9167,
+    "minuteOffset": -1
+  },
+  {
+    "code": 2603,
+    "wilayaCode": 26,
+    "nameAr": "قصر البخاري",
+    "nameFr": "Ksar El Boukhari",
+    "latitude": 35.8833,
+    "longitude": 2.75,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2604,
+    "wilayaCode": 26,
+    "nameAr": "بني سليمان",
+    "nameFr": "Beni Slimane",
+    "latitude": 36.2167,
+    "longitude": 3.3,
+    "minuteOffset": -2
+  },
+  {
+    "code": 2605,
+    "wilayaCode": 26,
+    "nameAr": "تابلاط",
+    "nameFr": "Tablat",
+    "latitude": 36.4167,
+    "longitude": 3.3167,
+    "minuteOffset": -2
+  },
+  {
+    "code": 2701,
+    "wilayaCode": 27,
+    "nameAr": "مستغانم",
+    "nameFr": "Mostaganem",
+    "latitude": 35.9312,
+    "longitude": 0.0892,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2702,
+    "wilayaCode": 27,
+    "nameAr": "عين تادلس",
+    "nameFr": "Ain Tedeles",
+    "latitude": 35.9833,
+    "longitude": 0.3,
+    "minuteOffset": -1
+  },
+  {
+    "code": 2703,
+    "wilayaCode": 27,
+    "nameAr": "سيدي علي",
+    "nameFr": "Sidi Ali",
+    "latitude": 36.1333,
+    "longitude": 0.4167,
+    "minuteOffset": -1
+  },
+  {
+    "code": 2704,
+    "wilayaCode": 27,
+    "nameAr": "ماسرة",
+    "nameFr": "Mesra",
+    "latitude": 35.8833,
+    "longitude": 0.2,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2705,
+    "wilayaCode": 27,
+    "nameAr": "بوقيرات",
+    "nameFr": "Bouguirat",
+    "latitude": 35.7833,
+    "longitude": 0.25,
+    "minuteOffset": -1
+  },
+  {
+    "code": 2801,
+    "wilayaCode": 28,
+    "nameAr": "المسيلة",
+    "nameFr": "M'Sila",
+    "latitude": 35.7058,
+    "longitude": 4.5419,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2802,
+    "wilayaCode": 28,
+    "nameAr": "بوسعادة",
+    "nameFr": "Bou Saada",
+    "latitude": 35.2167,
+    "longitude": 4.1833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 2803,
+    "wilayaCode": 28,
+    "nameAr": "سيدي عيسى",
+    "nameFr": "Sidi Aissa",
+    "latitude": 35.8833,
+    "longitude": 3.6167,
+    "minuteOffset": 4
+  },
+  {
+    "code": 2804,
+    "wilayaCode": 28,
+    "nameAr": "مقرة",
+    "nameFr": "Magra",
+    "latitude": 35.6,
+    "longitude": 5.0667,
+    "minuteOffset": -2
+  },
+  {
+    "code": 2805,
+    "wilayaCode": 28,
+    "nameAr": "برهوم",
+    "nameFr": "Berhoum",
+    "latitude": 35.65,
+    "longitude": 4.9833,
+    "minuteOffset": -2
+  },
+  {
+    "code": 2806,
+    "wilayaCode": 28,
+    "nameAr": "بن سرور",
+    "nameFr": "Ben Srour",
+    "latitude": 35.0333,
+    "longitude": 4.55,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2901,
+    "wilayaCode": 29,
+    "nameAr": "معسكر",
+    "nameFr": "Mascara",
+    "latitude": 35.3966,
+    "longitude": 0.1403,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2902,
+    "wilayaCode": 29,
+    "nameAr": "سيق",
+    "nameFr": "Sig",
+    "latitude": 35.5333,
+    "longitude": -0.1833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 2903,
+    "wilayaCode": 29,
+    "nameAr": "المحمدية",
+    "nameFr": "Mohammadia",
+    "latitude": 35.5833,
+    "longitude": 0.0667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 2904,
+    "wilayaCode": 29,
+    "nameAr": "تيغنيف",
+    "nameFr": "Tighennif",
+    "latitude": 35.4167,
+    "longitude": 0.3333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 2905,
+    "wilayaCode": 29,
+    "nameAr": "غريس",
+    "nameFr": "Ghriss",
+    "latitude": 35.25,
+    "longitude": 0.1667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3001,
+    "wilayaCode": 30,
+    "nameAr": "ورقلة",
+    "nameFr": "Ouargla",
+    "latitude": 31.9493,
+    "longitude": 5.325,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3002,
+    "wilayaCode": 30,
+    "nameAr": "حاسي مسعود",
+    "nameFr": "Hassi Messaoud",
+    "latitude": 31.68,
+    "longitude": 6.0728,
+    "minuteOffset": -3
+  },
+  {
+    "code": 3003,
+    "wilayaCode": 30,
+    "nameAr": "الرويسات",
+    "nameFr": "Rouissat",
+    "latitude": 31.9167,
+    "longitude": 5.35,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3004,
+    "wilayaCode": 30,
+    "nameAr": "سيدي خويلد",
+    "nameFr": "Sidi Khouiled",
+    "latitude": 31.9833,
+    "longitude": 5.4333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3101,
+    "wilayaCode": 31,
+    "nameAr": "وهران",
+    "nameFr": "Oran",
+    "latitude": 35.6971,
+    "longitude": -0.6308,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3102,
+    "wilayaCode": 31,
+    "nameAr": "السانية",
+    "nameFr": "Es Senia",
+    "latitude": 35.65,
+    "longitude": -0.6167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3103,
+    "wilayaCode": 31,
+    "nameAr": "بئر الجير",
+    "nameFr": "Bir El Djir",
+    "latitude": 35.7167,
+    "longitude": -0.55,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3104,
+    "wilayaCode": 31,
+    "nameAr": "أرزيو",
+    "nameFr": "Arzew",
+    "latitude": 35.85,
+    "longitude": -0.3167,
+    "minuteOffset": -1
+  },
+  {
+    "code": 3105,
+    "wilayaCode": 31,
+    "nameAr": "عين الترك",
+    "nameFr": "Ain El Turk",
+    "latitude": 35.75,
+    "longitude": -0.75,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3106,
+    "wilayaCode": 31,
+    "nameAr": "وادي تليلات",
+    "nameFr": "Oued Tlelat",
+    "latitude": 35.55,
+    "longitude": -0.45,
+    "minuteOffset": -1
+  },
+  {
+    "code": 3107,
+    "wilayaCode": 31,
+    "nameAr": "بطيوة",
+    "nameFr": "Bethioua",
+    "latitude": 35.8,
+    "longitude": -0.2667,
+    "minuteOffset": -1
+  },
+  {
+    "code": 3108,
+    "wilayaCode": 31,
+    "nameAr": "قديل",
+    "nameFr": "Gdyel",
+    "latitude": 35.7833,
+    "longitude": -0.4333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 3201,
+    "wilayaCode": 32,
+    "nameAr": "البيض",
+    "nameFr": "El Bayadh",
+    "latitude": 33.6832,
+    "longitude": 1.0193,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3202,
+    "wilayaCode": 32,
+    "nameAr": "الأبيض سيدي الشيخ",
+    "nameFr": "El Abiodh Sidi Cheikh",
+    "latitude": 32.8833,
+    "longitude": 0.55,
+    "minuteOffset": 2
+  },
+  {
+    "code": 3203,
+    "wilayaCode": 32,
+    "nameAr": "بوقطب",
+    "nameFr": "Bougtob",
+    "latitude": 34.0333,
+    "longitude": 0.15,
+    "minuteOffset": 3
+  },
+  {
+    "code": 3204,
+    "wilayaCode": 32,
+    "nameAr": "بريزينة",
+    "nameFr": "Brezina",
+    "latitude": 33.1,
+    "longitude": 1.25,
+    "minuteOffset": -1
+  },
+  {
+    "code": 3301,
+    "wilayaCode": 33,
+    "nameAr": "إليزي",
+    "nameFr": "Illizi",
+    "latitude": 26.4858,
+    "longitude": 8.4689,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3302,
+    "wilayaCode": 33,
+    "nameAr": "إن أمناس",
+    "nameFr": "In Amenas",
+    "latitude": 28.0333,
+    "longitude": 9.5667,
+    "minuteOffset": -4
+  },
+  {
+    "code": 3303,
+    "wilayaCode": 33,
+    "nameAr": "دبداب",
+    "nameFr": "Debdeb",
+    "latitude": 29.5,
+    "longitude": 9.4,
+    "minuteOffset": -4
+  },
+  {
+    "code": 3401,
+    "wilayaCode": 34,
+    "nameAr": "برج بوعريريج",
+    "nameFr": "Bordj Bou Arreridj",
+    "latitude": 36.0732,
+    "longitude": 4.7611,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3402,
+    "wilayaCode": 34,
+    "nameAr": "رأس الوادي",
+    "nameFr": "Ras El Oued",
+    "latitude": 35.95,
+    "longitude": 5.0333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 3403,
+    "wilayaCode": 34,
+    "nameAr": "المنصورة",
+    "nameFr": "Mansoura",
+    "latitude": 36.0833,
+    "longitude": 4.4667,
+    "minuteOffset": 1
+  },
+  {
+    "code": 3404,
+    "wilayaCode": 34,
+    "nameAr": "برج زمورة",
+    "nameFr": "Bordj Zemoura",
+    "latitude": 36.2667,
+    "longitude": 4.85,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3405,
+    "wilayaCode": 34,
+    "nameAr": "الحمادية",
+    "nameFr": "El Hamadia",
+    "latitude": 35.9833,
+    "longitude": 4.75,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3501,
+    "wilayaCode": 35,
+    "nameAr": "بومرداس",
+    "nameFr": "Boumerdès",
+    "latitude": 36.7599,
+    "longitude": 3.4735,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3502,
+    "wilayaCode": 35,
+    "nameAr": "برج منايل",
+    "nameFr": "Bordj Menaiel",
+    "latitude": 36.75,
+    "longitude": 3.7167,
+    "minuteOffset": -1
+  },
+  {
+    "code": 3503,
+    "wilayaCode": 35,
+    "nameAr": "دلس",
+    "nameFr": "Dellys",
+    "latitude": 36.9167,
+    "longitude": 3.9,
+    "minuteOffset": -2
+  },
+  {
+    "code": 3504,
+    "wilayaCode": 35,
+    "nameAr": "يسر",
+    "nameFr": "Isser",
+    "latitude": 36.7167,
+    "longitude": 3.6667,
+    "minuteOffset": -1
+  },
+  {
+    "code": 3505,
+    "wilayaCode": 35,
+    "nameAr": "الثنية",
+    "nameFr": "Thenia",
+    "latitude": 36.725,
+    "longitude": 3.5567,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3506,
+    "wilayaCode": 35,
+    "nameAr": "خميس الخشنة",
+    "nameFr": "Khemis El Khechna",
+    "latitude": 36.65,
+    "longitude": 3.3333,
+    "minuteOffset": 1
+  },
+  {
+    "code": 3507,
+    "wilayaCode": 35,
+    "nameAr": "بودواو",
+    "nameFr": "Boudouaou",
+    "latitude": 36.7333,
+    "longitude": 3.4,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3601,
+    "wilayaCode": 36,
+    "nameAr": "الطارف",
+    "nameFr": "El Tarf",
+    "latitude": 36.7672,
+    "longitude": 8.3138,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3602,
+    "wilayaCode": 36,
+    "nameAr": "القالة",
+    "nameFr": "El Kala",
+    "latitude": 36.9,
+    "longitude": 8.4333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3603,
+    "wilayaCode": 36,
+    "nameAr": "بن مهيدي",
+    "nameFr": "Ben M'Hidi",
+    "latitude": 36.7667,
+    "longitude": 7.9,
+    "minuteOffset": 2
+  },
+  {
+    "code": 3604,
+    "wilayaCode": 36,
+    "nameAr": "الذرعان",
+    "nameFr": "Drean",
+    "latitude": 36.6833,
+    "longitude": 7.75,
+    "minuteOffset": 2
+  },
+  {
+    "code": 3605,
+    "wilayaCode": 36,
+    "nameAr": "بوثلجة",
+    "nameFr": "Bouteldja",
+    "latitude": 36.8333,
+    "longitude": 8.1833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 3701,
+    "wilayaCode": 37,
+    "nameAr": "تندوف",
+    "nameFr": "Tindouf",
+    "latitude": 27.6743,
+    "longitude": -8.1478,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3702,
+    "wilayaCode": 37,
+    "nameAr": "أم العسل",
+    "nameFr": "Oum El Assel",
+    "latitude": 28.3833,
+    "longitude": -7.0833,
+    "minuteOffset": -4
+  },
+  {
+    "code": 3801,
+    "wilayaCode": 38,
+    "nameAr": "تيسمسيلت",
+    "nameFr": "Tissemsilt",
+    "latitude": 35.6072,
+    "longitude": 1.8108,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3802,
+    "wilayaCode": 38,
+    "nameAr": "ثنية الحد",
+    "nameFr": "Theniet El Had",
+    "latitude": 35.8667,
+    "longitude": 2.0333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 3803,
+    "wilayaCode": 38,
+    "nameAr": "خميستي",
+    "nameFr": "Khemisti",
+    "latitude": 35.6667,
+    "longitude": 1.95,
+    "minuteOffset": -1
+  },
+  {
+    "code": 3804,
+    "wilayaCode": 38,
+    "nameAr": "لرجام",
+    "nameFr": "Lardjem",
+    "latitude": 35.7333,
+    "longitude": 1.55,
+    "minuteOffset": 1
+  },
+  {
+    "code": 3901,
+    "wilayaCode": 39,
+    "nameAr": "الوادي",
+    "nameFr": "El Oued",
+    "latitude": 33.3683,
+    "longitude": 6.8674,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3902,
+    "wilayaCode": 39,
+    "nameAr": "قمار",
+    "nameFr": "Guemar",
+    "latitude": 33.5,
+    "longitude": 6.8,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3903,
+    "wilayaCode": 39,
+    "nameAr": "الدبيلة",
+    "nameFr": "Debila",
+    "latitude": 33.5167,
+    "longitude": 6.95,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3904,
+    "wilayaCode": 39,
+    "nameAr": "الرباح",
+    "nameFr": "Robbah",
+    "latitude": 33.2833,
+    "longitude": 6.9167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 3905,
+    "wilayaCode": 39,
+    "nameAr": "حاسي خليفة",
+    "nameFr": "Hassi Khelifa",
+    "latitude": 33.5833,
+    "longitude": 7.0167,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4001,
+    "wilayaCode": 40,
+    "nameAr": "خنشلة",
+    "nameFr": "Khenchela",
+    "latitude": 35.4358,
+    "longitude": 7.1433,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4002,
+    "wilayaCode": 40,
+    "nameAr": "قايس",
+    "nameFr": "Kais",
+    "latitude": 35.5,
+    "longitude": 6.9333,
+    "minuteOffset": 1
+  },
+  {
+    "code": 4003,
+    "wilayaCode": 40,
+    "nameAr": "ششار",
+    "nameFr": "Chechar",
+    "latitude": 35.0833,
+    "longitude": 7.0333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4004,
+    "wilayaCode": 40,
+    "nameAr": "أولاد رشاش",
+    "nameFr": "Ouled Rechache",
+    "latitude": 35.3,
+    "longitude": 7.3667,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4005,
+    "wilayaCode": 40,
+    "nameAr": "بوحمامة",
+    "nameFr": "Bouhmama",
+    "latitude": 35.3833,
+    "longitude": 6.6833,
+    "minuteOffset": 2
+  },
+  {
+    "code": 4101,
+    "wilayaCode": 41,
+    "nameAr": "سوق أهراس",
+    "nameFr": "Souk Ahras",
+    "latitude": 36.2864,
+    "longitude": 7.9511,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4102,
+    "wilayaCode": 41,
+    "nameAr": "سدراتة",
+    "nameFr": "Sedrata",
+    "latitude": 36.1333,
+    "longitude": 7.5333,
+    "minuteOffset": 2
+  },
+  {
+    "code": 4103,
+    "wilayaCode": 41,
+    "nameAr": "مداوروش",
+    "nameFr": "M'Daourouch",
+    "latitude": 36.0833,
+    "longitude": 7.8167,
+    "minuteOffset": 1
+  },
+  {
+    "code": 4104,
+    "wilayaCode": 41,
+    "nameAr": "تاورة",
+    "nameFr": "Taoura",
+    "latitude": 36.1833,
+    "longitude": 8.05,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4105,
+    "wilayaCode": 41,
+    "nameAr": "المراهنة",
+    "nameFr": "Merahna",
+    "latitude": 36.3167,
+    "longitude": 8.2167,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4201,
+    "wilayaCode": 42,
+    "nameAr": "تيبازة",
+    "nameFr": "Tipaza",
+    "latitude": 36.5897,
+    "longitude": 2.4475,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4202,
+    "wilayaCode": 42,
+    "nameAr": "القليعة",
+    "nameFr": "Kolea",
+    "latitude": 36.6333,
+    "longitude": 2.7667,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4203,
+    "wilayaCode": 42,
+    "nameAr": "شرشال",
+    "nameFr": "Cherchell",
+    "latitude": 36.6,
+    "longitude": 2.1833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 4204,
+    "wilayaCode": 42,
+    "nameAr": "بواسماعيل",
+    "nameFr": "Bou Ismail",
+    "latitude": 36.6333,
+    "longitude": 2.6833,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4205,
+    "wilayaCode": 42,
+    "nameAr": "حجوط",
+    "nameFr": "Hadjout",
+    "latitude": 36.5167,
+    "longitude": 2.4167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4206,
+    "wilayaCode": 42,
+    "nameAr": "فوكة",
+    "nameFr": "Fouka",
+    "latitude": 36.6667,
+    "longitude": 2.75,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4207,
+    "wilayaCode": 42,
+    "nameAr": "قوراية",
+    "nameFr": "Gouraya",
+    "latitude": 36.5667,
+    "longitude": 1.9,
+    "minuteOffset": 2
+  },
+  {
+    "code": 4301,
+    "wilayaCode": 43,
+    "nameAr": "ميلة",
+    "nameFr": "Mila",
+    "latitude": 36.4503,
+    "longitude": 6.2644,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4302,
+    "wilayaCode": 43,
+    "nameAr": "شلغوم العيد",
+    "nameFr": "Chelghoum Laid",
+    "latitude": 36.1667,
+    "longitude": 6.1667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4303,
+    "wilayaCode": 43,
+    "nameAr": "فرجيوة",
+    "nameFr": "Ferdjioua",
+    "latitude": 36.4,
+    "longitude": 5.95,
+    "minuteOffset": 1
+  },
+  {
+    "code": 4304,
+    "wilayaCode": 43,
+    "nameAr": "تاجنانت",
+    "nameFr": "Tadjenanet",
+    "latitude": 36.1167,
+    "longitude": 5.9833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 4305,
+    "wilayaCode": 43,
+    "nameAr": "تيلغمة",
+    "nameFr": "Teleghma",
+    "latitude": 36.1167,
+    "longitude": 6.3667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4306,
+    "wilayaCode": 43,
+    "nameAr": "وادي العثمانية",
+    "nameFr": "Oued Athmania",
+    "latitude": 36.25,
+    "longitude": 6.2833,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4401,
+    "wilayaCode": 44,
+    "nameAr": "عين الدفلى",
+    "nameFr": "Ain Defla",
+    "latitude": 36.2647,
+    "longitude": 1.9678,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4402,
+    "wilayaCode": 44,
+    "nameAr": "خميس مليانة",
+    "nameFr": "Khemis Miliana",
+    "latitude": 36.2667,
+    "longitude": 2.2167,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4403,
+    "wilayaCode": 44,
+    "nameAr": "مليانة",
+    "nameFr": "Miliana",
+    "latitude": 36.3,
+    "longitude": 2.2333,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4404,
+    "wilayaCode": 44,
+    "nameAr": "العطاف",
+    "nameFr": "El Attaf",
+    "latitude": 36.2167,
+    "longitude": 1.6667,
+    "minuteOffset": 1
+  },
+  {
+    "code": 4405,
+    "wilayaCode": 44,
+    "nameAr": "العبادية",
+    "nameFr": "El Abadia",
+    "latitude": 36.2667,
+    "longitude": 1.7,
+    "minuteOffset": 1
+  },
+  {
+    "code": 4501,
+    "wilayaCode": 45,
+    "nameAr": "النعامة",
+    "nameFr": "Naâma",
+    "latitude": 33.2667,
+    "longitude": -0.3167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4502,
+    "wilayaCode": 45,
+    "nameAr": "مشرية",
+    "nameFr": "Mecheria",
+    "latitude": 33.55,
+    "longitude": -0.2833,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4503,
+    "wilayaCode": 45,
+    "nameAr": "عين الصفراء",
+    "nameFr": "Ain Sefra",
+    "latitude": 32.75,
+    "longitude": -0.5833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 4504,
+    "wilayaCode": 45,
+    "nameAr": "صفيصيفة",
+    "nameFr": "Sfissifa",
+    "latitude": 32.7,
+    "longitude": -0.8,
+    "minuteOffset": 2
+  },
+  {
+    "code": 4601,
+    "wilayaCode": 46,
+    "nameAr": "عين تموشنت",
+    "nameFr": "Ain Temouchent",
+    "latitude": 35.2975,
+    "longitude": -1.1404,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4602,
+    "wilayaCode": 46,
+    "nameAr": "بني صاف",
+    "nameFr": "Beni Saf",
+    "latitude": 35.3,
+    "longitude": -1.3833,
+    "minuteOffset": 1
+  },
+  {
+    "code": 4603,
+    "wilayaCode": 46,
+    "nameAr": "حمام بوحجر",
+    "nameFr": "Hammam Bouhadjar",
+    "latitude": 35.3833,
+    "longitude": -0.9667,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4604,
+    "wilayaCode": 46,
+    "nameAr": "العامرية",
+    "nameFr": "El Amria",
+    "latitude": 35.5333,
+    "longitude": -1.0167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4605,
+    "wilayaCode": 46,
+    "nameAr": "المالح",
+    "nameFr": "El Malah",
+    "latitude": 35.3833,
+    "longitude": -1.0833,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4701,
+    "wilayaCode": 47,
+    "nameAr": "غرداية",
+    "nameFr": "Ghardaïa",
+    "latitude": 32.4909,
+    "longitude": 3.6736,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4702,
+    "wilayaCode": 47,
+    "nameAr": "القرارة",
+    "nameFr": "El Guerrara",
+    "latitude": 32.7833,
+    "longitude": 4.5,
+    "minuteOffset": -3
+  },
+  {
+    "code": 4703,
+    "wilayaCode": 47,
+    "nameAr": "بريان",
+    "nameFr": "Berriane",
+    "latitude": 32.8333,
+    "longitude": 3.7667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4704,
+    "wilayaCode": 47,
+    "nameAr": "متليلي",
+    "nameFr": "Metlili",
+    "latitude": 32.2667,
+    "longitude": 3.6333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4705,
+    "wilayaCode": 47,
+    "nameAr": "بني يزقن",
+    "nameFr": "Beni Isguen",
+    "latitude": 32.4833,
+    "longitude": 3.6833,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4801,
+    "wilayaCode": 48,
+    "nameAr": "غليزان",
+    "nameFr": "Relizane",
+    "latitude": 35.7372,
+    "longitude": 0.5558,
+    "minuteOffset": 0
+  },
+  {
+    "code": 4802,
+    "wilayaCode": 48,
+    "nameAr": "وادي ارهيو",
+    "nameFr": "Oued Rhiou",
+    "latitude": 35.9667,
+    "longitude": 0.9167,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4803,
+    "wilayaCode": 48,
+    "nameAr": "مازونة",
+    "nameFr": "Mazouna",
+    "latitude": 36.1333,
+    "longitude": 0.8833,
+    "minuteOffset": -1
+  },
+  {
+    "code": 4804,
+    "wilayaCode": 48,
+    "nameAr": "يلل",
+    "nameFr": "Yellel",
+    "latitude": 35.7167,
+    "longitude": 0.35,
+    "minuteOffset": 1
+  },
+  {
+    "code": 4805,
+    "wilayaCode": 48,
+    "nameAr": "عمي موسى",
+    "nameFr": "Ammi Moussa",
+    "latitude": 35.8667,
+    "longitude": 1.1167,
+    "minuteOffset": -2
+  },
+  {
+    "code": 4901,
+    "wilayaCode": 49,
+    "nameAr": "المغير",
+    "nameFr": "El M'Ghair",
+    "latitude": 33.95,
+    "longitude": 5.9167,
+    "minuteOffset": -15
+  },
+  {
+    "code": 4902,
+    "wilayaCode": 49,
+    "nameAr": "جامعة",
+    "nameFr": "Djamaa",
+    "latitude": 33.5333,
+    "longitude": 5.9833,
+    "minuteOffset": -15
+  },
+  {
+    "code": 4903,
+    "wilayaCode": 49,
+    "nameAr": "أم الطيور",
+    "nameFr": "Oum Touyour",
+    "latitude": 34.2,
+    "longitude": 5.7667,
+    "minuteOffset": -15
+  },
+  {
+    "code": 4904,
+    "wilayaCode": 49,
+    "nameAr": "سيدي خليل",
+    "nameFr": "Sidi Khelil",
+    "latitude": 33.8667,
+    "longitude": 5.95,
+    "minuteOffset": -15
+  },
+  {
+    "code": 5001,
+    "wilayaCode": 50,
+    "nameAr": "المنيعة",
+    "nameFr": "El Menia",
+    "latitude": 30.5833,
+    "longitude": 2.8833,
+    "minuteOffset": -8
+  },
+  {
+    "code": 5002,
+    "wilayaCode": 50,
+    "nameAr": "حاسي الفحل",
+    "nameFr": "Hassi Gara",
+    "latitude": 30.6333,
+    "longitude": 2.9167,
+    "minuteOffset": -8
+  },
+  {
+    "code": 5003,
+    "wilayaCode": 50,
+    "nameAr": "حاسي القارة",
+    "nameFr": "Hassi El Gara",
+    "latitude": 30.6,
+    "longitude": 2.9,
+    "minuteOffset": -8
+  },
+  {
+    "code": 5101,
+    "wilayaCode": 51,
+    "nameAr": "أولاد جلال",
+    "nameFr": "Ouled Djellal",
+    "latitude": 34.4333,
+    "longitude": 5.0667,
+    "minuteOffset": 0
+  },
+  {
+    "code": 5102,
+    "wilayaCode": 51,
+    "nameAr": "سيدي خالد",
+    "nameFr": "Sidi Khaled",
+    "latitude": 34.3833,
+    "longitude": 4.9833,
+    "minuteOffset": 0
+  },
+  {
+    "code": 5103,
+    "wilayaCode": 51,
+    "nameAr": "الدوسن",
+    "nameFr": "Doucen",
+    "latitude": 34.5833,
+    "longitude": 5.0167,
+    "minuteOffset": 0
+  },
+  {
+    "code": 5104,
+    "wilayaCode": 51,
+    "nameAr": "رأس الميعاد",
+    "nameFr": "Ras El Miad",
+    "latitude": 34.25,
+    "longitude": 4.5167,
+    "minuteOffset": 2
+  },
+  {
+    "code": 5201,
+    "wilayaCode": 52,
+    "nameAr": "برج باجي مختار",
+    "nameFr": "Bordj Baji Mokhtar",
+    "latitude": 21.3308,
+    "longitude": 0.9542,
+    "minuteOffset": -12
+  },
+  {
+    "code": 5202,
+    "wilayaCode": 52,
+    "nameAr": "تيمياوين",
+    "nameFr": "Timiaouine",
+    "latitude": 20.4333,
+    "longitude": 1.8167,
+    "minuteOffset": -15
+  },
+  {
+    "code": 5301,
+    "wilayaCode": 53,
+    "nameAr": "بني عباس",
+    "nameFr": "Béni Abbès",
+    "latitude": 30.1333,
+    "longitude": -2.1667,
+    "minuteOffset": 15
+  },
+  {
+    "code": 5302,
+    "wilayaCode": 53,
+    "nameAr": "كرزاز",
+    "nameFr": "Kerzaz",
+    "latitude": 29.45,
+    "longitude": -1.4167,
+    "minuteOffset": 15
+  },
+  {
+    "code": 5303,
+    "wilayaCode": 53,
+    "nameAr": "إقلي",
+    "nameFr": "Igli",
+    "latitude": 30.5,
+    "longitude": -2.3,
+    "minuteOffset": 15
+  },
+  {
+    "code": 5304,
+    "wilayaCode": 53,
+    "nameAr": "الواتة",
+    "nameFr": "El Ouata",
+    "latitude": 29.8667,
+    "longitude": -1.8333,
+    "minuteOffset": 15
+  },
+  {
+    "code": 5305,
+    "wilayaCode": 53,
+    "nameAr": "تبلبالة",
+    "nameFr": "Tabelbala",
+    "latitude": 29.4,
+    "longitude": -3.25,
+    "minuteOffset": 15
+  },
+  {
+    "code": 5401,
+    "wilayaCode": 54,
+    "nameAr": "تيميمون",
+    "nameFr": "Timimoun",
+    "latitude": 29.2639,
+    "longitude": 0.231,
+    "minuteOffset": 15
+  },
+  {
+    "code": 5402,
+    "wilayaCode": 54,
+    "nameAr": "أوقروت",
+    "nameFr": "Aougrout",
+    "latitude": 28.75,
+    "longitude": 0.25,
+    "minuteOffset": 15
+  },
+  {
+    "code": 5403,
+    "wilayaCode": 54,
+    "nameAr": "دلدول",
+    "nameFr": "Deldoul",
+    "latitude": 28.6167,
+    "longitude": 0.1667,
+    "minuteOffset": 15
+  },
+  {
+    "code": 5404,
+    "wilayaCode": 54,
+    "nameAr": "تينركوك",
+    "nameFr": "Tinerkouk",
+    "latitude": 29.75,
+    "longitude": 0.5,
+    "minuteOffset": 15
+  },
+  {
+    "code": 5501,
+    "wilayaCode": 55,
+    "nameAr": "تقرت",
+    "nameFr": "Touggourt",
+    "latitude": 33.1064,
+    "longitude": 6.0644,
+    "minuteOffset": 0
+  },
+  {
+    "code": 5502,
+    "wilayaCode": 55,
+    "nameAr": "تماسين",
+    "nameFr": "Temacine",
+    "latitude": 33.0167,
+    "longitude": 6.0333,
+    "minuteOffset": 0
+  },
+  {
+    "code": 5503,
+    "wilayaCode": 55,
+    "nameAr": "المقارين",
+    "nameFr": "Megarine",
+    "latitude": 33.1833,
+    "longitude": 6.0833,
+    "minuteOffset": 0
+  },
+  {
+    "code": 5504,
+    "wilayaCode": 55,
+    "nameAr": "الطيبات",
+    "nameFr": "Taibet",
+    "latitude": 33.0833,
+    "longitude": 6.4333,
+    "minuteOffset": -2
+  },
+  {
+    "code": 5505,
+    "wilayaCode": 55,
+    "nameAr": "النزلة",
+    "nameFr": "Nezla",
+    "latitude": 33.1167,
+    "longitude": 6.0833,
+    "minuteOffset": 0
+  },
+  {
+    "code": 5601,
+    "wilayaCode": 56,
+    "nameAr": "جانت",
+    "nameFr": "Djanet",
+    "latitude": 24.5539,
+    "longitude": 9.4847,
+    "minuteOffset": 0
+  },
+  {
+    "code": 5602,
+    "wilayaCode": 56,
+    "nameAr": "برج الحواس",
+    "nameFr": "Bordj El Haouas",
+    "latitude": 24.9167,
+    "longitude": 8.5667,
+    "minuteOffset": 4
+  },
+  {
+    "code": 5701,
+    "wilayaCode": 57,
+    "nameAr": "عين صالح",
+    "nameFr": "In Salah",
+    "latitude": 27.2,
+    "longitude": 2.4833,
+    "minuteOffset": 14
+  },
+  {
+    "code": 5702,
+    "wilayaCode": 57,
+    "nameAr": "فقارة الزوى",
+    "nameFr": "Foggaret Ezzaouia",
+    "latitude": 27.35,
+    "longitude": 2.8333,
+    "minuteOffset": 12
+  },
+  {
+    "code": 5703,
+    "wilayaCode": 57,
+    "nameAr": "إين غار",
+    "nameFr": "In Ghar",
+    "latitude": 27.1,
+    "longitude": 1.8333,
+    "minuteOffset": 15
+  },
+  {
+    "code": 5801,
+    "wilayaCode": 58,
+    "nameAr": "عين قزام",
+    "nameFr": "In Guezzam",
+    "latitude": 19.5722,
+    "longitude": 5.7694,
+    "minuteOffset": -12
+  },
+  {
+    "code": 5802,
+    "wilayaCode": 58,
+    "nameAr": "تين زواتين",
+    "nameFr": "Tin Zaouatine",
+    "latitude": 19.95,
+    "longitude": 2.9667,
+    "minuteOffset": 0
+  }
+]

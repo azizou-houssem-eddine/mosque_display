@@ -34,6 +34,7 @@ class _AdhkarCarouselScreenState extends State<AdhkarCarouselScreen> {
   List<_AdhkarItem> _items = [];
   int _currentIndex = 0;
   late final PageController _pageCtrl;
+  final FocusNode _focusNode = FocusNode();
   Timer? _autoAdvanceTimer;
 
   @override
@@ -110,6 +111,7 @@ class _AdhkarCarouselScreenState extends State<AdhkarCarouselScreen> {
   void dispose() {
     _autoAdvanceTimer?.cancel();
     _pageCtrl.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -118,7 +120,7 @@ class _AdhkarCarouselScreenState extends State<AdhkarCarouselScreen> {
     final provider = context.watch<DisplayProvider>();
 
     return KeyboardListener(
-      focusNode: FocusNode()..requestFocus(),
+      focusNode: _focusNode,
       autofocus: true,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {

@@ -6,8 +6,21 @@ import '../../core/providers/display_provider.dart';
 
 /// Salat Blackout Screen — pitch-black OLED with gold Arabic reminders.
 /// Shown during congregational prayer duration.
-class SalatBlackoutScreen extends StatelessWidget {
+class SalatBlackoutScreen extends StatefulWidget {
   const SalatBlackoutScreen({super.key});
+
+  @override
+  State<SalatBlackoutScreen> createState() => _SalatBlackoutScreenState();
+}
+
+class _SalatBlackoutScreenState extends State<SalatBlackoutScreen> {
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +29,7 @@ class SalatBlackoutScreen extends StatelessWidget {
     final prayerName = provider.activePrayer?.nameAr ?? '';
 
     return KeyboardListener(
-      focusNode: FocusNode()..requestFocus(),
+      focusNode: _focusNode,
       autofocus: true,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {

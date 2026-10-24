@@ -30,6 +30,8 @@ class MainDashboardScreen extends StatefulWidget {
 class _MainDashboardScreenState extends State<MainDashboardScreen> {
   late Timer _ticker;
   DateTime _now = DateTime.now();
+  final FocusNode _screenFocusNode = FocusNode();
+  final FocusNode _settingsButtonFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -43,6 +45,8 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
   @override
   void dispose() {
     _ticker.cancel();
+    _screenFocusNode.dispose();
+    _settingsButtonFocusNode.dispose();
     super.dispose();
   }
 
@@ -76,11 +80,15 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
     }
 
     return KeyboardListener(
-      focusNode: FocusNode()..requestFocus(),
+      focusNode: _screenFocusNode,
       autofocus: true,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.f1 ||
+          if (event.logicalKey == LogicalKeyboardKey.select ||
+              event.logicalKey == LogicalKeyboardKey.enter ||
+              event.logicalKey == LogicalKeyboardKey.numpadEnter ||
+              event.logicalKey == LogicalKeyboardKey.gameButtonA ||
+              event.logicalKey == LogicalKeyboardKey.f1 ||
               event.logicalKey == LogicalKeyboardKey.keyM ||
               event.logicalKey == LogicalKeyboardKey.contextMenu) {
             _openSettings(context);
@@ -195,7 +203,7 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Mosque name & Wilaya (Clickable for Settings)
+          // Mosque name & Wilaya/Commune (Clickable / Focusable for Settings)
           Flexible(
             flex: 3,
             fit: FlexFit.loose,
@@ -204,114 +212,153 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: () => _openSettings(context),
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(scale.scale(7, min: 5, max: 14)),
-                          decoration: BoxDecoration(
-                            color: AppTheme.emeraldMid,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppTheme.goldDim.withValues(alpha: 0.6),
-                              width: 1,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.mosque,
-                            color: AppTheme.goldPrimary,
-                            size: scale.scale(20, min: 16, max: 36),
-                          ),
-                        ),
-                        SizedBox(width: scale.scale(10, min: 6, max: 18)),
-                        Text(
-                          provider.settings.mosqueName,
-                          style: TextStyle(
-                            fontFamily: 'Amiri',
-                            fontSize: scale.scale(32, min: 22, max: 56),
-                            color: AppTheme.goldPrimary,
-                            fontWeight: FontWeight.w700,
-                            shadows: const [
-                              Shadow(
-                                color: Colors.black54,
-                                blurRadius: 6,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          textDirection: TextDirection.rtl,
-                        ),
-                        SizedBox(width: scale.scale(12, min: 8, max: 20)),
-                        Container(
+                child: Focus(
+                  focusNode: _settingsButtonFocusNode,
+                  onKeyEvent: (node, event) {
+                    if (event is KeyDownEvent &&
+                        (event.logicalKey == LogicalKeyboardKey.select ||
+                         event.logicalKey == LogicalKeyboardKey.enter ||
+                         event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+                      _openSettings(context);
+                      return KeyEventResult.handled;
+                    }
+                    return KeyEventResult.ignored;
+                  },
+                  child: Builder(builder: (ctx) {
+                    final isFocused = Focus.of(ctx).hasFocus;
+                    return GestureDetector(
+                      onTap: () => _openSettings(context),
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
                           padding: EdgeInsets.symmetric(
-                            horizontal: scale.scale(12, min: 8, max: 22),
-                            vertical: scale.scale(4, min: 2, max: 8),
+                            horizontal: scale.scale(isFocused ? 12 : 6, min: 4, max: 16),
+                            vertical: scale.scale(isFocused ? 6 : 2, min: 2, max: 8),
                           ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.emeraldMid.withValues(alpha: 0.9),
-                            borderRadius: BorderRadius.circular(scale.scale(10, min: 8, max: 18)),
-                            border: Border.all(
-                              color: AppTheme.goldDim.withValues(alpha: 0.55),
-                              width: 1.2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppTheme.goldPrimary.withValues(alpha: 0.12),
-                                blurRadius: 8,
+                          decoration: isFocused
+                              ? BoxDecoration(
+                                  color: AppTheme.emeraldMid.withValues(alpha: 0.9),
+                                  borderRadius: BorderRadius.circular(scale.scale(14, min: 8, max: 20)),
+                                  border: Border.all(color: AppTheme.focusBorder, width: 2.5),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppTheme.goldPrimary.withValues(alpha: 0.7),
+                                      blurRadius: 14,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                )
+                              : null,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(scale.scale(7, min: 5, max: 14)),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.emeraldMid,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppTheme.goldDim.withValues(alpha: 0.6),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.mosque,
+                                  color: AppTheme.goldPrimary,
+                                  size: scale.scale(20, min: 16, max: 36),
+                                ),
                               ),
-                            ],
-                          ),
-                          child: Text(
-                            'ولاية ${currentWilaya.nameAr} (${currentWilaya.code.toString().padLeft(2, '0')})',
-                            style: TextStyle(
-                              fontFamily: 'Cairo',
-                              fontSize: scale.scale(16, min: 12, max: 28),
-                              color: AppTheme.goldPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textDirection: TextDirection.rtl,
-                          ),
-                        ),
-                        if (provider.isSimulationActive) ...[
-                          const SizedBox(width: 8),
-                          InkWell(
-                            onTap: () => _openSimulationDialog(context),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.amber.withValues(alpha: 0.25),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                    color: AppTheme.goldPrimary, width: 1),
+                              SizedBox(width: scale.scale(10, min: 6, max: 18)),
+                              Text(
+                                provider.settings.mosqueName,
+                                style: TextStyle(
+                                  fontFamily: 'Amiri',
+                                  fontSize: scale.scale(32, min: 22, max: 56),
+                                  color: AppTheme.goldPrimary,
+                                  fontWeight: FontWeight.w700,
+                                  shadows: const [
+                                    Shadow(
+                                      color: Colors.black54,
+                                      blurRadius: 6,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                textDirection: TextDirection.rtl,
                               ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.bolt,
-                                      color: AppTheme.goldPrimary, size: 16),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'محاكاة نشطة (T)',
-                                    style: TextStyle(
-                                      fontFamily: 'Cairo',
-                                      fontSize: 13,
-                                      color: AppTheme.goldPrimary,
-                                      fontWeight: FontWeight.bold,
+                              SizedBox(width: scale.scale(12, min: 8, max: 20)),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: scale.scale(12, min: 8, max: 22),
+                                  vertical: scale.scale(4, min: 2, max: 8),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.emeraldMid.withValues(alpha: 0.9),
+                                  borderRadius: BorderRadius.circular(scale.scale(10, min: 8, max: 18)),
+                                  border: Border.all(
+                                    color: AppTheme.goldDim.withValues(alpha: 0.55),
+                                    width: 1.2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppTheme.goldPrimary.withValues(alpha: 0.12),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  provider.activeCommune != null
+                                      ? 'ولاية ${currentWilaya.nameAr} - ${provider.activeCommune!.nameAr}'
+                                      : 'ولاية ${currentWilaya.nameAr} (${currentWilaya.code.toString().padLeft(2, '0')})',
+                                  style: TextStyle(
+                                    fontFamily: 'Cairo',
+                                    fontSize: scale.scale(16, min: 12, max: 28),
+                                    color: AppTheme.goldPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textDirection: TextDirection.rtl,
+                                ),
+                              ),
+                              if (provider.isSimulationActive) ...[
+                                const SizedBox(width: 8),
+                                InkWell(
+                                  onTap: () => _openSimulationDialog(context),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.withValues(alpha: 0.25),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: AppTheme.goldPrimary, width: 1),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.bolt,
+                                            color: AppTheme.goldPrimary, size: 16),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'محاكاة نشطة (T)',
+                                          style: TextStyle(
+                                            fontFamily: 'Cairo',
+                                            fontSize: 13,
+                                            color: AppTheme.goldPrimary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
+                                ),
+                              ],
+                            ],
                           ),
-                        ],
-                      ],
-                    ),
-                  ),
+                        ),
+                      ),
+                    );
+                  }),
                 ),
               ),
             ),

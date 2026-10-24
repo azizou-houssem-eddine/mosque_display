@@ -42,6 +42,27 @@ class PrayerOffsets {
         maghrib = 0,
         isha = 0;
 
+  /// Creates uniform offset across all prayers (official ministerial commune offset).
+  PrayerOffsets.uniform(int minutes)
+      : fajr = clampOffset(minutes),
+        sunrise = clampOffset(minutes),
+        dhuhr = clampOffset(minutes),
+        asr = clampOffset(minutes),
+        maghrib = clampOffset(minutes),
+        isha = clampOffset(minutes);
+
+  /// Combines two offset profiles (e.g. ministerial commune offset + manual mosque calibration).
+  PrayerOffsets operator +(PrayerOffsets other) {
+    return PrayerOffsets(
+      fajr: clampOffset(fajr + other.fajr),
+      sunrise: clampOffset(sunrise + other.sunrise),
+      dhuhr: clampOffset(dhuhr + other.dhuhr),
+      asr: clampOffset(asr + other.asr),
+      maghrib: clampOffset(maghrib + other.maghrib),
+      isha: clampOffset(isha + other.isha),
+    );
+  }
+
   static int clampOffset(int minutes) =>
       minutes.clamp(minOffsetMinutes, maxOffsetMinutes);
 

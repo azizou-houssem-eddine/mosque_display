@@ -9,8 +9,21 @@ import '../widgets/mandala_background.dart';
 
 /// Iqamah Countdown Screen — Fullscreen circular astrolabe gauge counting down to Iqamah.
 /// Features royal Islamic header, date-specific / Adhan Du'a card, and congregation guidance.
-class IqamahCountdownScreen extends StatelessWidget {
+class IqamahCountdownScreen extends StatefulWidget {
   const IqamahCountdownScreen({super.key});
+
+  @override
+  State<IqamahCountdownScreen> createState() => _IqamahCountdownScreenState();
+}
+
+class _IqamahCountdownScreenState extends State<IqamahCountdownScreen> {
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +49,7 @@ class IqamahCountdownScreen extends StatelessWidget {
     final prayerName = provider.activePrayer?.nameAr ?? '';
 
     return KeyboardListener(
-      focusNode: FocusNode()..requestFocus(),
+      focusNode: _focusNode,
       autofocus: true,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {

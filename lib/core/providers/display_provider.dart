@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../data/models/prayer_schedule.dart';
 import '../../data/models/mosque_settings.dart';
+import '../../data/models/commune.dart';
 import '../../data/repositories/prayer_repository.dart';
 import '../../domain/calculation/hijri_calculator.dart';
 import '../../domain/occasions/islamic_occasions_engine.dart';
@@ -23,6 +24,7 @@ class DisplayProvider extends ChangeNotifier {
   // ── State ──────────────────────────────────────────────────────────────────
   MosqueSettings _settings;
   PrayerSchedule? _todaySchedule;
+  Commune? _activeCommune;
   DisplayState _displayState = DisplayState.standard;
   Prayer? _activePrayer;
   Duration _iqamahRemaining = Duration.zero;
@@ -48,8 +50,10 @@ class DisplayProvider extends ChangeNotifier {
         _settings = initialSettings ?? const MosqueSettings();
 
   // ── Getters ────────────────────────────────────────────────────────────────
+  IPrayerRepository get prayerRepo => _prayerRepo;
   MosqueSettings get settings => _settings;
   PrayerSchedule? get todaySchedule => _todaySchedule;
+  Commune? get activeCommune => _activeCommune;
   DisplayState get displayState => _displayState;
   Prayer? get activePrayer => _activePrayer;
   Duration get iqamahRemaining => _iqamahRemaining;
@@ -62,6 +66,10 @@ class DisplayProvider extends ChangeNotifier {
   bool get isSimulationActive => _isSimulationActive;
   DateTime get effectiveDate => _simulatedDate ?? DateTime.now();
   OccasionType? get activeSimulatedOccasion => _activeSimulatedOccasion;
+
+  Future<List<Commune>> getCommunesForWilaya(int wilayaCode) {
+    return _prayerRepo.getCommunesForWilaya(wilayaCode);
+  }
 
   List<IslamicOccasion> get activeOccasions =>
       IslamicOccasionsEngine.getOccasions(
@@ -95,8 +103,15 @@ class DisplayProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final now = effectiveDate;
+      if (_settings.selectedCommuneCode != null) {
+        _activeCommune = await _prayerRepo.getCommuneByCode(_settings.selectedCommuneCode!);
+      } else {
+        _activeCommune = null;
+      }
+
       _todaySchedule = await _prayerRepo.getPrayerTimes(
         wilayaCode: _settings.selectedWilayaCode,
+        commune: _activeCommune,
         date: now,
         offsets: _settings.offsets,
       );
