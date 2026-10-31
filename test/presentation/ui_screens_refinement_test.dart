@@ -349,6 +349,7 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('الإعدادات'), findsOneWidget);
       expect(find.text('الولاية'), findsOneWidget);
+      expect(find.text('معايرة المواقيت'), findsOneWidget);
       expect(find.text('الخطوط والأدعية'), findsOneWidget);
     });
 

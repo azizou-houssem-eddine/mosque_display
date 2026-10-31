@@ -53,11 +53,12 @@ class _IqamahCountdownScreenState extends State<IqamahCountdownScreen> {
       autofocus: true,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          if (provider.isSimulationActive &&
-              (event.logicalKey == LogicalKeyboardKey.escape ||
-                  event.logicalKey == LogicalKeyboardKey.keyT ||
-                  event.logicalKey == LogicalKeyboardKey.keyS)) {
-            provider.resetSimulation();
+          if (event.logicalKey == LogicalKeyboardKey.escape ||
+              event.logicalKey == LogicalKeyboardKey.goBack ||
+              event.logicalKey == LogicalKeyboardKey.browserBack ||
+              event.logicalKey == LogicalKeyboardKey.keyT ||
+              event.logicalKey == LogicalKeyboardKey.keyS) {
+            provider.dismissActiveState();
           }
         }
       },
@@ -84,32 +85,43 @@ class _IqamahCountdownScreenState extends State<IqamahCountdownScreen> {
             // Sacred 16-point geometric mandala watermark
             const MandalaBackground(opacity: 0.07),
 
-            // Exit button during simulation (Top-Left)
-            if (provider.isSimulationActive)
-              Positioned(
-                top: 20,
-                left: 20,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.close, size: 18),
-                  label: const Text(
-                    'إنهاء المحاكاة (Esc / T)',
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent.withValues(alpha: 0.25),
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.redAccent, width: 1.2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: () => provider.resetSimulation(),
+            // Exit / Back button (Top-Left)
+            Positioned(
+              top: 20,
+              left: 20,
+              child: ElevatedButton.icon(
+                icon: Icon(
+                  provider.isSimulationActive ? Icons.close : Icons.arrow_back,
+                  size: 18,
                 ),
+                label: Text(
+                  provider.isSimulationActive
+                      ? 'إنهاء المحاكاة (Esc / T)'
+                      : 'العودة للشاشة الرئيسية',
+                  style: const TextStyle(
+                    fontFamily: 'Cairo',
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: provider.isSimulationActive
+                      ? Colors.redAccent.withValues(alpha: 0.25)
+                      : AppTheme.emeraldMid.withValues(alpha: 0.75),
+                  foregroundColor: Colors.white,
+                  side: BorderSide(
+                    color: provider.isSimulationActive
+                        ? Colors.redAccent
+                        : AppTheme.goldDim.withValues(alpha: 0.6),
+                    width: 1.2,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () => provider.dismissActiveState(),
               ),
+            ),
 
             // Main Content Layout with Responsive Scaling for 720p, 1080p, 4K
             SafeArea(

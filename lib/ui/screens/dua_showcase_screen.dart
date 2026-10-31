@@ -137,22 +137,29 @@ class _DuaShowcaseScreenState extends State<DuaShowcaseScreen> {
     }
   }
 
-  void _handleKeyEvent(KeyEvent event) {
-    if (event is! KeyDownEvent) return;
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent) return KeyEventResult.ignored;
     switch (event.logicalKey) {
-      case LogicalKeyboardKey.arrowLeft:
+      case LogicalKeyboardKey.pageDown:
+      case LogicalKeyboardKey.mediaFastForward:
+      case LogicalKeyboardKey.bracketLeft:
         _nextDua();
-        break;
-      case LogicalKeyboardKey.arrowRight:
+        return KeyEventResult.handled;
+      case LogicalKeyboardKey.pageUp:
+      case LogicalKeyboardKey.mediaRewind:
+      case LogicalKeyboardKey.bracketRight:
         _prevDua();
-        break;
+        return KeyEventResult.handled;
       case LogicalKeyboardKey.space:
         _toggleAutoPlay();
-        break;
+        return KeyEventResult.handled;
       case LogicalKeyboardKey.escape:
+      case LogicalKeyboardKey.goBack:
+      case LogicalKeyboardKey.browserBack:
         Navigator.of(context).pop();
-        break;
+        return KeyEventResult.handled;
     }
+    return KeyEventResult.ignored;
   }
 
   @override
@@ -161,9 +168,8 @@ class _DuaShowcaseScreenState extends State<DuaShowcaseScreen> {
         ? _filteredSupplications[_currentIndex]
         : null;
 
-    return KeyboardListener(
+    return Focus(
       focusNode: _focusNode,
-      autofocus: true,
       onKeyEvent: _handleKeyEvent,
       child: Scaffold(
         backgroundColor: AppTheme.emeraldDeep,
@@ -587,6 +593,7 @@ class _DuaShowcaseScreenState extends State<DuaShowcaseScreen> {
           children: [
             // Next button (RTL forward)
             ElevatedButton.icon(
+              autofocus: true,
               icon: const Icon(Icons.arrow_back),
               label: const Text(
                 'التالي',

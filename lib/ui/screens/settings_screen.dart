@@ -6,6 +6,7 @@ import '../../core/providers/display_provider.dart';
 import '../../data/models/mosque_settings.dart';
 import '../../data/models/commune.dart';
 import '../../data/models/iqamah_delays.dart';
+import '../../data/models/prayer_offsets.dart';
 import '../../data/models/prayer_schedule.dart';
 import '../../data/models/wilaya.dart';
 import '../../domain/calculation/hijri_calculator.dart';
@@ -28,6 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   static const _pages = [
     'الولاية',
+    'معايرة المواقيت',
     'الخطوط والأدعية',
     'تأخير الإقامة',
     'صلاة الجماعة',
@@ -39,24 +41,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.emeraldDeep,
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: AppTheme.backgroundGradient,
+    return Focus(
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            (event.logicalKey == LogicalKeyboardKey.escape ||
+             event.logicalKey == LogicalKeyboardKey.goBack ||
+             event.logicalKey == LogicalKeyboardKey.browserBack)) {
+          final currentFocus = FocusManager.instance.primaryFocus;
+          if (currentFocus != null &&
+              (currentFocus.context?.widget is EditableText ||
+               currentFocus.context?.findAncestorWidgetOfExactType<EditableText>() != null)) {
+            currentFocus.unfocus();
+            return KeyEventResult.handled;
+          }
+          Navigator.of(context).pop();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.emeraldDeep,
+        body: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                gradient: AppTheme.backgroundGradient,
+              ),
             ),
-          ),
-          Row(
-            children: [
-              // Sidebar nav
-              _buildSidebar(),
-              // Page content
-              Expanded(child: _buildPage()),
-            ],
-          ),
-        ],
+            Row(
+              children: [
+                // Sidebar nav
+                _buildSidebar(),
+                // Page content
+                Expanded(child: _buildPage()),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -67,17 +88,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
       color: AppTheme.emeraldDeep.withValues(alpha: 0.8),
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(24),
-            child: Text(
-              'الإعدادات',
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize: 32,
-                color: AppTheme.goldPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-              textDirection: TextDirection.rtl,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new,
+                      color: AppTheme.goldPrimary, size: 22),
+                  tooltip: 'رجوع للشاشة الرئيسية (Esc)',
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                const Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'الإعدادات',
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: 30,
+                        color: AppTheme.goldPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textDirection: TextDirection.rtl,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -114,18 +151,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case 0:
         return _WilayaPage(settings: settings);
       case 1:
-        return _FontsAndDuaPage(settings: settings);
+        return _PrayerOffsetsPage(settings: settings);
       case 2:
-        return _IqamahPage(settings: settings);
+        return _FontsAndDuaPage(settings: settings);
       case 3:
-        return _BlackoutPage(settings: settings);
+        return _IqamahPage(settings: settings);
       case 4:
-        return _HijriPage(settings: settings);
+        return _BlackoutPage(settings: settings);
       case 5:
-        return _MosqueInfoPage(settings: settings);
+        return _HijriPage(settings: settings);
       case 6:
-        return _PinPage(settings: settings);
+        return _MosqueInfoPage(settings: settings);
       case 7:
+        return _PinPage(settings: settings);
+      case 8:
         return const _SimulationPage();
       default:
         return const SizedBox.shrink();
@@ -154,12 +193,49 @@ class _WilayaPageState extends State<_WilayaPage> {
   String _communeQuery = '';
   late final TextEditingController _wilayaCtrl;
   late final TextEditingController _communeCtrl;
+  late final FocusNode _wilayaFocusNode;
+  late final FocusNode _communeFocusNode;
 
   @override
   void initState() {
     super.initState();
     _wilayaCtrl = TextEditingController();
     _communeCtrl = TextEditingController();
+    _wilayaFocusNode = FocusNode();
+    _communeFocusNode = FocusNode();
+
+    _wilayaFocusNode.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          node.nextFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowUp ||
+            event.logicalKey == LogicalKeyboardKey.escape ||
+            event.logicalKey == LogicalKeyboardKey.goBack) {
+          node.unfocus();
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    };
+
+    _communeFocusNode.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          node.nextFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowUp ||
+            event.logicalKey == LogicalKeyboardKey.escape ||
+            event.logicalKey == LogicalKeyboardKey.goBack) {
+          node.unfocus();
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    };
+
     _activeWilayaCode = widget.settings.selectedWilayaCode;
     _fetchCommunes(widget.settings.selectedWilayaCode);
   }
@@ -168,6 +244,8 @@ class _WilayaPageState extends State<_WilayaPage> {
   void dispose() {
     _wilayaCtrl.dispose();
     _communeCtrl.dispose();
+    _wilayaFocusNode.dispose();
+    _communeFocusNode.dispose();
     super.dispose();
   }
 
@@ -295,6 +373,11 @@ class _WilayaPageState extends State<_WilayaPage> {
           padding: const EdgeInsets.only(bottom: 12),
           child: TextField(
             controller: _wilayaCtrl,
+            focusNode: _wilayaFocusNode,
+            textInputAction: TextInputAction.search,
+            onSubmitted: (_) => _wilayaFocusNode.unfocus(),
+            onTapOutside: (_) => _wilayaFocusNode.unfocus(),
+            enableInteractiveSelection: false,
             onChanged: (v) => setState(() => _wilayaQuery = v.trim()),
             textDirection: TextDirection.rtl,
             style: const TextStyle(
@@ -449,6 +532,11 @@ class _WilayaPageState extends State<_WilayaPage> {
               Expanded(
                 child: TextField(
                   controller: _communeCtrl,
+                  focusNode: _communeFocusNode,
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (_) => _communeFocusNode.unfocus(),
+                  onTapOutside: (_) => _communeFocusNode.unfocus(),
+                  enableInteractiveSelection: false,
                   onChanged: (v) => setState(() => _communeQuery = v.trim()),
                   textDirection: TextDirection.rtl,
                   style: const TextStyle(
@@ -783,6 +871,167 @@ class _FontsAndDuaPage extends StatelessWidget {
   }
 }
 
+// ── Per-Prayer Calibration Offsets (±15 min) ──────────────────────────────────
+
+class _PrayerOffsetsPage extends StatelessWidget {
+  final MosqueSettings settings;
+  const _PrayerOffsetsPage({required this.settings});
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<DisplayProvider>();
+    final offsets = settings.offsets;
+    final schedule = provider.todaySchedule;
+    final activeCommune = provider.activeCommune;
+    final currentWilaya = algerianWilayas.firstWhere(
+      (w) => w.code == settings.selectedWilayaCode,
+      orElse: () => algerianWilayas.first,
+    );
+
+    final prayers = [
+      (Prayer.fajr, offsets.fajr),
+      (Prayer.sunrise, offsets.sunrise),
+      (Prayer.dhuhr, offsets.dhuhr),
+      (Prayer.asr, offsets.asr),
+      (Prayer.maghrib, offsets.maghrib),
+      (Prayer.isha, offsets.isha),
+    ];
+
+    String fmtTime(Prayer p) {
+      if (schedule == null) return '--:--';
+      final t = schedule.getTime(p);
+      return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+    }
+
+    return _PageWrapper(
+      title: 'معايرة المواقيت يدوياً (تعديل الدقائق ±15)',
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Active Location & Baseline Info Card
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppTheme.emeraldDeep.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.goldDim, width: 1.5),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'الموقع المعتمد: ولاية ${currentWilaya.nameAr} (${currentWilaya.code.toString().padLeft(2, '0')})'
+                    '${settings.selectedCommuneName != null ? ' - بلدية ${settings.selectedCommuneName}' : ' - مركز الولاية'}',
+                    style: const TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.goldPrimary,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    activeCommune != null && activeCommune.minuteOffset != 0
+                        ? 'فارق التوقيت الرسمي للوزارة: ${activeCommune.minuteOffset >= 0 ? '+' : ''}${activeCommune.minuteOffset} دقيقة (مطبق تلقائياً على الرزنامة الرسمية)'
+                        : 'توقيت رسمي معتمد من وزارة الشؤون الدينية ومركز CRAAG (فارق 0 دقيقة)',
+                    style: const TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: 13,
+                      color: AppTheme.textSecondary,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                ],
+              ),
+            ),
+
+            // Help Banner with Reset Button
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppTheme.emeraldMid,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.emeraldLight, width: 1.2),
+              ),
+              child: Row(
+                children: [
+                  _SettingsButton(
+                    label: 'إعادة ضبط الكل (0)',
+                    onTap: () async {
+                      final newSettings = settings.copyWith(
+                        offsets: const PrayerOffsets.zero(),
+                      );
+                      await context
+                          .read<DisplayProvider>()
+                          .updateSettings(newSettings);
+                      await SettingsRepository.save(newSettings);
+                    },
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Text(
+                      'استخدم الأسهم ◀ ▶ لتعديل دقائق كل صلاة بشكل منفصل لمطابقة رزنامة المسجد المحلية بدقة تامة.',
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: 15,
+                        color: AppTheme.textSecondary,
+                      ),
+                      textDirection: TextDirection.rtl,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Per-Prayer Calibration Steppers
+            ...prayers.map((entry) {
+              final (prayer, val) = entry;
+              final valStr = val == 0
+                  ? '0 د'
+                  : (val > 0 ? '+$val د' : '$val د');
+              return _NumberStepper(
+                label: '${prayer.nameAr}  [الموعد الحالي: ${fmtTime(prayer)}] ($valStr)',
+                value: val,
+                min: PrayerOffsets.minOffsetMinutes,
+                max: PrayerOffsets.maxOffsetMinutes,
+                onChanged: (v) async {
+                  final newOffsets = _updateOffset(offsets, prayer, v);
+                  final newSettings = settings.copyWith(offsets: newOffsets);
+                  await context
+                      .read<DisplayProvider>()
+                      .updateSettings(newSettings);
+                  await SettingsRepository.save(newSettings);
+                },
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  PrayerOffsets _updateOffset(PrayerOffsets o, Prayer p, int v) {
+    switch (p) {
+      case Prayer.fajr:
+        return o.copyWith(fajr: v);
+      case Prayer.sunrise:
+        return o.copyWith(sunrise: v);
+      case Prayer.dhuhr:
+        return o.copyWith(dhuhr: v);
+      case Prayer.asr:
+        return o.copyWith(asr: v);
+      case Prayer.maghrib:
+        return o.copyWith(maghrib: v);
+      case Prayer.isha:
+        return o.copyWith(isha: v);
+    }
+  }
+}
+
 // ── Iqamah Delays ─────────────────────────────────────────────────────────────
 
 class _IqamahPage extends StatelessWidget {
@@ -1113,89 +1362,274 @@ class _PinPage extends StatefulWidget {
 }
 
 class _PinPageState extends State<_PinPage> {
-  final _ctrl = TextEditingController();
+  String _newPin = '';
   String? _msg;
 
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
+  void _appendDigit(String d) {
+    if (_newPin.length < 4) {
+      setState(() {
+        _newPin += d;
+        _msg = null;
+      });
+    }
+  }
+
+  void _backspace() {
+    if (_newPin.isNotEmpty) {
+      setState(() {
+        _newPin = _newPin.substring(0, _newPin.length - 1);
+        _msg = null;
+      });
+    }
+  }
+
+  Future<void> _savePin() async {
+    if (_newPin.length == 4) {
+      final newSettings = widget.settings.copyWith(pinCode: _newPin);
+      await context.read<DisplayProvider>().updateSettings(newSettings);
+      await SettingsRepository.save(newSettings);
+      setState(() {
+        _msg = 'تم حفظ رمز PIN بنجاح ✓';
+        _newPin = '';
+      });
+    } else {
+      setState(() => _msg = 'يجب إدخال 4 أرقام كاملة');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return _PageWrapper(
       title: 'رمز الأمان (PIN)',
-      child: Column(
-        children: [
-          Text(
-            'رمز PIN الحالي: ${widget.settings.pinCode}',
-            style: const TextStyle(
-                fontFamily: 'Cairo', fontSize: 24, color: AppTheme.textPrimary),
-            textDirection: TextDirection.rtl,
-          ),
-          const SizedBox(height: 24),
-          TextField(
-            controller: _ctrl,
-            keyboardType: TextInputType.number,
-            maxLength: 4,
-            obscureText: true,
-            textDirection: TextDirection.ltr,
-            style: const TextStyle(
-                fontFamily: 'Cairo',
-                fontSize: 28,
-                color: AppTheme.textPrimary,
-                letterSpacing: 12),
-            decoration: InputDecoration(
-              hintText: '0000',
-              hintStyle: const TextStyle(color: AppTheme.textSecondary),
-              enabledBorder: OutlineInputBorder(
-                borderSide:
-                    const BorderSide(color: AppTheme.emeraldLight, width: 1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide:
-                    const BorderSide(color: AppTheme.goldPrimary, width: 2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              labelText: 'رمز PIN الجديد (4 أرقام)',
-              labelStyle: const TextStyle(
-                  fontFamily: 'Cairo',
-                  color: AppTheme.textSecondary,
-                  fontSize: 18),
-            ),
-          ),
-          if (_msg != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text(
-                _msg!,
+      child: Focus(
+        onKeyEvent: (node, event) {
+          if (event is KeyDownEvent) {
+            final key = event.logicalKey;
+            if (key == LogicalKeyboardKey.digit0 || key == LogicalKeyboardKey.numpad0) {
+              _appendDigit('0');
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.digit1 || key == LogicalKeyboardKey.numpad1) {
+              _appendDigit('1');
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.digit2 || key == LogicalKeyboardKey.numpad2) {
+              _appendDigit('2');
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.digit3 || key == LogicalKeyboardKey.numpad3) {
+              _appendDigit('3');
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.digit4 || key == LogicalKeyboardKey.numpad4) {
+              _appendDigit('4');
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.digit5 || key == LogicalKeyboardKey.numpad5) {
+              _appendDigit('5');
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.digit6 || key == LogicalKeyboardKey.numpad6) {
+              _appendDigit('6');
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.digit7 || key == LogicalKeyboardKey.numpad7) {
+              _appendDigit('7');
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.digit8 || key == LogicalKeyboardKey.numpad8) {
+              _appendDigit('8');
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.digit9 || key == LogicalKeyboardKey.numpad9) {
+              _appendDigit('9');
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.backspace || key == LogicalKeyboardKey.delete) {
+              _backspace();
+              return KeyEventResult.handled;
+            } else if (key == LogicalKeyboardKey.enter || key == LogicalKeyboardKey.numpadEnter) {
+              _savePin();
+              return KeyEventResult.handled;
+            }
+          }
+          return KeyEventResult.ignored;
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Text(
+                'رمز PIN الحالي: ${widget.settings.pinCode}',
                 style: const TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize: 20,
-                    color: AppTheme.goldPrimary),
+                    fontFamily: 'Cairo', fontSize: 24, color: AppTheme.textPrimary),
+                textDirection: TextDirection.rtl,
               ),
-            ),
-          const SizedBox(height: 20),
-          _SettingsButton(
-            label: 'حفظ رمز PIN',
-            onTap: () async {
-              final pin = _ctrl.text.trim();
-              if (pin.length == 4 &&
-                  pin.split('').every((c) => '0123456789'.contains(c))) {
-                final newSettings = widget.settings.copyWith(pinCode: pin);
-                await context
-                    .read<DisplayProvider>()
-                    .updateSettings(newSettings);
-                await SettingsRepository.save(newSettings);
-                setState(() => _msg = 'تم حفظ رمز PIN بنجاح ✓');
-              } else {
-                setState(() => _msg = 'يجب إدخال 4 أرقام فقط');
-              }
-            },
+              const SizedBox(height: 16),
+              // PIN Indicator Boxes
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(4, (i) {
+                  final isFilled = i < _newPin.length;
+                  return Container(
+                    width: 50,
+                    height: 54,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: isFilled ? AppTheme.emeraldLight : AppTheme.emeraldMid,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isFilled ? AppTheme.goldPrimary : AppTheme.emeraldLight,
+                        width: 2,
+                      ),
+                      boxShadow: isFilled
+                          ? [
+                              BoxShadow(
+                                color: AppTheme.goldPrimary.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                              )
+                            ]
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      isFilled ? _newPin[i] : '—',
+                      style: const TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.goldPrimary,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+              if (_msg != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(
+                    _msg!,
+                    style: const TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: 18,
+                        color: AppTheme.goldPrimary),
+                  ),
+                ),
+              const SizedBox(height: 16),
+              // On-screen TV Numpad (D-pad operable, zero keyboard freezing)
+              _buildNumpadRow(['1', '2', '3']),
+              const SizedBox(height: 8),
+              _buildNumpadRow(['4', '5', '6']),
+              const SizedBox(height: 8),
+              _buildNumpadRow(['7', '8', '9']),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _NumpadKey(
+                    label: 'مسح ⌫',
+                    isAction: true,
+                    onTap: _backspace,
+                  ),
+                  const SizedBox(width: 8),
+                  _NumpadKey(
+                    label: '0',
+                    onTap: () => _appendDigit('0'),
+                  ),
+                  const SizedBox(width: 8),
+                  _NumpadKey(
+                    label: 'حفظ ✓',
+                    isAction: true,
+                    isSave: true,
+                    onTap: _savePin,
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNumpadRow(List<String> digits) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: digits.map((d) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: _NumpadKey(
+            label: d,
+            onTap: () => _appendDigit(d),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _NumpadKey extends StatefulWidget {
+  final String label;
+  final VoidCallback onTap;
+  final bool isAction;
+  final bool isSave;
+
+  const _NumpadKey({
+    required this.label,
+    required this.onTap,
+    this.isAction = false,
+    this.isSave = false,
+  });
+
+  @override
+  State<_NumpadKey> createState() => _NumpadKeyState();
+}
+
+class _NumpadKeyState extends State<_NumpadKey> {
+  bool _focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = widget.isSave
+        ? (_focused ? AppTheme.goldLight : AppTheme.goldPrimary)
+        : (_focused ? AppTheme.emeraldLight : AppTheme.emeraldMid);
+    final textCol = widget.isSave
+        ? AppTheme.emeraldDeep
+        : (_focused ? AppTheme.goldPrimary : AppTheme.textPrimary);
+
+    return Focus(
+      onFocusChange: (f) => setState(() => _focused = f),
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            (event.logicalKey == LogicalKeyboardKey.select ||
+             event.logicalKey == LogicalKeyboardKey.enter)) {
+          widget.onTap();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: widget.isAction ? 92 : 72,
+          height: 48,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: _focused ? AppTheme.goldPrimary : AppTheme.emeraldLight,
+              width: _focused ? 2.5 : 1,
+            ),
+            boxShadow: _focused
+                ? [
+                    BoxShadow(
+                      color: AppTheme.goldPrimary.withValues(alpha: 0.5),
+                      blurRadius: 10,
+                    )
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            widget.label,
+            style: TextStyle(
+              fontFamily: 'Cairo',
+              fontSize: widget.isAction ? 17 : 22,
+              fontWeight: FontWeight.bold,
+              color: textCol,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -1451,16 +1885,34 @@ class _EditableField extends StatefulWidget {
 
 class _EditableFieldState extends State<_EditableField> {
   late final TextEditingController _ctrl;
+  late final FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
     _ctrl = TextEditingController(text: widget.value);
+    _focusNode = FocusNode();
+    _focusNode.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          node.nextFocus();
+          return KeyEventResult.handled;
+        }
+        if (event.logicalKey == LogicalKeyboardKey.arrowUp ||
+            event.logicalKey == LogicalKeyboardKey.escape ||
+            event.logicalKey == LogicalKeyboardKey.goBack) {
+          node.unfocus();
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    };
   }
 
   @override
   void dispose() {
     _ctrl.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -1478,7 +1930,14 @@ class _EditableFieldState extends State<_EditableField> {
         const SizedBox(height: 8),
         TextField(
           controller: _ctrl,
+          focusNode: _focusNode,
           maxLines: widget.maxLines,
+          textInputAction: widget.maxLines == 1
+              ? TextInputAction.done
+              : TextInputAction.newline,
+          onSubmitted: (_) => _focusNode.unfocus(),
+          onTapOutside: (_) => _focusNode.unfocus(),
+          enableInteractiveSelection: false,
           textDirection: TextDirection.rtl,
           style: const TextStyle(
               fontFamily: 'Cairo', fontSize: 22, color: AppTheme.textPrimary),
@@ -1500,7 +1959,10 @@ class _EditableFieldState extends State<_EditableField> {
         const SizedBox(height: 8),
         _SettingsButton(
             label: 'حفظ',
-            onTap: () => widget.onSaved(_ctrl.text.trim())),
+            onTap: () {
+              _focusNode.unfocus();
+              widget.onSaved(_ctrl.text.trim());
+            }),
       ],
     );
   }

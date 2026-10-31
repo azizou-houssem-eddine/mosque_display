@@ -204,25 +204,41 @@ class _AdhkarCarouselScreenState extends State<AdhkarCarouselScreen> {
                             textDirection: TextDirection.rtl,
                           ),
                           const SizedBox(width: 24),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppTheme.emeraldMid,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: AppTheme.emeraldLight,
-                                width: 1,
+                          InkWell(
+                            onTap: () => provider.dismissAdhkar(),
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppTheme.emeraldMid,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: AppTheme.goldDim.withValues(alpha: 0.6),
+                                  width: 1,
+                                ),
                               ),
-                            ),
-                            child: const Text(
-                              '◀ ▶ للتنقل  •  رجوع للخروج',
-                              style: TextStyle(
-                                fontFamily: 'Cairo',
-                                fontSize: 15,
-                                color: AppTheme.textSecondary,
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.arrow_back_ios_new,
+                                    color: AppTheme.goldPrimary,
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    '◀ ▶ للتنقل  •  رجوع للخروج',
+                                    style: TextStyle(
+                                      fontFamily: 'Cairo',
+                                      fontSize: 15,
+                                      color: AppTheme.goldPrimary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    textDirection: TextDirection.rtl,
+                                  ),
+                                ],
                               ),
-                              textDirection: TextDirection.rtl,
                             ),
                           ),
                         ],

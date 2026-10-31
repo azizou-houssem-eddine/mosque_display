@@ -33,11 +33,12 @@ class _SalatBlackoutScreenState extends State<SalatBlackoutScreen> {
       autofocus: true,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          if (provider.isSimulationActive &&
-              (event.logicalKey == LogicalKeyboardKey.escape ||
-                  event.logicalKey == LogicalKeyboardKey.keyT ||
-                  event.logicalKey == LogicalKeyboardKey.keyS)) {
-            provider.resetSimulation();
+          if (event.logicalKey == LogicalKeyboardKey.escape ||
+              event.logicalKey == LogicalKeyboardKey.goBack ||
+              event.logicalKey == LogicalKeyboardKey.browserBack ||
+              event.logicalKey == LogicalKeyboardKey.keyT ||
+              event.logicalKey == LogicalKeyboardKey.keyS) {
+            provider.dismissActiveState();
           }
         }
       },
@@ -45,25 +46,35 @@ class _SalatBlackoutScreenState extends State<SalatBlackoutScreen> {
         backgroundColor: Colors.black,
         body: Stack(
           children: [
-            // Exit button during simulation
-            if (provider.isSimulationActive)
-              Positioned(
-                top: 24,
-                left: 24,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.close, size: 20),
-                  label: const Text(
-                    'إنهاء المحاكاة (Esc / T)',
-                    style: TextStyle(fontFamily: 'Cairo', fontSize: 16),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent.withValues(alpha: 0.3),
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.redAccent),
-                  ),
-                  onPressed: () => provider.resetSimulation(),
+            // Exit / Back button
+            Positioned(
+              top: 24,
+              left: 24,
+              child: ElevatedButton.icon(
+                icon: Icon(
+                  provider.isSimulationActive ? Icons.close : Icons.arrow_back,
+                  size: 20,
                 ),
+                label: Text(
+                  provider.isSimulationActive
+                      ? 'إنهاء المحاكاة (Esc / T)'
+                      : 'العودة للشاشة الرئيسية',
+                  style: const TextStyle(fontFamily: 'Cairo', fontSize: 16),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: provider.isSimulationActive
+                      ? Colors.redAccent.withValues(alpha: 0.3)
+                      : const Color(0xFF06231A).withValues(alpha: 0.65),
+                  foregroundColor: Colors.white,
+                  side: BorderSide(
+                    color: provider.isSimulationActive
+                        ? Colors.redAccent
+                        : const Color(0xFFB8962E).withValues(alpha: 0.5),
+                  ),
+                ),
+                onPressed: () => provider.dismissActiveState(),
               ),
+            ),
             // Very dim radial glow — barely visible
             Container(
               decoration: BoxDecoration(

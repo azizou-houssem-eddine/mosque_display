@@ -401,7 +401,7 @@ class SimulationControlDialog extends StatelessWidget {
   }
 }
 
-class _SimButton extends StatelessWidget {
+class _SimButton extends StatefulWidget {
   final String label;
   final IconData? icon;
   final bool isSelected;
@@ -415,45 +415,64 @@ class _SimButton extends StatelessWidget {
   });
 
   @override
+  State<_SimButton> createState() => _SimButtonState();
+}
+
+class _SimButtonState extends State<_SimButton> {
+  bool _isFocused = false;
+
+  @override
   Widget build(BuildContext context) {
+    final active = widget.isSelected || _isFocused;
     return InkWell(
-      onTap: onTap,
+      onTap: widget.onTap,
+      onFocusChange: (f) => setState(() => _isFocused = f),
       borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.goldPrimary.withValues(alpha: 0.25)
+          color: active
+              ? AppTheme.goldPrimary.withValues(alpha: _isFocused ? 0.35 : 0.25)
               : AppTheme.emeraldMid,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppTheme.goldPrimary : AppTheme.emeraldLight,
-            width: isSelected ? 2 : 1,
+            color: _isFocused
+                ? AppTheme.focusBorder
+                : (widget.isSelected ? AppTheme.goldPrimary : AppTheme.emeraldLight),
+            width: _isFocused ? 2.5 : (widget.isSelected ? 2 : 1),
           ),
+          boxShadow: _isFocused
+              ? [
+                  BoxShadow(
+                    color: AppTheme.goldPrimary.withValues(alpha: 0.55),
+                    blurRadius: 12,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
               child: Text(
-                label,
+                widget.label,
                 style: TextStyle(
                   fontFamily: 'Cairo',
                   fontSize: 16,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color:
-                      isSelected ? AppTheme.goldPrimary : AppTheme.textPrimary,
+                  fontWeight: active ? FontWeight.bold : FontWeight.w500,
+                  color: active ? AppTheme.goldPrimary : AppTheme.textPrimary,
                 ),
                 textDirection: TextDirection.rtl,
               ),
             ),
-            if (icon != null) ...[
+            if (widget.icon != null) ...[
               const SizedBox(width: 8),
               Icon(
-                icon,
+                widget.icon,
                 size: 20,
-                color: isSelected ? AppTheme.goldPrimary : AppTheme.goldDim,
+                color: active ? AppTheme.goldPrimary : AppTheme.goldDim,
               ),
             ],
           ],

@@ -67,7 +67,7 @@ class DisplayProvider extends ChangeNotifier {
   bool get adhkarShortcutActive => _adhkarShortcutActive;
   bool get isSimulationActive => _isSimulationActive;
 
-  /// Effective date-time currently active.
+  /// Effective date-time currently active, normalized to Algerian National Time (UTC+1).
   /// When simulation is active, anchors to the simulated representative time
   /// and ticks synchronously second-by-second for live TV inspection.
   DateTime get effectiveDate {
@@ -78,7 +78,17 @@ class DisplayProvider extends ChangeNotifier {
           : Duration.zero;
       return base.add(elapsed);
     }
-    return DateTime.now();
+    final algeriaUtc = DateTime.now().toUtc().add(const Duration(hours: 1));
+    return DateTime(
+      algeriaUtc.year,
+      algeriaUtc.month,
+      algeriaUtc.day,
+      algeriaUtc.hour,
+      algeriaUtc.minute,
+      algeriaUtc.second,
+      algeriaUtc.millisecond,
+      algeriaUtc.microsecond,
+    );
   }
 
   OccasionType? get activeSimulatedOccasion => _activeSimulatedOccasion;
@@ -339,6 +349,22 @@ class DisplayProvider extends ChangeNotifier {
   /// D-pad Back: dismiss Adhkar early.
   void dismissAdhkar() {
     _dismissAdhkar();
+    notifyListeners();
+  }
+
+  /// Dismisses any active prayer state (Adhan alert, Iqamah countdown, Blackout, Adhkar)
+  /// and returns to the standard dashboard view.
+  void dismissActiveState() {
+    if (_isSimulationActive) {
+      resetSimulation();
+      return;
+    }
+    _adhkarShortcutActive = false;
+    _iqamahRemaining = Duration.zero;
+    _blackoutRemaining = Duration.zero;
+    _adhkarRemaining = Duration.zero;
+    _activePrayer = null;
+    _displayState = DisplayState.standard;
     notifyListeners();
   }
 

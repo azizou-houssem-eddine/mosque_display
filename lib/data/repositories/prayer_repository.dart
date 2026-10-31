@@ -19,10 +19,10 @@ abstract class IPrayerRepository {
   Future<Commune?> getCommuneByCode(int communeCode);
 }
 
-/// Dual-engine implementation:
-/// 1. Commune-specific: Astronomical algorithmic calculation using exact municipality coordinates.
-/// 2. Primary Wilaya: Bundled official Algerian Ministry timetable data (366 days).
-/// 3. Fallback Wilaya: Astronomical algorithmic calculator (AlAdhan Method 19 parameters).
+/// Hybrid repository implementation conforming strictly to Algerian Ministry (MARW/CRAAG):
+/// 1. Primary: Bundled official Algerian Ministry timetable data (366 days for all 58 Wilayas).
+/// 2. Commune strategy: Official ministerial minute difference (فروق التوقيت بالدقائق) applied to Wilaya schedule.
+/// 3. Fallback: Astronomical algorithmic calculator (AlAdhan Method 19 parameters).
 /// 4. Communal calibration: Applied per-prayer manual fine-tuning offsets (±15 min).
 class HybridAlgerianPrayerRepository implements IPrayerRepository {
   final IBundledTimetableDataSource _bundledDataSource;
@@ -44,26 +44,19 @@ class HybridAlgerianPrayerRepository implements IPrayerRepository {
     required DateTime date,
     PrayerOffsets offsets = const PrayerOffsets(),
   }) async {
-    PrayerSchedule? schedule;
+    PrayerSchedule? baseSchedule;
 
-    // 1. Primary: Official Algerian Ministry bundled timetable + official commune minute offset
+    // 1. Primary: Load bundled official Algerian Ministry timetable for the Wilaya (366 days)
     try {
-      final wilayaSchedule = await _bundledDataSource.getPrayerSchedule(wilayaCode, date);
-      if (wilayaSchedule != null) {
-        if (commune != null && commune.minuteOffset != 0) {
-          schedule = wilayaSchedule.applyOffsets(PrayerOffsets.uniform(commune.minuteOffset));
-        } else {
-          schedule = wilayaSchedule;
-        }
-      }
+      baseSchedule = await _bundledDataSource.getPrayerSchedule(wilayaCode, date);
     } catch (_) {
-      schedule = null;
+      baseSchedule = null;
     }
 
-    // 2. Secondary: Astronomical calculation using exact commune coordinates or wilaya center
-    if (schedule == null) {
+    // 2. Fallback: Astronomical calculation if bundled lookup failed
+    if (baseSchedule == null) {
       if (commune != null) {
-        schedule = AlgerianPrayerCalculator.calculateForCoordinates(
+        baseSchedule = AlgerianPrayerCalculator.calculateForCoordinates(
           latitude: commune.latitude,
           longitude: commune.longitude,
           date: date,
@@ -73,15 +66,20 @@ class HybridAlgerianPrayerRepository implements IPrayerRepository {
           (w) => w.code == wilayaCode,
           orElse: () => throw ArgumentError('Wilaya code $wilayaCode not recognized'),
         );
-        schedule = AlgerianPrayerCalculator.calculateForWilaya(
+        baseSchedule = AlgerianPrayerCalculator.calculateForWilaya(
           wilaya: wilaya,
           date: date,
         );
       }
+    } else if (commune != null && commune.minuteOffset != 0) {
+      // 3. Official Algerian Ministry standard (marw.dz / CRAAG):
+      // Commune prayer times are obtained by applying the official minute difference
+      // (فروق التوقيت بالدقائق) relative to the Wilaya's official timetable.
+      baseSchedule = baseSchedule.applyOffsets(PrayerOffsets.uniform(commune.minuteOffset));
     }
 
-    // 3. Communal calibration: Apply per-prayer manual fine-tuning offsets (±15 min)
-    return schedule.applyOffsets(offsets);
+    // 4. Communal calibration: Apply per-prayer manual fine-tuning offsets (±15 min)
+    return baseSchedule.applyOffsets(offsets);
   }
 
   @override

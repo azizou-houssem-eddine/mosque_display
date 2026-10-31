@@ -1,7 +1,7 @@
 name: mosque_display
 description: "Flutter Android TV prayer times and announcement display application for Algerian mosques."
 publish_to: "none"
-version: 1.0.0+1
+version: 1.2.1+2
 
 environment:
   sdk: ^3.11.1

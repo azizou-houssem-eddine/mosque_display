@@ -65,78 +65,104 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
     final schedule = provider.todaySchedule;
     final occasions = provider.activeOccasions;
 
-    // State routing
+    // State routing wrapped in PopScope so Android TV Back button returns to standard mode
+    // instead of exiting the application.
     switch (provider.displayState) {
       case DisplayState.adhanAlert:
       case DisplayState.iqamahCountdown:
-        return const IqamahCountdownScreen();
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) provider.dismissActiveState();
+          },
+          child: const IqamahCountdownScreen(),
+        );
       case DisplayState.salatBlackout:
-        return const SalatBlackoutScreen();
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) provider.dismissActiveState();
+          },
+          child: const SalatBlackoutScreen(),
+        );
       case DisplayState.postSalatAdhkar:
-        return const AdhkarCarouselScreen();
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) provider.dismissAdhkar();
+          },
+          child: const AdhkarCarouselScreen(),
+        );
       case DisplayState.standard:
         break;
     }
 
-    return KeyboardListener(
+    return Focus(
       focusNode: _screenFocusNode,
-      autofocus: true,
-      onKeyEvent: (event) {
+      onKeyEvent: (node, event) {
         if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.select ||
-              event.logicalKey == LogicalKeyboardKey.enter ||
-              event.logicalKey == LogicalKeyboardKey.numpadEnter ||
-              event.logicalKey == LogicalKeyboardKey.gameButtonA ||
-              event.logicalKey == LogicalKeyboardKey.f1 ||
+          if (event.logicalKey == LogicalKeyboardKey.f1 ||
               event.logicalKey == LogicalKeyboardKey.keyM ||
               event.logicalKey == LogicalKeyboardKey.contextMenu) {
             _openSettings(context);
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.keyD) {
             _openDuaShowcase(context);
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.keyT ||
               event.logicalKey == LogicalKeyboardKey.keyS ||
               event.logicalKey == LogicalKeyboardKey.f3) {
             _openSimulationDialog(context);
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.mediaFastForward ||
               event.logicalKey == LogicalKeyboardKey.f2 ||
               event.logicalKey == LogicalKeyboardKey.digit5) {
-            // D-pad shortcut — trigger Adhkar on demand
             provider.triggerAdhkarOnDemand();
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.digit1) {
             provider.resetSimulation();
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.digit2) {
             provider.simulateDisplayState(DisplayState.adhanAlert);
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.digit3) {
             provider.simulateDisplayState(
               DisplayState.iqamahCountdown,
               customDuration: const Duration(seconds: 30),
             );
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.digit4) {
             provider.simulateDisplayState(
               DisplayState.salatBlackout,
               customDuration: const Duration(seconds: 20),
             );
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.digit6) {
             provider.simulateOccasion(OccasionType.friday);
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.digit7) {
             provider.simulateOccasion(OccasionType.ramadan);
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.digit8) {
             provider.simulateOccasion(OccasionType.eidFitr);
+            return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.digit9) {
             provider.simulateOccasion(OccasionType.arafah);
+            return KeyEventResult.handled;
           }
         }
+        return KeyEventResult.ignored;
       },
       child: GestureDetector(
         onLongPress: () => _openSettings(context),
@@ -218,11 +244,13 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                 alignment: Alignment.centerLeft,
                 child: Focus(
                   focusNode: _settingsButtonFocusNode,
+                  autofocus: true,
                   onKeyEvent: (node, event) {
                     if (event is KeyDownEvent &&
                         (event.logicalKey == LogicalKeyboardKey.select ||
                          event.logicalKey == LogicalKeyboardKey.enter ||
-                         event.logicalKey == LogicalKeyboardKey.numpadEnter)) {
+                         event.logicalKey == LogicalKeyboardKey.numpadEnter ||
+                         event.logicalKey == LogicalKeyboardKey.gameButtonA)) {
                       _openSettings(context);
                       return KeyEventResult.handled;
                     }
@@ -430,24 +458,36 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.tune,
-                        color: AppTheme.goldDim,
-                        size: scale.scale(26, min: 20, max: 44),
-                      ),
-                      tooltip: 'محاكاة الحالات والمناسبات (T / S)',
-                      onPressed: () => _openSimulationDialog(context),
+                    _HeaderNavActionButton(
+                      icon: Icons.settings,
+                      label: 'الإعدادات',
+                      tooltip: 'الإعدادات وضبط المواقيت (M / F1)',
+                      scale: scale,
+                      onPressed: () => _openSettings(context),
                     ),
-                    const SizedBox(width: 2),
-                    IconButton(
-                      icon: Icon(
-                        Icons.auto_stories,
-                        color: AppTheme.goldDim,
-                        size: scale.scale(26, min: 20, max: 44),
-                      ),
+                    SizedBox(width: scale.scale(6, min: 4, max: 12)),
+                    _HeaderNavActionButton(
+                      icon: Icons.self_improvement,
+                      label: 'الأذكار',
+                      tooltip: 'أذكار ما بعد الصلاة (F2 / 5)',
+                      scale: scale,
+                      onPressed: () => provider.triggerAdhkarOnDemand(),
+                    ),
+                    SizedBox(width: scale.scale(6, min: 4, max: 12)),
+                    _HeaderNavActionButton(
+                      icon: Icons.auto_stories,
+                      label: 'الأدعية والخطوط',
                       tooltip: 'معرض الأدعية والخطوط الإسلامية (D)',
+                      scale: scale,
                       onPressed: () => _openDuaShowcase(context),
+                    ),
+                    SizedBox(width: scale.scale(6, min: 4, max: 12)),
+                    _HeaderNavActionButton(
+                      icon: Icons.tune,
+                      label: 'المحاكاة',
+                      tooltip: 'محاكاة الحالات والمناسبات (T / S)',
+                      scale: scale,
+                      onPressed: () => _openSimulationDialog(context),
                     ),
                     SizedBox(width: scale.scale(12, min: 8, max: 20)),
                     Column(
@@ -755,6 +795,113 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
               color: AppTheme.goldPrimary,
               size: scale.scale(20, min: 14, max: 36)),
         ],
+      ),
+    );
+  }
+}
+
+class _HeaderNavActionButton extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final String tooltip;
+  final ScreenScale scale;
+  final VoidCallback onPressed;
+
+  const _HeaderNavActionButton({
+    required this.icon,
+    required this.label,
+    required this.tooltip,
+    required this.scale,
+    required this.onPressed,
+  });
+
+  @override
+  State<_HeaderNavActionButton> createState() => _HeaderNavActionButtonState();
+}
+
+class _HeaderNavActionButtonState extends State<_HeaderNavActionButton> {
+  bool _isFocused = false;
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = _isFocused || _isHovered;
+    return Focus(
+      onFocusChange: (f) => setState(() => _isFocused = f),
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            (event.logicalKey == LogicalKeyboardKey.select ||
+             event.logicalKey == LogicalKeyboardKey.enter ||
+             event.logicalKey == LogicalKeyboardKey.numpadEnter ||
+             event.logicalKey == LogicalKeyboardKey.gameButtonA)) {
+          widget.onPressed();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Tooltip(
+        message: widget.tooltip,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _isHovered = true),
+          onExit: (_) => setState(() => _isHovered = false),
+          child: GestureDetector(
+            onTap: widget.onPressed,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.scale.scale(10, min: 7, max: 18),
+                vertical: widget.scale.scale(6, min: 4, max: 10),
+              ),
+              decoration: BoxDecoration(
+                color: active
+                    ? AppTheme.goldPrimary.withValues(alpha: 0.25)
+                    : AppTheme.emeraldMid.withValues(alpha: 0.85),
+                borderRadius: BorderRadius.circular(
+                  widget.scale.scale(10, min: 8, max: 16),
+                ),
+                border: Border.all(
+                  color: _isFocused
+                      ? AppTheme.focusBorder
+                      : (active
+                          ? AppTheme.goldPrimary
+                          : AppTheme.goldDim.withValues(alpha: 0.55)),
+                  width: _isFocused ? 2.2 : 1.1,
+                ),
+                boxShadow: _isFocused
+                    ? [
+                        BoxShadow(
+                          color: AppTheme.goldPrimary.withValues(alpha: 0.6),
+                          blurRadius: 12,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    widget.icon,
+                    color: active ? AppTheme.goldPrimary : AppTheme.goldDim,
+                    size: widget.scale.scale(20, min: 15, max: 34),
+                  ),
+                  SizedBox(width: widget.scale.scale(5, min: 3, max: 10)),
+                  Text(
+                    widget.label,
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: widget.scale.scale(14, min: 11, max: 24),
+                      fontWeight: active ? FontWeight.bold : FontWeight.w600,
+                      color: active ? AppTheme.goldPrimary : AppTheme.textPrimary,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
