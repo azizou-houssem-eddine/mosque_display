@@ -52,3 +52,7 @@ AGENTS.md
 agent.md
 
 *.apk
+*.jks
+*.keystore
+key.properties
+**/android/key.properties
