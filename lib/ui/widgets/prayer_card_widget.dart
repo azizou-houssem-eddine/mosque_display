@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/providers/display_provider.dart';
 
 /// Individual prayer time card used on the Main Dashboard.
 /// Shows prayer name (Arabic), time, and highlights when active/next.
@@ -13,6 +15,7 @@ class PrayerCardWidget extends StatelessWidget {
   final double? width;
   final String? auxiliaryLabel; // e.g. "الإمساك" or "الإفطار"
   final String? auxiliaryTime; // e.g. "05:12"
+  final ThemePalette? palette;
 
   const PrayerCardWidget({
     super.key,
@@ -24,20 +27,37 @@ class PrayerCardWidget extends StatelessWidget {
     this.width,
     this.auxiliaryLabel,
     this.auxiliaryTime,
+    this.palette,
   });
 
   @override
   Widget build(BuildContext context) {
-    final scale = ScreenScale.of(context);
-    final cardWidth = width ?? scale.scale(250, min: 180, max: 540);
-    final badgeHeight = scale.scale(24, min: 18, max: 40);
+    double? customScale;
+    try {
+      customScale = Provider.of<DisplayProvider>(context).settings.uiScaleFactor;
+    } catch (_) {
+      customScale = null;
+    }
+    final scale = ScreenScale.of(context, customScale: customScale);
+    final cardWidth = width ?? scale.scaleLayout(250, min: 180, max: 540);
+    final badgeHeight = scale.scaleLayout(24, min: 18, max: 40);
+
+    final goldPrimary = palette?.goldPrimary ?? AppTheme.goldPrimary;
+    final goldAccent = palette?.goldAccent ?? AppTheme.goldAccent;
+    final goldDim = palette?.goldDim ?? AppTheme.goldDim;
+    final goldLight = palette?.goldLight ?? AppTheme.goldLight;
+    final cardGradient = palette?.cardGradient ?? AppTheme.cardGradient;
+    final cardActiveGradient =
+        palette?.cardActiveGradient ?? AppTheme.cardActiveGradient;
+    final cardNextGradient =
+        palette?.cardNextGradient ?? AppTheme.cardNextGradient;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       width: cardWidth,
       constraints: BoxConstraints(
-        minWidth: 160,
-        maxWidth: scale.is4k ? 600 : (scale.isCompact ? 220 : 360),
+        minWidth: scale.scaleLayout(120, min: 70),
+        maxWidth: scale.is4k ? 600 : (scale.isCompact ? 260 : 360),
       ),
       padding: EdgeInsets.symmetric(
         vertical: scale.scale(13, min: 8, max: 26),
@@ -46,18 +66,18 @@ class PrayerCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(scale.scale(16, min: 12, max: 28)),
         gradient: isActive
-            ? AppTheme.cardActiveGradient
+            ? cardActiveGradient
             : isNext
-                ? AppTheme.cardNextGradient
-                : AppTheme.cardGradient,
+                ? cardNextGradient
+                : cardGradient,
         border: Border.all(
           color: isFocused
               ? AppTheme.focusBorder
               : isActive
-                  ? AppTheme.goldPrimary
+                  ? goldPrimary
                   : isNext
-                      ? AppTheme.goldAccent.withValues(alpha: 0.90)
-                      : AppTheme.goldDim.withValues(alpha: 0.25),
+                      ? goldAccent.withValues(alpha: 0.90)
+                      : goldDim.withValues(alpha: 0.25),
           width: isFocused
               ? 3.0
               : isActive
@@ -69,19 +89,19 @@ class PrayerCardWidget extends StatelessWidget {
         boxShadow: [
           if (isFocused)
             BoxShadow(
-              color: AppTheme.goldPrimary.withValues(alpha: 0.45),
+              color: goldPrimary.withValues(alpha: 0.45),
               blurRadius: scale.scale(22, min: 16, max: 40),
               spreadRadius: 2,
             )
           else if (isActive)
             BoxShadow(
-              color: AppTheme.goldPrimary.withValues(alpha: 0.35),
+              color: goldPrimary.withValues(alpha: 0.35),
               blurRadius: scale.scale(24, min: 16, max: 44),
               spreadRadius: 2,
             )
           else if (isNext)
             BoxShadow(
-              color: AppTheme.goldAccent.withValues(alpha: 0.24),
+              color: goldAccent.withValues(alpha: 0.24),
               blurRadius: scale.scale(18, min: 12, max: 32),
               spreadRadius: 1,
             )
@@ -93,9 +113,11 @@ class PrayerCardWidget extends StatelessWidget {
             ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           // Uniform-height top status badge area (keeps prayer names perfectly aligned across all cards)
           SizedBox(
             height: badgeHeight,
@@ -107,15 +129,15 @@ class PrayerCardWidget extends StatelessWidget {
                         vertical: scale.scale(2, min: 1, max: 4),
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.goldPrimary.withValues(alpha: 0.22),
+                        color: goldPrimary.withValues(alpha: 0.22),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.goldPrimary.withValues(alpha: 0.85),
+                          color: goldPrimary.withValues(alpha: 0.85),
                           width: 1,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.goldPrimary.withValues(alpha: 0.20),
+                            color: goldPrimary.withValues(alpha: 0.20),
                             blurRadius: 8,
                           ),
                         ],
@@ -126,7 +148,7 @@ class PrayerCardWidget extends StatelessWidget {
                           Icon(
                             Icons.star,
                             size: scale.scale(11, min: 9, max: 18),
-                            color: AppTheme.goldPrimary,
+                            color: goldPrimary,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -135,7 +157,7 @@ class PrayerCardWidget extends StatelessWidget {
                               fontFamily: 'Cairo',
                               fontSize: scale.scale(12, min: 10, max: 20),
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.goldPrimary,
+                              color: goldPrimary,
                               height: 1.1,
                             ),
                           ),
@@ -149,15 +171,15 @@ class PrayerCardWidget extends StatelessWidget {
                             vertical: scale.scale(2, min: 1, max: 4),
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.goldAccent.withValues(alpha: 0.20),
+                            color: goldAccent.withValues(alpha: 0.20),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: AppTheme.goldAccent.withValues(alpha: 0.80),
+                              color: goldAccent.withValues(alpha: 0.80),
                               width: 1,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.goldAccent.withValues(alpha: 0.16),
+                                color: goldAccent.withValues(alpha: 0.16),
                                 blurRadius: 8,
                               ),
                             ],
@@ -168,7 +190,7 @@ class PrayerCardWidget extends StatelessWidget {
                               Text(
                                 '✦',
                                 style: TextStyle(
-                                  color: AppTheme.goldLight,
+                                  color: goldLight,
                                   fontSize: scale.scale(11, min: 9, max: 18),
                                 ),
                               ),
@@ -179,7 +201,7 @@ class PrayerCardWidget extends StatelessWidget {
                                   fontFamily: 'Cairo',
                                   fontSize: scale.scale(12, min: 10, max: 20),
                                   fontWeight: FontWeight.bold,
-                                  color: AppTheme.goldLight,
+                                  color: goldLight,
                                   height: 1.1,
                                 ),
                               ),
@@ -189,7 +211,7 @@ class PrayerCardWidget extends StatelessWidget {
                       : Text(
                           '✦',
                           style: TextStyle(
-                            color: AppTheme.goldDim.withValues(alpha: 0.30),
+                            color: goldDim.withValues(alpha: 0.30),
                             fontSize: scale.scale(10, min: 8, max: 16),
                           ),
                         ),
@@ -209,19 +231,19 @@ class PrayerCardWidget extends StatelessWidget {
                       ? FontWeight.w700
                       : FontWeight.w600,
               color: isActive
-                  ? AppTheme.goldPrimary
+                  ? goldPrimary
                   : isNext
-                      ? AppTheme.goldLight
+                      ? goldLight
                       : AppTheme.textPrimary,
               shadows: [
                 if (isActive)
                   Shadow(
-                    color: AppTheme.goldPrimary.withValues(alpha: 0.55),
+                    color: goldPrimary.withValues(alpha: 0.55),
                     blurRadius: scale.scale(12, min: 8, max: 20),
                   )
                 else if (isNext)
                   Shadow(
-                    color: AppTheme.goldLight.withValues(alpha: 0.40),
+                    color: goldLight.withValues(alpha: 0.40),
                     blurRadius: scale.scale(10, min: 6, max: 16),
                   )
                 else
@@ -234,6 +256,17 @@ class PrayerCardWidget extends StatelessWidget {
             ),
             textDirection: TextDirection.rtl,
           ),
+          if (prayerNameAr == 'الجمعة')
+            Text(
+              'الظهر',
+              style: TextStyle(
+                fontFamily: 'Cairo',
+                fontSize: scale.scale(12, min: 9, max: 18),
+                color: goldDim.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w600,
+              ),
+              textDirection: TextDirection.rtl,
+            ),
 
           // Delicate Islamic arched divider
           Container(
@@ -244,10 +277,10 @@ class PrayerCardWidget extends StatelessWidget {
                 colors: [
                   Colors.transparent,
                   isActive
-                      ? AppTheme.goldPrimary.withValues(alpha: 0.8)
+                      ? goldPrimary.withValues(alpha: 0.8)
                       : isNext
-                          ? AppTheme.goldAccent.withValues(alpha: 0.6)
-                          : AppTheme.goldDim.withValues(alpha: 0.22),
+                          ? goldAccent.withValues(alpha: 0.6)
+                          : goldDim.withValues(alpha: 0.22),
                   Colors.transparent,
                 ],
               ),
@@ -263,19 +296,19 @@ class PrayerCardWidget extends StatelessWidget {
               fontWeight: FontWeight.w800,
               letterSpacing: scale.scale(1.6, min: 1.0, max: 2.8),
               color: isActive
-                  ? AppTheme.goldPrimary
+                  ? goldPrimary
                   : isNext
-                      ? const Color(0xFFFFF59D) // Radiant champagne gold
+                      ? goldLight
                       : Colors.white,
               shadows: [
                 if (isActive)
                   Shadow(
-                    color: AppTheme.goldPrimary.withValues(alpha: 0.65),
+                    color: goldPrimary.withValues(alpha: 0.65),
                     blurRadius: scale.scale(16, min: 10, max: 28),
                   )
                 else if (isNext)
                   Shadow(
-                    color: AppTheme.goldAccent.withValues(alpha: 0.50),
+                    color: goldAccent.withValues(alpha: 0.50),
                     blurRadius: scale.scale(14, min: 8, max: 24),
                   ),
                 const Shadow(
@@ -294,10 +327,11 @@ class PrayerCardWidget extends StatelessWidget {
                 vertical: scale.scale(2, min: 1, max: 4),
               ),
               decoration: BoxDecoration(
-                color: AppTheme.emeraldDeep.withValues(alpha: 0.8),
+                color: palette?.bgDeep.withValues(alpha: 0.8) ??
+                    AppTheme.emeraldDeep.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(scale.scale(8, min: 6, max: 12)),
                 border: Border.all(
-                  color: AppTheme.goldPrimary.withValues(alpha: 0.55),
+                  color: goldPrimary.withValues(alpha: 0.55),
                   width: 1,
                 ),
               ),
@@ -311,7 +345,7 @@ class PrayerCardWidget extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: scale.scale(12, min: 10, max: 18),
-                        color: AppTheme.goldLight,
+                        color: goldLight,
                         fontWeight: FontWeight.w600,
                       ),
                       textDirection: TextDirection.rtl,
@@ -322,7 +356,7 @@ class PrayerCardWidget extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: scale.scale(13, min: 11, max: 20),
-                        color: AppTheme.goldPrimary,
+                        color: goldPrimary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -333,6 +367,7 @@ class PrayerCardWidget extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -168,10 +168,13 @@ class _DuaShowcaseScreenState extends State<DuaShowcaseScreen> {
         ? _filteredSupplications[_currentIndex]
         : null;
 
-    return Focus(
-      focusNode: _focusNode,
-      onKeyEvent: _handleKeyEvent,
-      child: Scaffold(
+    return PopScope(
+      canPop: true,
+      child: Focus(
+        focusNode: _focusNode,
+        autofocus: true,
+        onKeyEvent: _handleKeyEvent,
+        child: Scaffold(
         backgroundColor: AppTheme.emeraldDeep,
         body: Stack(
           children: [
@@ -214,8 +217,9 @@ class _DuaShowcaseScreenState extends State<DuaShowcaseScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildHeader() {
     return Container(

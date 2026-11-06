@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+export 'screen_scale.dart';
+
 /// Islamic font description model.
 class IslamicFontOption {
   final String key;
@@ -14,6 +16,54 @@ class IslamicFontOption {
     required this.descriptionAr,
     required this.sample,
   });
+}
+
+/// Visual theme palette model for watch face styling.
+class ThemePalette {
+  final String key;
+  final String nameAr;
+  final String descriptionAr;
+  final Color bgDeep;
+  final Color bgMid;
+  final Color bgLight;
+  final Color goldPrimary;
+  final Color goldAccent;
+  final Color goldDim;
+  final Color goldLight;
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color cardBg;
+  final RadialGradient backgroundGradient;
+  final LinearGradient cardGradient;
+  final LinearGradient cardActiveGradient;
+  final LinearGradient cardNextGradient;
+
+  const ThemePalette({
+    required this.key,
+    required this.nameAr,
+    required this.descriptionAr,
+    required this.bgDeep,
+    required this.bgMid,
+    required this.bgLight,
+    required this.goldPrimary,
+    required this.goldAccent,
+    required this.goldDim,
+    required this.goldLight,
+    this.textPrimary = const Color(0xFFF5F0E8),
+    this.textSecondary = const Color(0xFFBEB9A8),
+    required this.cardBg,
+    required this.backgroundGradient,
+    required this.cardGradient,
+    required this.cardActiveGradient,
+    required this.cardNextGradient,
+  });
+
+  Color get backgroundTop => bgDeep;
+  Color get primaryAccent => goldPrimary;
+  Color get borderSoft => goldDim.withValues(alpha: 0.45);
+  Color get borderGold => goldPrimary;
+  Color get glowAccent => goldPrimary.withValues(alpha: 0.25);
+  Color get cardBackground => cardBg;
 }
 
 /// Concept 2 — Deep Royal Emerald + Radiant Gold
@@ -30,6 +80,149 @@ class AppTheme {
   static const Color textSecondary = Color(0xFFBEB9A8);
   static const Color cardBg = Color(0xFF0D3D28);
   static const Color focusBorder = Color(0xFFF2C94C);
+
+  // --- Visual Watch Face Themes Catalog ---
+  static const List<ThemePalette> availableThemes = [
+    ThemePalette(
+      key: 'royalEmerald',
+      nameAr: 'الزمرد الملكي',
+      descriptionAr: 'الأخضر المسجدي الجزائري العريق مع الذهب الملكي المضيء',
+      bgDeep: Color(0xFF06231A),
+      bgMid: Color(0xFF0B3326),
+      bgLight: Color(0xFF0F4535),
+      goldPrimary: Color(0xFFF2C94C),
+      goldAccent: Color(0xFFD4AF37),
+      goldDim: Color(0xFFB8962E),
+      goldLight: Color(0xFFFFF176),
+      cardBg: Color(0xFF0D3D28),
+      backgroundGradient: RadialGradient(
+        center: Alignment.center,
+        radius: 1.2,
+        colors: [Color(0xFF0B3326), Color(0xFF06231A)],
+      ),
+      cardGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF0F4535), Color(0xFF08291C)],
+      ),
+      cardActiveGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF1B5E3C), Color(0xFF0D3B24)],
+      ),
+      cardNextGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF144D33), Color(0xFF0A2E1C)],
+      ),
+    ),
+    ThemePalette(
+      key: 'midnightSapphire',
+      nameAr: 'الياقوت الأزرق',
+      descriptionAr: 'كحلي الليل الملكي مع الذهب السماوي واللمسات الفضية',
+      bgDeep: Color(0xFF040F1D),
+      bgMid: Color(0xFF0A1F3B),
+      bgLight: Color(0xFF132F52),
+      goldPrimary: Color(0xFF5AC8FA),
+      goldAccent: Color(0xFFD4AF37),
+      goldDim: Color(0xFF2A6A9E),
+      goldLight: Color(0xFF93C5FD),
+      cardBg: Color(0xFF0E274A),
+      backgroundGradient: RadialGradient(
+        center: Alignment.center,
+        radius: 1.2,
+        colors: [Color(0xFF0A1F3B), Color(0xFF040F1D)],
+      ),
+      cardGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF132F52), Color(0xFF071B33)],
+      ),
+      cardActiveGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF1E4976), Color(0xFF0E2C4F)],
+      ),
+      cardNextGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF173B63), Color(0xFF0B233F)],
+      ),
+    ),
+    ThemePalette(
+      key: 'andalusianOnyx',
+      nameAr: 'العقيق الأندلسي',
+      descriptionAr: 'فحم رخامي عميق مع ذهب عنبري دافئ وعتيق',
+      bgDeep: Color(0xFF0C0E12),
+      bgMid: Color(0xFF151921),
+      bgLight: Color(0xFF1E2430),
+      goldPrimary: Color(0xFFFFAA00),
+      goldAccent: Color(0xFFE59400),
+      goldDim: Color(0xFFB87600),
+      goldLight: Color(0xFFFFD166),
+      cardBg: Color(0xFF181E29),
+      backgroundGradient: RadialGradient(
+        center: Alignment.center,
+        radius: 1.2,
+        colors: [Color(0xFF151921), Color(0xFF0C0E12)],
+      ),
+      cardGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF1E2430), Color(0xFF11141A)],
+      ),
+      cardActiveGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF2F3746), Color(0xFF1A1F29)],
+      ),
+      cardNextGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF262D3A), Color(0xFF141820)],
+      ),
+    ),
+    ThemePalette(
+      key: 'kiswahBlack',
+      nameAr: 'الكسوة الشريفة',
+      descriptionAr: 'أسود كعبة مطفأ OLED مع تطريز الذهب الخالص',
+      bgDeep: Color(0xFF000000),
+      bgMid: Color(0xFF0A0A0A),
+      bgLight: Color(0xFF181818),
+      goldPrimary: Color(0xFFE5C058),
+      goldAccent: Color(0xFFC7A23E),
+      goldDim: Color(0xFFA68429),
+      goldLight: Color(0xFFF9E79F),
+      cardBg: Color(0xFF111111),
+      backgroundGradient: RadialGradient(
+        center: Alignment.center,
+        radius: 1.2,
+        colors: [Color(0xFF0F0F0F), Color(0xFF000000)],
+      ),
+      cardGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF181818), Color(0xFF090909)],
+      ),
+      cardActiveGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF2C2410), Color(0xFF161208)],
+      ),
+      cardNextGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF201B0C), Color(0xFF100E06)],
+      ),
+    ),
+  ];
+
+  static ThemePalette getThemePalette(String? key) {
+    return availableThemes.firstWhere(
+      (t) => t.key == key,
+      orElse: () => availableThemes.first,
+    );
+  }
 
   // --- Islamic Fonts Catalog ---
   static const List<IslamicFontOption> islamicFonts = [
@@ -70,7 +263,20 @@ class AppTheme {
     ),
   ];
 
-  /// Builds a dynamic TextStyle using Google Fonts for Du'as and Quranic texts.
+  static bool _fontsConfigured = false;
+
+  /// Enforces offline font configuration and disables network downloading.
+  static void ensureOfflineFonts() {
+    if (!_fontsConfigured) {
+      try {
+        GoogleFonts.config.allowRuntimeFetching = false;
+      } catch (_) {}
+      _fontsConfigured = true;
+    }
+  }
+
+  /// Builds a dynamic TextStyle using 100% offline bundled fonts for Du'as and Quranic texts.
+  /// Resolves GoogleFonts network loader leaks by mapping to bundled assets (Amiri & Cairo).
   static TextStyle getIslamicStyle({
     String fontKey = 'amiriQuran',
     double fontSize = 28,
@@ -79,49 +285,17 @@ class AppTheme {
     double height = 1.6,
     List<Shadow>? shadows,
   }) {
-    switch (fontKey) {
-      case 'amiriQuran':
-        return GoogleFonts.amiriQuran(
-          fontSize: fontSize,
-          color: color,
-          fontWeight: fontWeight,
-          height: height,
-          shadows: shadows,
-        );
-      case 'scheherazadeNew':
-        return GoogleFonts.scheherazadeNew(
-          fontSize: fontSize,
-          color: color,
-          fontWeight: fontWeight,
-          height: height,
-          shadows: shadows,
-        );
-      case 'arefRuqaa':
-        return GoogleFonts.arefRuqaa(
-          fontSize: fontSize,
-          color: color,
-          fontWeight: fontWeight,
-          height: height,
-          shadows: shadows,
-        );
-      case 'cairo':
-        return GoogleFonts.cairo(
-          fontSize: fontSize,
-          color: color,
-          fontWeight: fontWeight,
-          height: height,
-          shadows: shadows,
-        );
-      case 'amiri':
-      default:
-        return GoogleFonts.amiri(
-          fontSize: fontSize,
-          color: color,
-          fontWeight: fontWeight,
-          height: height,
-          shadows: shadows,
-        );
-    }
+    ensureOfflineFonts();
+    final String family = (fontKey == 'cairo') ? 'Cairo' : 'Amiri';
+    return TextStyle(
+      fontFamily: family,
+      fontFamilyFallback: const ['Amiri', 'Cairo'],
+      fontSize: fontSize,
+      color: color,
+      fontWeight: fontWeight,
+      height: height,
+      shadows: shadows,
+    );
   }
 
   // --- Gradients ---
@@ -361,53 +535,6 @@ class IslamicDivider extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-/// Responsive screen scaling helper for TV displays (720p HD Ready, 1080p Full HD, 4K Ultra HD).
-/// Calibrated for distant 10-15m mosque viewing readability without clipping.
-class ScreenScale {
-  final double width;
-  final double height;
-
-  const ScreenScale({required this.width, required this.height});
-
-  factory ScreenScale.of(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
-    return ScreenScale(width: size.width, height: size.height);
-  }
-
-  /// Compact TV display (720p HD Ready / dense viewports, height < 750)
-  bool get isCompact => height < 750;
-
-  /// Large TV display (4K Ultra HD / QHD, width >= 2560 or height >= 1440)
-  bool get is4k => width >= 2560 || height >= 1440;
-
-  /// Full HD display (1080p, standard TV baseline)
-  bool get is1080p => !isCompact && !is4k;
-
-  /// Continuous aspect-preserving scaling factor relative to 1920x1080 design canvas.
-  /// Enforces a minimum legibility floor so distant prayer texts remain readable.
-  double get factor {
-    final scaleW = width / 1920.0;
-    final scaleH = height / 1080.0;
-    final base = scaleW < scaleH ? scaleW : scaleH;
-
-    if (is4k) {
-      return base.clamp(1.35, 2.2);
-    } else if (isCompact) {
-      // In compact or scaled TV viewports, maintain a comfortable legibility floor
-      return base.clamp(0.84, 1.0);
-    }
-    return base.clamp(0.92, 1.15);
-  }
-
-  /// Proportionally scales a base dimension (defined for 1080p) with optional bounds.
-  double scale(double base1080p, {double? min, double? max}) {
-    final val = base1080p * factor;
-    if (min != null && val < min) return min;
-    if (max != null && val > max) return max;
-    return val;
   }
 }
 

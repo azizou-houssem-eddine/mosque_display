@@ -19,6 +19,14 @@ class MosqueSettings {
   final String islamicFont;
   final String tickerCategory;
   final bool showFastingTimes;
+  final String watchFaceTemplate;
+  final String colorTheme;
+  final double uiScaleFactor;
+  final bool showSeconds;
+  final bool showGregorianDate;
+  final int adhkarDurationMinutes;
+  final bool remoteAdminEnabled;
+  final int remoteAdminPort;
 
   const MosqueSettings({
     this.selectedWilayaCode = 16,
@@ -36,13 +44,25 @@ class MosqueSettings {
     this.islamicFont = 'amiriQuran',
     this.tickerCategory = 'all',
     this.showFastingTimes = true,
+    this.watchFaceTemplate = 'classicAstrolabe',
+    this.colorTheme = 'royalEmerald',
+    this.uiScaleFactor = 1.0,
+    this.showSeconds = true,
+    this.showGregorianDate = true,
+    this.adhkarDurationMinutes = 7,
+    this.remoteAdminEnabled = false,
+    this.remoteAdminPort = 8080,
   })  : assert(selectedWilayaCode >= 1 && selectedWilayaCode <= 58,
             'Wilaya code must be between 1 and 58'),
         assert(blackoutDurationMinutes >= 5 && blackoutDurationMinutes <= 45,
             'Blackout duration must be 5-45 minutes'),
         assert(hijriOffsetDays >= -2 && hijriOffsetDays <= 2,
             'Hijri offset must be between -2 and +2 days'),
-        assert(pinCode.length == 4, 'PIN code must be exactly 4 digits');
+        assert(pinCode.length == 4, 'PIN code must be exactly 4 digits'),
+        assert(adhkarDurationMinutes >= 2 && adhkarDurationMinutes <= 15,
+            'Adhkar duration must be between 2 and 15 minutes'),
+        assert(remoteAdminPort >= 1024 && remoteAdminPort <= 65535,
+            'Remote admin port must be between 1024 and 65535');
 
   /// Validates entered 4-digit PIN against active settings PIN.
   bool verifyPin(String enteredPin) => enteredPin == pinCode;
@@ -66,6 +86,14 @@ class MosqueSettings {
     String? islamicFont,
     String? tickerCategory,
     bool? showFastingTimes,
+    String? watchFaceTemplate,
+    String? colorTheme,
+    double? uiScaleFactor,
+    bool? showSeconds,
+    bool? showGregorianDate,
+    int? adhkarDurationMinutes,
+    bool? remoteAdminEnabled,
+    int? remoteAdminPort,
   }) {
     return MosqueSettings(
       selectedWilayaCode: selectedWilayaCode ?? this.selectedWilayaCode,
@@ -87,6 +115,15 @@ class MosqueSettings {
       islamicFont: islamicFont ?? this.islamicFont,
       tickerCategory: tickerCategory ?? this.tickerCategory,
       showFastingTimes: showFastingTimes ?? this.showFastingTimes,
+      watchFaceTemplate: watchFaceTemplate ?? this.watchFaceTemplate,
+      colorTheme: colorTheme ?? this.colorTheme,
+      uiScaleFactor: uiScaleFactor ?? this.uiScaleFactor,
+      showSeconds: showSeconds ?? this.showSeconds,
+      showGregorianDate: showGregorianDate ?? this.showGregorianDate,
+      adhkarDurationMinutes:
+          adhkarDurationMinutes ?? this.adhkarDurationMinutes,
+      remoteAdminEnabled: remoteAdminEnabled ?? this.remoteAdminEnabled,
+      remoteAdminPort: remoteAdminPort ?? this.remoteAdminPort,
     );
   }
 
@@ -106,6 +143,14 @@ class MosqueSettings {
       'islamicFont': islamicFont,
       'tickerCategory': tickerCategory,
       'showFastingTimes': showFastingTimes,
+      'watchFaceTemplate': watchFaceTemplate,
+      'colorTheme': colorTheme,
+      'uiScaleFactor': uiScaleFactor,
+      'showSeconds': showSeconds,
+      'showGregorianDate': showGregorianDate,
+      'adhkarDurationMinutes': adhkarDurationMinutes,
+      'remoteAdminEnabled': remoteAdminEnabled,
+      'remoteAdminPort': remoteAdminPort,
     };
   }
 
@@ -139,6 +184,18 @@ class MosqueSettings {
       islamicFont: (json['islamicFont'] as String?) ?? 'amiriQuran',
       tickerCategory: (json['tickerCategory'] as String?) ?? 'all',
       showFastingTimes: (json['showFastingTimes'] as bool?) ?? true,
+      watchFaceTemplate:
+          (json['watchFaceTemplate'] as String?) ?? 'classicAstrolabe',
+      colorTheme: (json['colorTheme'] as String?) ?? 'royalEmerald',
+      uiScaleFactor:
+          ((json['uiScaleFactor'] as num?)?.toDouble() ?? 1.0).clamp(0.75, 1.25),
+      showSeconds: (json['showSeconds'] as bool?) ?? true,
+      showGregorianDate: (json['showGregorianDate'] as bool?) ?? true,
+      adhkarDurationMinutes:
+          ((json['adhkarDurationMinutes'] as num?)?.toInt() ?? 7).clamp(2, 15),
+      remoteAdminEnabled: (json['remoteAdminEnabled'] as bool?) ?? false,
+      remoteAdminPort:
+          ((json['remoteAdminPort'] as num?)?.toInt() ?? 8080).clamp(1024, 65535),
     );
   }
 
@@ -160,10 +217,18 @@ class MosqueSettings {
           pinCode == other.pinCode &&
           islamicFont == other.islamicFont &&
           tickerCategory == other.tickerCategory &&
-          showFastingTimes == other.showFastingTimes;
+          showFastingTimes == other.showFastingTimes &&
+          watchFaceTemplate == other.watchFaceTemplate &&
+          colorTheme == other.colorTheme &&
+          uiScaleFactor == other.uiScaleFactor &&
+          showSeconds == other.showSeconds &&
+          showGregorianDate == other.showGregorianDate &&
+          adhkarDurationMinutes == other.adhkarDurationMinutes &&
+          remoteAdminEnabled == other.remoteAdminEnabled &&
+          remoteAdminPort == other.remoteAdminPort;
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
         selectedWilayaCode,
         selectedCommuneCode,
         selectedCommuneName,
@@ -178,9 +243,17 @@ class MosqueSettings {
         islamicFont,
         tickerCategory,
         showFastingTimes,
-      );
+        watchFaceTemplate,
+        colorTheme,
+        uiScaleFactor,
+        showSeconds,
+        showGregorianDate,
+        adhkarDurationMinutes,
+        remoteAdminEnabled,
+        remoteAdminPort,
+      ]);
 
   @override
   String toString() =>
-      'MosqueSettings(wilaya: $selectedWilayaCode, commune: $selectedCommuneCode ("$selectedCommuneName"), blackout: ${blackoutDurationMinutes}m, dim: $blackoutDimMode, hijriOffset: $hijriOffsetDays, mosque: "$mosqueName", pin: "$pinCode", fasting: $showFastingTimes)';
+      'MosqueSettings(wilaya: $selectedWilayaCode, commune: $selectedCommuneCode ("$selectedCommuneName"), template: $watchFaceTemplate, theme: $colorTheme, scale: $uiScaleFactor, blackout: ${blackoutDurationMinutes}m, dim: $blackoutDimMode, hijriOffset: $hijriOffsetDays, mosque: "$mosqueName", pin: "$pinCode", fasting: $showFastingTimes, gregorian: $showGregorianDate, remoteAdmin: $remoteAdminEnabled:$remoteAdminPort)';
 }

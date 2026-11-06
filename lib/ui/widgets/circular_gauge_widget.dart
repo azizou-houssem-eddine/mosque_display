@@ -25,6 +25,9 @@ class CircularGaugeWidget extends StatefulWidget {
   /// Show pulsing glow animation when [progress] > 0.98.
   final bool pulseOnComplete;
 
+  /// Optional active color theme palette.
+  final ThemePalette? palette;
+
   const CircularGaugeWidget({
     super.key,
     required this.progress,
@@ -33,6 +36,7 @@ class CircularGaugeWidget extends StatefulWidget {
     this.size = 360,
     this.segments = 60,
     this.pulseOnComplete = true,
+    this.palette,
   });
 
   @override
@@ -65,6 +69,10 @@ class _CircularGaugeWidgetState extends State<CircularGaugeWidget>
   @override
   Widget build(BuildContext context) {
     final isPulsing = widget.pulseOnComplete && widget.progress >= 0.98;
+    final goldPrimary = widget.palette?.goldPrimary ?? AppTheme.goldPrimary;
+    final goldDim = widget.palette?.goldDim ?? AppTheme.goldDim;
+    final bgLight = widget.palette?.bgLight ?? AppTheme.emeraldLight;
+
     return AnimatedBuilder(
       animation: _pulseAnim,
       builder: (context, child) {
@@ -83,14 +91,14 @@ class _CircularGaugeWidgetState extends State<CircularGaugeWidget>
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.goldPrimary.withValues(
+                      color: goldPrimary.withValues(
                         alpha: (0.28 * glowScale).clamp(0.0, 0.7),
                       ),
                       blurRadius: 55 * glowScale,
                       spreadRadius: 8,
                     ),
                     BoxShadow(
-                      color: AppTheme.emeraldLight.withValues(alpha: 0.15),
+                      color: bgLight.withValues(alpha: 0.15),
                       blurRadius: 75,
                       spreadRadius: 15,
                     ),
@@ -104,6 +112,7 @@ class _CircularGaugeWidgetState extends State<CircularGaugeWidget>
                 painter: _LuxuryGaugePainter(
                   progress: widget.progress.clamp(0.0, 1.0),
                   pulseGlow: glowScale,
+                  palette: widget.palette,
                 ),
               ),
 
@@ -119,7 +128,7 @@ class _CircularGaugeWidgetState extends State<CircularGaugeWidget>
                       style: TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: (widget.size * 0.048).clamp(12.0, 32.0),
-                        color: AppTheme.goldDim.withValues(alpha: 0.90),
+                        color: goldDim.withValues(alpha: 0.90),
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.2,
                       ),
@@ -203,14 +212,21 @@ class _CircularGaugeWidgetState extends State<CircularGaugeWidget>
 class _LuxuryGaugePainter extends CustomPainter {
   final double progress;
   final double pulseGlow;
+  final ThemePalette? palette;
 
   _LuxuryGaugePainter({
     required this.progress,
     required this.pulseGlow,
+    this.palette,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    final goldPrimary = palette?.goldPrimary ?? AppTheme.goldPrimary;
+    final goldAccent = palette?.goldAccent ?? AppTheme.goldAccent;
+    final goldDim = palette?.goldDim ?? AppTheme.goldDim;
+    final goldLight = palette?.goldLight ?? AppTheme.goldLight;
+
     final centre = Offset(size.width / 2, size.height / 2);
     final outerRadius = size.width / 2 - 10;
     final trackWidth = outerRadius * 0.125;
@@ -219,7 +235,7 @@ class _LuxuryGaugePainter extends CustomPainter {
 
     // ── 1. Outer Fine Gold Ring ──────────────────────────────────────────────
     final outerRingPaint = Paint()
-      ..color = AppTheme.goldDim.withValues(alpha: 0.50)
+      ..color = goldDim.withValues(alpha: 0.50)
       ..style = PaintingStyle.stroke
       ..strokeWidth = (outerRadius * 0.006).clamp(1.5, 3.5);
     canvas.drawCircle(centre, outerRadius, outerRingPaint);
@@ -245,10 +261,10 @@ class _LuxuryGaugePainter extends CustomPainter {
 
       final tickPaint = Paint()
         ..color = isCardinal
-            ? AppTheme.goldLight
+            ? goldLight
             : isMajor
-                ? AppTheme.goldPrimary.withValues(alpha: 0.9)
-                : AppTheme.goldDim.withValues(alpha: 0.38)
+                ? goldPrimary.withValues(alpha: 0.9)
+                : goldDim.withValues(alpha: 0.38)
         ..strokeWidth = isCardinal
             ? (outerRadius * 0.016).clamp(2.5, 6.0)
             : isMajor
@@ -271,7 +287,7 @@ class _LuxuryGaugePainter extends CustomPainter {
         diamondPath.close();
 
         final diamondPaint = Paint()
-          ..color = AppTheme.goldPrimary
+          ..color = goldPrimary
           ..style = PaintingStyle.fill;
         canvas.drawPath(diamondPath, diamondPaint);
       }
@@ -279,35 +295,35 @@ class _LuxuryGaugePainter extends CustomPainter {
 
     // ── 3. Background Track Channel ──────────────────────────────────────────
     final bgTrackPaint = Paint()
-      ..color = const Color(0xFF041E15)
+      ..color = palette?.bgDeep.withValues(alpha: 0.85) ?? const Color(0xFF041E15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = trackWidth;
     canvas.drawCircle(centre, trackCenterRadius, bgTrackPaint);
 
     // Track outer and inner boundary metallic strokes
     final borderPaint = Paint()
-      ..color = AppTheme.goldDim.withValues(alpha: 0.35)
+      ..color = goldDim.withValues(alpha: 0.35)
       ..style = PaintingStyle.stroke
       ..strokeWidth = (outerRadius * 0.005).clamp(1.0, 2.2);
     canvas.drawCircle(centre, trackCenterRadius + trackWidth / 2, borderPaint);
     canvas.drawCircle(centre, trackCenterRadius - trackWidth / 2, borderPaint);
 
-    // ── 4. Inner Dial Disc (Velvety Emerald Radial Face) ─────────────────────
+    // ── 4. Inner Dial Disc (Velvety Radial Face) ─────────────────────────────
     final dialRect = Rect.fromCircle(center: centre, radius: innerDialRadius);
     final dialBgPaint = Paint()
-      ..shader = const RadialGradient(
+      ..shader = RadialGradient(
         colors: [
-          Color(0xFF0F3E2E),
-          Color(0xFF08261C),
-          Color(0xFF02130C),
+          palette?.bgLight ?? const Color(0xFF0F3E2E),
+          palette?.bgMid ?? const Color(0xFF08261C),
+          palette?.bgDeep ?? const Color(0xFF02130C),
         ],
-        stops: [0.0, 0.65, 1.0],
+        stops: const [0.0, 0.65, 1.0],
       ).createShader(dialRect);
     canvas.drawCircle(centre, innerDialRadius, dialBgPaint);
 
     // ── 5. Etched Islamic 16-point Geometric Rosette Watermark ───────────────
     final rosettePaint = Paint()
-      ..color = AppTheme.goldPrimary.withValues(alpha: 0.10)
+      ..color = goldPrimary.withValues(alpha: 0.10)
       ..style = PaintingStyle.stroke
       ..strokeWidth = (innerDialRadius * 0.007).clamp(0.8, 2.0);
 
@@ -348,7 +364,7 @@ class _LuxuryGaugePainter extends CustomPainter {
 
     // Inner Dial Bezel Stroke
     final innerBezelPaint = Paint()
-      ..color = AppTheme.goldPrimary.withValues(alpha: 0.70)
+      ..color = goldPrimary.withValues(alpha: 0.70)
       ..style = PaintingStyle.stroke
       ..strokeWidth = (innerDialRadius * 0.012).clamp(1.8, 3.8);
     canvas.drawCircle(centre, innerDialRadius, innerBezelPaint);
@@ -360,7 +376,7 @@ class _LuxuryGaugePainter extends CustomPainter {
 
       // Outer golden bloom glow
       final bloomPaint = Paint()
-        ..color = AppTheme.goldPrimary.withValues(alpha: 0.45 * pulseGlow)
+        ..color = goldPrimary.withValues(alpha: 0.45 * pulseGlow)
         ..style = PaintingStyle.stroke
         ..strokeWidth = trackWidth * 1.30
         ..strokeCap = StrokeCap.round
@@ -375,18 +391,18 @@ class _LuxuryGaugePainter extends CustomPainter {
       );
 
       // Solid luminous golden arc with sweep gradient
-      const sweepGradient = SweepGradient(
+      final sweepGradient = SweepGradient(
         startAngle: startAngle,
         endAngle: startAngle + 2 * math.pi,
         colors: [
-          Color(0xFFFFF9C4), // Brilliant champagne gold
-          Color(0xFFF2C94C), // Radiant royal gold
-          Color(0xFFD4AF37), // Warm antique gold
-          Color(0xFFFFA000), // Deep amber gold
-          Color(0xFFF2C94C),
+          goldLight,
+          goldPrimary,
+          goldAccent,
+          goldDim,
+          goldPrimary,
         ],
-        stops: [0.0, 0.25, 0.6, 0.85, 1.0],
-        transform: GradientRotation(startAngle),
+        stops: const [0.0, 0.25, 0.6, 0.85, 1.0],
+        transform: const GradientRotation(startAngle),
       );
 
       final arcPaint = Paint()
@@ -412,7 +428,7 @@ class _LuxuryGaugePainter extends CustomPainter {
 
       // Glowing outer aura
       final jewelAura = Paint()
-        ..color = AppTheme.goldLight.withValues(alpha: 0.70 * pulseGlow)
+        ..color = goldLight.withValues(alpha: 0.70 * pulseGlow)
         ..maskFilter = MaskFilter.blur(
             BlurStyle.normal, (trackWidth * 0.35).clamp(5.0, 20.0));
       canvas.drawCircle(headCenter, trackWidth * 0.75, jewelAura);
@@ -425,7 +441,7 @@ class _LuxuryGaugePainter extends CustomPainter {
 
       // Gold rim around core
       final jewelRim = Paint()
-        ..color = AppTheme.goldPrimary
+        ..color = goldPrimary
         ..style = PaintingStyle.stroke
         ..strokeWidth = (trackWidth * 0.08).clamp(1.8, 4.0);
       canvas.drawCircle(headCenter, trackWidth * 0.40, jewelRim);

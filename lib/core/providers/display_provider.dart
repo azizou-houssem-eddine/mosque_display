@@ -1,10 +1,14 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../../data/models/prayer_schedule.dart';
 import '../../data/models/mosque_settings.dart';
 import '../../data/models/commune.dart';
 import '../../data/repositories/prayer_repository.dart';
+import '../../data/repositories/settings_repository.dart';
 import '../../domain/calculation/hijri_calculator.dart';
 import '../../domain/occasions/islamic_occasions_engine.dart';
+import '../services/remote_admin_server.dart';
 
 /// Display states the TV cycles through during a prayer day.
 enum DisplayState {
@@ -13,6 +17,7 @@ enum DisplayState {
   iqamahCountdown, // Counting down to Iqamah start
   salatBlackout, // Congregational prayer in progress — screen blackout
   postSalatAdhkar, // 7-min post-prayer Adhkar carousel
+  jumuahKhutbah, // Friday Khutbah & reverence mode (dedicated lifecycle)
 }
 
 /// Central state provider for the mosque display app.
@@ -21,6 +26,9 @@ enum DisplayState {
 class DisplayProvider extends ChangeNotifier {
   final IPrayerRepository _prayerRepo;
 
+  // ── Remote Administration Server ───────────────────────────────────────────
+  RemoteAdminServer? _remoteAdminServer;
+
   // ── State ──────────────────────────────────────────────────────────────────
   MosqueSettings _settings;
   PrayerSchedule? _todaySchedule;
@@ -28,9 +36,11 @@ class DisplayProvider extends ChangeNotifier {
   DisplayState _displayState = DisplayState.standard;
   Prayer? _activePrayer;
   Duration _iqamahRemaining = Duration.zero;
+  Duration _jumuahRemaining = Duration.zero;
   Duration _blackoutRemaining = Duration.zero;
   Duration _adhkarRemaining = Duration.zero;
   String _hijriDate = '';
+  String _gregorianDate = '';
   bool _isLoading = true;
   String? _error;
 
@@ -59,13 +69,27 @@ class DisplayProvider extends ChangeNotifier {
   DisplayState get displayState => _displayState;
   Prayer? get activePrayer => _activePrayer;
   Duration get iqamahRemaining => _iqamahRemaining;
+  Duration get jumuahRemaining => _jumuahRemaining;
   Duration get blackoutRemaining => _blackoutRemaining;
   Duration get adhkarRemaining => _adhkarRemaining;
+  bool get isFriday =>
+      effectiveDate.weekday == DateTime.friday ||
+      _activeSimulatedOccasion == OccasionType.friday;
+  bool get isJumuahActive => isFriday && _activePrayer == Prayer.dhuhr;
   String get hijriDate => _hijriDate;
+  String get gregorianDate => _gregorianDate;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get adhkarShortcutActive => _adhkarShortcutActive;
   bool get isSimulationActive => _isSimulationActive;
+
+  // Remote Admin Server Getters
+  RemoteAdminServer? get remoteAdminServer => _remoteAdminServer;
+  String? get remoteAdminUrl => _remoteAdminServer?.pairingUrl;
+  String? get remoteAdminDirectUrl => _remoteAdminServer?.directUrl;
+  String? get remoteAdminIp => _remoteAdminServer?.localIp;
+  int? get remoteAdminPort => _remoteAdminServer?.activePort;
+  bool get isRemoteAdminRunning => _remoteAdminServer?.isRunning ?? false;
 
   /// Effective date-time currently active, normalized to Algerian National Time (UTC+1).
   /// When simulation is active, anchors to the simulated representative time
@@ -164,9 +188,155 @@ class DisplayProvider extends ChangeNotifier {
   }
 
   // ── Init ───────────────────────────────────────────────────────────────────
-  Future<void> init() async {
+  Future<void> init({bool? autoRecoverWallClock}) async {
     await _loadTodaySchedule();
     _refreshHijriDate();
+    final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+    final shouldRecover = autoRecoverWallClock ?? !isTest;
+    if (shouldRecover) {
+      recoverWallClockState();
+    }
+    if (_settings.remoteAdminEnabled) {
+      await _startRemoteAdminServer();
+    }
+  }
+
+  Future<void> _startRemoteAdminServer() async {
+    try {
+      _remoteAdminServer = RemoteAdminServer(
+        displayProvider: this,
+        port: _settings.remoteAdminPort,
+      );
+      await _remoteAdminServer?.start();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Failed to start remote admin server: $e');
+    }
+  }
+
+  Future<void> startRemoteAdminServer({int? port, bool persist = true}) async {
+    await stopRemoteAdminServer(persist: false);
+    try {
+      final targetPort = port ?? _settings.remoteAdminPort;
+      if (persist && (!_settings.remoteAdminEnabled || _settings.remoteAdminPort != targetPort)) {
+        _settings = _settings.copyWith(
+          remoteAdminEnabled: true,
+          remoteAdminPort: targetPort,
+        );
+        try {
+          await SettingsRepository.save(_settings);
+        } catch (_) {}
+      }
+      _remoteAdminServer = RemoteAdminServer(
+        displayProvider: this,
+        port: targetPort,
+      );
+      await _remoteAdminServer?.start();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Failed to start remote admin server: $e');
+    }
+  }
+
+  Future<void> stopRemoteAdminServer({bool persist = true}) async {
+    if (persist && _settings.remoteAdminEnabled) {
+      _settings = _settings.copyWith(remoteAdminEnabled: false);
+      try {
+        await SettingsRepository.save(_settings);
+      } catch (_) {}
+    }
+    await _remoteAdminServer?.stop();
+    _remoteAdminServer = null;
+    notifyListeners();
+  }
+
+  /// Regenerates the session token for remote admin and notifies UI listeners.
+  void regenerateRemoteAdminToken() {
+    _remoteAdminServer?.regenerateToken();
+    notifyListeners();
+  }
+
+  /// Forces dynamic re-resolution of the local LAN IP on the remote admin server.
+  Future<void> refreshRemoteAdminIp() async {
+    if (_remoteAdminServer != null) {
+      await _remoteAdminServer!.refreshLocalIp();
+      notifyListeners();
+    }
+  }
+
+  Prayer? _dismissedPrayer;
+
+  /// Performs cold-boot wall-clock recovery: if device time falls within an
+  /// active Friday Khutbah, Iqamah countdown, Salat Blackout, or Post-Salat Adhkar window,
+  /// transitions into that state upon initialization rather than defaulting to standard.
+  void recoverWallClockState([DateTime? targetTime]) {
+    final schedule = _todaySchedule;
+    if (schedule == null) return;
+    final now = targetTime ?? effectiveDate;
+
+    for (final prayer in Prayer.values) {
+      if (!prayer.isSalat) continue;
+      if (prayer == _dismissedPrayer) continue;
+
+      final scheduleTime = schedule.getTime(prayer);
+      final pTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        scheduleTime.hour,
+        scheduleTime.minute,
+        scheduleTime.second,
+      );
+      final isJumuah = (targetTime != null ? targetTime.weekday == DateTime.friday : isFriday) && prayer == Prayer.dhuhr;
+      final delayMinutes = _settings.iqamahDelays.getDelayFor(prayer, isFriday: isJumuah);
+      final iqamahTime = pTime.add(Duration(minutes: delayMinutes));
+      final blackoutTime = iqamahTime.add(Duration(minutes: _settings.blackoutDurationMinutes));
+      final adhkarTime = blackoutTime.add(Duration(minutes: _settings.adhkarDurationMinutes));
+
+      // 1. Adhan Alert window: within [pTime - 30s, pTime + 90s)
+      if (now.isAfter(pTime.subtract(const Duration(seconds: 30))) &&
+          now.isBefore(pTime.add(const Duration(seconds: 90)))) {
+        _activePrayer = prayer;
+        _displayState = DisplayState.adhanAlert;
+        return;
+      }
+
+      // 2. Iqamah countdown / Friday Khutbah window: [pTime + 90s, iqamahTime)
+      if (now.isAfter(pTime.add(const Duration(seconds: 89))) &&
+          now.isBefore(iqamahTime)) {
+        _activePrayer = prayer;
+        if (isJumuah) {
+          _displayState = DisplayState.jumuahKhutbah;
+          _jumuahRemaining = iqamahTime.difference(now);
+          if (_jumuahRemaining.isNegative) _jumuahRemaining = Duration.zero;
+        } else {
+          _displayState = DisplayState.iqamahCountdown;
+          _iqamahRemaining = iqamahTime.difference(now);
+          if (_iqamahRemaining.isNegative) _iqamahRemaining = Duration.zero;
+        }
+        return;
+      }
+
+      // 3. Salat Blackout window: [iqamahTime, blackoutTime)
+      if ((now.isAtSameMomentAs(iqamahTime) || now.isAfter(iqamahTime)) &&
+          now.isBefore(blackoutTime)) {
+        _activePrayer = prayer;
+        _displayState = DisplayState.salatBlackout;
+        _blackoutRemaining = blackoutTime.difference(now);
+        if (_blackoutRemaining.isNegative) _blackoutRemaining = Duration.zero;
+        return;
+      }
+
+      // 4. Post-Salat Adhkar window: [blackoutTime, adhkarTime)
+      if ((now.isAtSameMomentAs(blackoutTime) || now.isAfter(blackoutTime)) &&
+          now.isBefore(adhkarTime)) {
+        _activePrayer = prayer;
+        _displayState = DisplayState.postSalatAdhkar;
+        _adhkarRemaining = adhkarTime.difference(now);
+        if (_adhkarRemaining.isNegative) _adhkarRemaining = Duration.zero;
+        return;
+      }
+    }
   }
 
   Future<void> _loadTodaySchedule() async {
@@ -202,6 +372,7 @@ class DisplayProvider extends ChangeNotifier {
       offsetDays: _settings.hijriOffsetDays,
     );
     _hijriDate = hijri.fullFormattedAr;
+    _gregorianDate = HijriCalculator.formatGregorian(now);
     notifyListeners();
   }
 
@@ -224,6 +395,25 @@ class DisplayProvider extends ChangeNotifier {
         case DisplayState.iqamahCountdown:
           if (_iqamahRemaining.inSeconds > 0) {
             _iqamahRemaining -= const Duration(seconds: 1);
+            if (_iqamahRemaining.inSeconds <= 0) {
+              _blackoutRemaining =
+                  Duration(minutes: _settings.blackoutDurationMinutes);
+              _displayState = DisplayState.salatBlackout;
+            }
+          } else {
+            _blackoutRemaining =
+                Duration(minutes: _settings.blackoutDurationMinutes);
+            _displayState = DisplayState.salatBlackout;
+          }
+          break;
+        case DisplayState.jumuahKhutbah:
+          if (_jumuahRemaining.inSeconds > 0) {
+            _jumuahRemaining -= const Duration(seconds: 1);
+            if (_jumuahRemaining.inSeconds <= 0) {
+              _blackoutRemaining =
+                  Duration(minutes: _settings.blackoutDurationMinutes);
+              _displayState = DisplayState.salatBlackout;
+            }
           } else {
             _blackoutRemaining =
                 Duration(minutes: _settings.blackoutDurationMinutes);
@@ -233,14 +423,23 @@ class DisplayProvider extends ChangeNotifier {
         case DisplayState.salatBlackout:
           if (_blackoutRemaining.inSeconds > 0) {
             _blackoutRemaining -= const Duration(seconds: 1);
+            if (_blackoutRemaining.inSeconds <= 0) {
+              _adhkarRemaining =
+                  Duration(minutes: _settings.adhkarDurationMinutes);
+              _displayState = DisplayState.postSalatAdhkar;
+            }
           } else {
-            _adhkarRemaining = const Duration(minutes: 7);
+            _adhkarRemaining =
+                Duration(minutes: _settings.adhkarDurationMinutes);
             _displayState = DisplayState.postSalatAdhkar;
           }
           break;
         case DisplayState.postSalatAdhkar:
           if (_adhkarRemaining.inSeconds > 0) {
             _adhkarRemaining -= const Duration(seconds: 1);
+            if (_adhkarRemaining.inSeconds <= 0) {
+              _dismissAdhkar();
+            }
           } else {
             _dismissAdhkar();
           }
@@ -264,6 +463,9 @@ class DisplayProvider extends ChangeNotifier {
       case DisplayState.iqamahCountdown:
         _tickIqamah(now);
         break;
+      case DisplayState.jumuahKhutbah:
+        _tickJumuah(now);
+        break;
       case DisplayState.salatBlackout:
         _tickBlackout(now);
         break;
@@ -280,6 +482,7 @@ class DisplayProvider extends ChangeNotifier {
       // Within ±30 seconds of prayer time
       if ((now.difference(pTime).inSeconds).abs() <= 30 &&
           now.isAfter(pTime.subtract(const Duration(seconds: 30)))) {
+        _dismissedPrayer = null;
         _activePrayer = prayer;
         _displayState = DisplayState.adhanAlert;
         return;
@@ -291,13 +494,24 @@ class DisplayProvider extends ChangeNotifier {
     final prayer = _activePrayer;
     if (prayer == null) return;
     final pTime = schedule.getTime(prayer);
-    // After 90 sec Adhan display, switch to Iqamah countdown
-    final iqamahDelay = Duration(minutes: _settings.iqamahDelays.getDelayFor(prayer));
-    final iqamahTime = pTime.add(iqamahDelay);
+    // After 90 sec Adhan display, switch to Jumu'ah Khutbah mode on Friday Dhuhr,
+    // or standard Iqamah countdown for other prayers.
     if (now.isAfter(pTime.add(const Duration(seconds: 90)))) {
-      _iqamahRemaining = iqamahTime.difference(now);
-      if (_iqamahRemaining.isNegative) _iqamahRemaining = Duration.zero;
-      _displayState = DisplayState.iqamahCountdown;
+      if (isFriday && prayer == Prayer.dhuhr) {
+        final jumuahDelay = Duration(
+          minutes: _settings.iqamahDelays.getDelayFor(prayer, isFriday: true),
+        );
+        final iqamahTime = pTime.add(jumuahDelay);
+        _jumuahRemaining = iqamahTime.difference(now);
+        if (_jumuahRemaining.isNegative) _jumuahRemaining = Duration.zero;
+        _displayState = DisplayState.jumuahKhutbah;
+      } else {
+        final iqamahDelay = Duration(minutes: _settings.iqamahDelays.getDelayFor(prayer));
+        final iqamahTime = pTime.add(iqamahDelay);
+        _iqamahRemaining = iqamahTime.difference(now);
+        if (_iqamahRemaining.isNegative) _iqamahRemaining = Duration.zero;
+        _displayState = DisplayState.iqamahCountdown;
+      }
     }
   }
 
@@ -317,22 +531,46 @@ class DisplayProvider extends ChangeNotifier {
     }
   }
 
+  void _tickJumuah(DateTime now) {
+    final prayer = _activePrayer;
+    if (prayer == null) return;
+    final schedule = _todaySchedule;
+    if (schedule == null) return;
+    final pTime = schedule.getTime(prayer);
+    final jumuahDelay = Duration(
+      minutes: _settings.iqamahDelays.getDelayFor(prayer, isFriday: true),
+    );
+    final iqamahTime = pTime.add(jumuahDelay);
+    _jumuahRemaining = iqamahTime.difference(now);
+    if (_jumuahRemaining.isNegative || _jumuahRemaining == Duration.zero) {
+      _jumuahRemaining = Duration.zero;
+      _blackoutRemaining =
+          Duration(minutes: _settings.blackoutDurationMinutes);
+      _displayState = DisplayState.salatBlackout;
+    }
+  }
+
   void _tickBlackout(DateTime now) {
     if (_blackoutRemaining.inSeconds > 0) {
       _blackoutRemaining -= const Duration(seconds: 1);
+      if (_blackoutRemaining.inSeconds <= 0) {
+        _adhkarRemaining = Duration(minutes: _settings.adhkarDurationMinutes);
+        _displayState = DisplayState.postSalatAdhkar;
+      }
     } else {
-      _adhkarRemaining = const Duration(minutes: 7);
+      _adhkarRemaining = Duration(minutes: _settings.adhkarDurationMinutes);
       _displayState = DisplayState.postSalatAdhkar;
     }
   }
 
   void _tickAdhkar(DateTime now) {
-    if (_adhkarShortcutActive || _adhkarRemaining.inSeconds > 0) {
-      if (_adhkarRemaining.inSeconds > 0) {
-        _adhkarRemaining -= const Duration(seconds: 1);
-      } else {
+    if (_adhkarRemaining.inSeconds > 0) {
+      _adhkarRemaining -= const Duration(seconds: 1);
+      if (_adhkarRemaining.inSeconds <= 0) {
         _dismissAdhkar();
       }
+    } else {
+      _dismissAdhkar();
     }
   }
 
@@ -340,8 +578,9 @@ class DisplayProvider extends ChangeNotifier {
 
   /// D-pad shortcut: trigger Adhkar on demand.
   void triggerAdhkarOnDemand() {
+    _activePrayer = null;
     _adhkarShortcutActive = true;
-    _adhkarRemaining = const Duration(minutes: 7);
+    _adhkarRemaining = Duration(minutes: _settings.adhkarDurationMinutes);
     _displayState = DisplayState.postSalatAdhkar;
     notifyListeners();
   }
@@ -349,6 +588,14 @@ class DisplayProvider extends ChangeNotifier {
   /// D-pad Back: dismiss Adhkar early.
   void dismissAdhkar() {
     _dismissAdhkar();
+  }
+
+  /// Begins congregational prayer blackout immediately (e.g. when Imam starts prayer early).
+  void enterBlackout() {
+    _iqamahRemaining = Duration.zero;
+    _jumuahRemaining = Duration.zero;
+    _blackoutRemaining = Duration(minutes: _settings.blackoutDurationMinutes);
+    _displayState = DisplayState.salatBlackout;
     notifyListeners();
   }
 
@@ -356,11 +603,26 @@ class DisplayProvider extends ChangeNotifier {
   /// and returns to the standard dashboard view.
   void dismissActiveState() {
     if (_isSimulationActive) {
-      resetSimulation();
+      _isSimulationActive = false;
+      _isManualStateSimulated = false;
+      _simulatedDate = null;
+      _simulatedAnchorTime = null;
+      _simulationStartedAt = null;
+      _activeSimulatedOccasion = null;
+      _displayState = DisplayState.standard;
+      _activePrayer = null;
+      _iqamahRemaining = Duration.zero;
+      _jumuahRemaining = Duration.zero;
+      _blackoutRemaining = Duration.zero;
+      _adhkarRemaining = Duration.zero;
+      notifyListeners();
+      _loadTodaySchedule().then((_) => _refreshHijriDate());
       return;
     }
+    _dismissedPrayer = _activePrayer;
     _adhkarShortcutActive = false;
     _iqamahRemaining = Duration.zero;
+    _jumuahRemaining = Duration.zero;
     _blackoutRemaining = Duration.zero;
     _adhkarRemaining = Duration.zero;
     _activePrayer = null;
@@ -369,17 +631,68 @@ class DisplayProvider extends ChangeNotifier {
   }
 
   void _dismissAdhkar() {
+    _dismissedPrayer = _activePrayer;
     _adhkarShortcutActive = false;
     _adhkarRemaining = Duration.zero;
     _activePrayer = null;
     _displayState = DisplayState.standard;
+    notifyListeners();
   }
 
-  /// Update settings (from settings screen) and reload.
-  Future<void> updateSettings(MosqueSettings newSettings) async {
+  Future<void> _settingsUpdateQueue = Future.value();
+
+  /// Update settings (from settings screen or remote admin) and reload.
+  /// When only fine offsets or display options change, preserves in-memory schedule
+  /// without triggering full-screen loading spinners.
+  /// All calls are serialized sequentially to prevent concurrent update corruption.
+  Future<void> updateSettings(MosqueSettings newSettings, {bool reloadSchedule = false}) {
+    final completer = Completer<void>();
+    _settingsUpdateQueue = _settingsUpdateQueue.then((_) async {
+      try {
+        await _performUpdateSettings(newSettings, reloadSchedule: reloadSchedule);
+        completer.complete();
+      } catch (e, st) {
+        completer.completeError(e, st);
+      }
+    });
+    return completer.future;
+  }
+
+  Future<void> _performUpdateSettings(MosqueSettings newSettings, {bool reloadSchedule = false}) async {
+    final wilayaChanged = _settings.selectedWilayaCode != newSettings.selectedWilayaCode;
+    final communeChanged = _settings.selectedCommuneCode != newSettings.selectedCommuneCode;
+    final hijriChanged = _settings.hijriOffsetDays != newSettings.hijriOffsetDays;
+    final offsetsChanged = _settings.offsets != newSettings.offsets;
+    final remoteAdminChanged = _settings.remoteAdminEnabled != newSettings.remoteAdminEnabled ||
+        _settings.remoteAdminPort != newSettings.remoteAdminPort;
+
     _settings = newSettings;
-    await _loadTodaySchedule();
-    _refreshHijriDate();
+
+    if (wilayaChanged || communeChanged || reloadSchedule) {
+      await _loadTodaySchedule();
+    } else if (offsetsChanged && _todaySchedule != null) {
+      final now = effectiveDate;
+      _todaySchedule = await _prayerRepo.getPrayerTimes(
+        wilayaCode: _settings.selectedWilayaCode,
+        commune: _activeCommune,
+        date: now,
+        offsets: _settings.offsets,
+      );
+    }
+
+    if (hijriChanged) {
+      _refreshHijriDate();
+    }
+
+    if (remoteAdminChanged) {
+      if (newSettings.remoteAdminEnabled) {
+        await startRemoteAdminServer(port: newSettings.remoteAdminPort, persist: false);
+      } else {
+        await stopRemoteAdminServer(persist: false);
+      }
+    }
+
+    notifyListeners();
   }
 
   /// Countdown to next Adhan from now.
@@ -404,6 +717,14 @@ class DisplayProvider extends ChangeNotifier {
     return '$m:$s';
   }
 
+  /// Format DateTime as "HH:MM:SS".
+  String formatTime(DateTime dt) {
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    final s = dt.second.toString().padLeft(2, '0');
+    return '$h:$m:$s';
+  }
+
   // ── Testing & Simulation Methods ────────────────────────────────────────────
 
   /// Simulates a specific display state on-demand for testing.
@@ -420,6 +741,7 @@ class DisplayProvider extends ChangeNotifier {
     switch (state) {
       case DisplayState.standard:
         _iqamahRemaining = Duration.zero;
+        _jumuahRemaining = Duration.zero;
         _blackoutRemaining = Duration.zero;
         _adhkarRemaining = Duration.zero;
         break;
@@ -428,12 +750,18 @@ class DisplayProvider extends ChangeNotifier {
       case DisplayState.iqamahCountdown:
         _iqamahRemaining = customDuration ?? const Duration(minutes: 5);
         break;
+      case DisplayState.jumuahKhutbah:
+        _activePrayer = Prayer.dhuhr;
+        _jumuahRemaining = customDuration ??
+            Duration(minutes: _settings.iqamahDelays.jumuah);
+        break;
       case DisplayState.salatBlackout:
         _blackoutRemaining = customDuration ??
             Duration(minutes: _settings.blackoutDurationMinutes);
         break;
       case DisplayState.postSalatAdhkar:
-        _adhkarRemaining = customDuration ?? const Duration(minutes: 7);
+        _adhkarRemaining = customDuration ??
+            Duration(minutes: _settings.adhkarDurationMinutes);
         break;
     }
     notifyListeners();
@@ -469,9 +797,25 @@ class DisplayProvider extends ChangeNotifier {
     _displayState = DisplayState.standard;
     _activePrayer = null;
     _iqamahRemaining = Duration.zero;
+    _jumuahRemaining = Duration.zero;
     _blackoutRemaining = Duration.zero;
     _adhkarRemaining = Duration.zero;
     await _loadTodaySchedule();
     _refreshHijriDate();
+  }
+
+  bool _isDisposed = false;
+
+  @override
+  void notifyListeners() {
+    if (_isDisposed) return;
+    super.notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _remoteAdminServer?.stop();
+    super.dispose();
   }
 }

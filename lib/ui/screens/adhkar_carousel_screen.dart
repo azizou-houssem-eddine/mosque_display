@@ -12,25 +12,29 @@ class _AdhkarItem {
   final String translation;
   final int count;
   final String reference;
+  final List<String> prayerSpecific;
 
   const _AdhkarItem({
     required this.arabic,
     required this.translation,
     required this.count,
     required this.reference,
+    this.prayerSpecific = const [],
   });
 }
 
 /// Post-Salat Adhkar Carousel — Concept 2 styled, 15s auto-progression,
 /// D-pad dismissible. Also triggered on-demand via remote shortcut.
 class AdhkarCarouselScreen extends StatefulWidget {
-  const AdhkarCarouselScreen({super.key});
+  final AssetBundle? assetBundle;
+  const AdhkarCarouselScreen({super.key, this.assetBundle});
 
   @override
   State<AdhkarCarouselScreen> createState() => _AdhkarCarouselScreenState();
 }
 
 class _AdhkarCarouselScreenState extends State<AdhkarCarouselScreen> {
+  List<_AdhkarItem> _allItems = [];
   List<_AdhkarItem> _items = [];
   int _currentIndex = 0;
   late final PageController _pageCtrl;
@@ -45,25 +49,58 @@ class _AdhkarCarouselScreenState extends State<AdhkarCarouselScreen> {
     _startAutoAdvance();
   }
 
+  void _filterItems() {
+    final activePrayer = context.read<DisplayProvider>().activePrayer;
+    if (activePrayer == null) {
+      _items = List.from(_allItems);
+    } else {
+      final pName = activePrayer.name.toLowerCase();
+      _items = _allItems.where((item) {
+        if (item.prayerSpecific.isEmpty) return true;
+        return item.prayerSpecific.contains(pName);
+      }).toList();
+    }
+    if (_currentIndex >= _items.length) {
+      _currentIndex = 0;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_allItems.isNotEmpty) {
+      setState(() {
+        _filterItems();
+      });
+    }
+  }
+
   Future<void> _loadAdhkar() async {
     try {
+      final bundle = widget.assetBundle ?? rootBundle;
       final raw =
-          await rootBundle.loadString('assets/data/adhkar_content.json');
+          await bundle.loadString('assets/data/adhkar_content.json');
       final List<dynamic> list = json.decode(raw) as List<dynamic>;
+      final parsed = list
+          .map((e) => _AdhkarItem(
+                arabic: (e['arabic'] as String?) ?? '',
+                translation: (e['translation'] as String?) ?? '',
+                count: (e['count'] as num?)?.toInt() ?? 1,
+                reference: (e['reference'] as String?) ?? '',
+                prayerSpecific: (e['prayerSpecific'] as List<dynamic>?)
+                        ?.map((p) => p.toString().toLowerCase().trim())
+                        .toList() ??
+                    const [],
+              ))
+          .toList();
       setState(() {
-        _items = list
-            .map((e) => _AdhkarItem(
-                  arabic: (e['arabic'] as String?) ?? '',
-                  translation: (e['translation'] as String?) ?? '',
-                  count: (e['count'] as num?)?.toInt() ?? 1,
-                  reference: (e['reference'] as String?) ?? '',
-                ))
-            .toList();
+        _allItems = parsed;
+        _filterItems();
       });
     } catch (_) {
       // Fallback content if asset loading fails
       setState(() {
-        _items = const [
+        _allItems = const [
           _AdhkarItem(
             arabic: 'سُبْحَانَ اللهِ',
             translation: '٣٣ مرة',
@@ -83,6 +120,7 @@ class _AdhkarCarouselScreenState extends State<AdhkarCarouselScreen> {
             reference: 'رواه مسلم',
           ),
         ];
+        _filterItems();
       });
     }
   }
@@ -312,29 +350,38 @@ class _AdhkarCarouselScreenState extends State<AdhkarCarouselScreen> {
   }
 
   Widget _buildPage(_AdhkarItem item) {
-    final scale = ScreenScale.of(context);
+    double? customScale;
+    try {
+      customScale = Provider.of<DisplayProvider>(context, listen: false).settings.uiScaleFactor;
+    } catch (_) {
+      customScale = null;
+    }
+    final scale = ScreenScale.of(context, customScale: customScale);
     final textLen = item.arabic.length;
     final baseArabicFontSize = textLen > 140
-        ? 28.0
+        ? (scale.isNarrow ? 22.0 : 26.0)
         : textLen > 70
-            ? 38.0
-            : 50.0;
-    final arabicFontSize = scale.scale(baseArabicFontSize, min: 20.0, max: 80.0);
+            ? (scale.isNarrow ? 28.0 : 34.0)
+            : (scale.isNarrow ? 38.0 : 48.0);
+    final arabicFontSize = scale.scaleFont(baseArabicFontSize, min: 16.0, max: 72.0);
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: scale.scale(48, min: 20, max: 80),
-        vertical: scale.scale(12, min: 6, max: 24),
+        horizontal: scale.scaleLayout(scale.isNarrow ? 20 : 40, min: 12, max: 80),
+        vertical: scale.scaleLayout(scale.isNarrow ? 6 : 12, min: 4, max: 24),
       ),
       child: Center(
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: scale.is4k ? 1800 : (scale.isCompact ? 820 : 1080),
-          ),
-          padding: EdgeInsets.symmetric(
-            horizontal: scale.scale(40, min: 20, max: 72),
-            vertical: scale.scale(24, min: 14, max: 48),
-          ),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: scale.is4k ? 1800 : (scale.isCompact ? 820 : 1080),
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: scale.scaleLayout(scale.isNarrow ? 24 : 36, min: 16, max: 72),
+              vertical: scale.scaleLayout(scale.isNarrow ? 14 : 22, min: 10, max: 44),
+            ),
           decoration: BoxDecoration(
             color: AppTheme.emeraldMid.withValues(alpha: 0.65),
             borderRadius: BorderRadius.circular(scale.scale(24, min: 16, max: 40)),
@@ -462,6 +509,7 @@ class _AdhkarCarouselScreenState extends State<AdhkarCarouselScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

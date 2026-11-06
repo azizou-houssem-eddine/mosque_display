@@ -29,6 +29,11 @@ dependencies:
   audioplayers: ^6.0.0
   google_fonts: ^8.2.1
 
+  # Embedded Remote Administration Server & QR Pairing
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
+  qr_flutter: ^4.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

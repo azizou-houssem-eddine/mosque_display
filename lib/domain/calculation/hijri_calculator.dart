@@ -75,6 +75,28 @@ class HijriCalculator {
     'الأحد',
   ];
 
+  static const List<String> gregorianMonthsAr = [
+    'جانفي',
+    'فيفري',
+    'مارس',
+    'أفريل',
+    'ماي',
+    'جوان',
+    'جويلية',
+    'أوت',
+    'سبتمبر',
+    'أكتوبر',
+    'نوفمبر',
+    'ديسمبر',
+  ];
+
+  /// Formats a Gregorian date according to Algerian convention (e.g. "05 نوفمبر 2026 م").
+  static String formatGregorian(DateTime date, {bool includeSuffix = true}) {
+    final dayStr = date.day.toString().padLeft(2, '0');
+    final monthName = gregorianMonthsAr[(date.month - 1).clamp(0, 11)];
+    return includeSuffix ? '$dayStr $monthName ${date.year} م' : '$dayStr $monthName ${date.year}';
+  }
+
   /// Calculates Hijri date for a given Gregorian date, applying moonsighting offset (±1-2 days).
   static HijriDate calculate({
     required DateTime gregorianDate,

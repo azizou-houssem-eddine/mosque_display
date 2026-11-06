@@ -13,6 +13,7 @@ import 'ui/screens/main_dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  AppTheme.ensureOfflineFonts();
 
   // Enforce 24/7 TV Display Awake
   try {

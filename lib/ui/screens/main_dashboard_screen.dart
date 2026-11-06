@@ -14,9 +14,11 @@ import '../widgets/hadith_ticker.dart';
 import 'iqamah_countdown_screen.dart';
 import 'salat_blackout_screen.dart';
 import 'adhkar_carousel_screen.dart';
+import 'jumuah_khutbah_screen.dart';
 import 'settings_screen.dart';
 import 'dua_showcase_screen.dart';
 import '../widgets/simulation_control_dialog.dart';
+import '../widgets/qr_pairing_dialog.dart';
 
 /// Main TV dashboard — Standard Mode.
 /// Clock, Hijri date, symmetric prayer cards, central circular gauge, ticker.
@@ -32,11 +34,56 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
   DateTime _now = DateTime.now();
   final FocusNode _screenFocusNode = FocusNode();
   final FocusNode _settingsButtonFocusNode = FocusNode();
+  DateTime? _lastBackPressTime;
+  DisplayState? _lastObservedState;
+
+  void _onDisplayStateCheck() {
+    if (!mounted) return;
+    final currentState = context.read<DisplayProvider>().displayState;
+    if (_lastObservedState != currentState) {
+      _lastObservedState = currentState;
+      if (currentState == DisplayState.salatBlackout ||
+          currentState == DisplayState.adhanAlert ||
+          currentState == DisplayState.iqamahCountdown ||
+          currentState == DisplayState.jumuahKhutbah) {
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      }
+    }
+  }
+
+  void _handleBackPress() {
+    final now = DateTime.now();
+    if (_lastBackPressTime == null ||
+        now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
+      _lastBackPressTime = now;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'اضغط مرة أخرى للخروج',
+            style: TextStyle(fontFamily: 'Cairo', fontSize: 16),
+            textDirection: TextDirection.rtl,
+          ),
+          duration: Duration(seconds: 2),
+          backgroundColor: AppTheme.emeraldMid,
+        ),
+      );
+    } else {
+      SystemNavigator.pop();
+    }
+  }
+
+  DisplayProvider? _displayProvider;
 
   @override
   void initState() {
     super.initState();
-    _now = context.read<DisplayProvider>().effectiveDate;
+    final provider = context.read<DisplayProvider>();
+    _displayProvider = provider;
+    _now = provider.effectiveDate;
+    _lastObservedState = provider.displayState;
+    provider.addListener(_onDisplayStateCheck);
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       context.read<DisplayProvider>().tick();
@@ -46,6 +93,7 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
 
   @override
   void dispose() {
+    _displayProvider?.removeListener(_onDisplayStateCheck);
     _ticker.cancel();
     _screenFocusNode.dispose();
     _settingsButtonFocusNode.dispose();
@@ -53,8 +101,10 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
   }
 
   String get _timeStr {
+    final showSeconds = context.read<DisplayProvider>().settings.showSeconds;
     final h = _now.hour.toString().padLeft(2, '0');
     final m = _now.minute.toString().padLeft(2, '0');
+    if (!showSeconds) return '$h:$m';
     final s = _now.second.toString().padLeft(2, '0');
     return '$h:$m:$s';
   }
@@ -77,6 +127,14 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
           },
           child: const IqamahCountdownScreen(),
         );
+      case DisplayState.jumuahKhutbah:
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) provider.dismissActiveState();
+          },
+          child: const JumuahKhutbahScreen(),
+        );
       case DisplayState.salatBlackout:
         return PopScope(
           canPop: false,
@@ -97,11 +155,22 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
         break;
     }
 
-    return Focus(
-      focusNode: _screenFocusNode,
-      onKeyEvent: (node, event) {
-        if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.f1 ||
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _handleBackPress();
+      },
+      child: Focus(
+        focusNode: _screenFocusNode,
+        onKeyEvent: (node, event) {
+          if (event is KeyDownEvent) {
+            if (event.logicalKey == LogicalKeyboardKey.escape ||
+                event.logicalKey == LogicalKeyboardKey.goBack) {
+              _handleBackPress();
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.f1 ||
               event.logicalKey == LogicalKeyboardKey.keyM ||
               event.logicalKey == LogicalKeyboardKey.contextMenu) {
             _openSettings(context);
@@ -109,6 +178,10 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
           }
           if (event.logicalKey == LogicalKeyboardKey.keyD) {
             _openDuaShowcase(context);
+            return KeyEventResult.handled;
+          }
+          if (event.logicalKey == LogicalKeyboardKey.keyQ) {
+            _openQrPairing(context);
             return KeyEventResult.handled;
           }
           if (event.logicalKey == LogicalKeyboardKey.keyT ||
@@ -166,45 +239,50 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
       },
       child: GestureDetector(
         onLongPress: () => _openSettings(context),
-        child: Scaffold(
-          backgroundColor: AppTheme.emeraldDeep,
-          body: Stack(
-            children: [
-              // Background gradient
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: AppTheme.backgroundGradient,
+        child: Builder(builder: (ctx) {
+          final themePalette = AppTheme.getThemePalette(provider.settings.colorTheme);
+          return Scaffold(
+            backgroundColor: themePalette.backgroundTop,
+            body: Stack(
+              children: [
+                // Background gradient
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: themePalette.backgroundGradient,
+                  ),
                 ),
-              ),
-              // Mandala watermark
-              const MandalaBackground(opacity: 0.07),
-              // Main content
-              SafeArea(
-                child: Column(
-                  children: [
-                    _buildHeader(provider, schedule, occasions),
-                    if (occasions.isNotEmpty)
-                      _buildOccasionBanner(occasions.first, schedule),
-                    Expanded(
-                      child: _buildBody(provider, schedule),
-                    ),
-                    _buildTicker(provider),
-                  ],
+                // Mandala watermark
+                const MandalaBackground(opacity: 0.07),
+                // Main content
+                SafeArea(
+                  child: Column(
+                    children: [
+                      _buildHeader(provider, schedule, occasions, themePalette),
+                      if (occasions.isNotEmpty)
+                        _buildOccasionBanner(occasions.first, schedule),
+                      Expanded(
+                        child: _buildBody(provider, schedule, themePalette),
+                      ),
+                      _buildTicker(provider, themePalette),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
+              ],
+            ),
+          );
+        }),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildHeader(
     DisplayProvider provider,
     PrayerSchedule? schedule,
     List<IslamicOccasion> occasions,
+    ThemePalette themePalette,
   ) {
-    final scale = ScreenScale.of(context);
+    final scale = ScreenScale.of(context, customScale: provider.settings.uiScaleFactor);
     final currentWilaya = algerianWilayas.firstWhere(
       (w) => w.code == provider.settings.selectedWilayaCode,
       orElse: () => algerianWilayas.first,
@@ -222,10 +300,10 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
         horizontal: scale.scale(28, min: 16, max: 56),
         vertical: scale.scale(10, min: 6, max: 18),
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Color(0x66D4AF37),
+            color: themePalette.borderSoft,
             width: 1.0,
           ),
         ),
@@ -250,6 +328,7 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                         (event.logicalKey == LogicalKeyboardKey.select ||
                          event.logicalKey == LogicalKeyboardKey.enter ||
                          event.logicalKey == LogicalKeyboardKey.numpadEnter ||
+                         event.logicalKey == LogicalKeyboardKey.space ||
                          event.logicalKey == LogicalKeyboardKey.gameButtonA)) {
                       _openSettings(context);
                       return KeyEventResult.handled;
@@ -407,15 +486,15 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                   vertical: scale.scale(4, min: 2, max: 10),
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.emeraldDeep.withValues(alpha: 0.65),
+                  color: themePalette.backgroundTop.withValues(alpha: 0.75),
                   borderRadius: BorderRadius.circular(scale.scale(16, min: 12, max: 28)),
                   border: Border.all(
-                    color: AppTheme.goldDim.withValues(alpha: 0.45),
+                    color: themePalette.borderSoft,
                     width: scale.scale(1.4, min: 1.0, max: 2.8),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.goldPrimary.withValues(alpha: 0.20),
+                      color: themePalette.glowAccent,
                       blurRadius: scale.scale(20, min: 12, max: 40),
                       spreadRadius: 1,
                     ),
@@ -431,7 +510,7 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                     letterSpacing: scale.scale(3.5, min: 2.0, max: 6.5),
                     shadows: [
                       Shadow(
-                        color: AppTheme.goldPrimary,
+                        color: themePalette.primaryAccent,
                         blurRadius: scale.scale(18, min: 12, max: 36),
                       ),
                       const Shadow(
@@ -483,6 +562,14 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                     ),
                     SizedBox(width: scale.scale(6, min: 4, max: 12)),
                     _HeaderNavActionButton(
+                      icon: Icons.qr_code_2,
+                      label: 'التحكم (QR)',
+                      tooltip: 'التحكم اللاسلكي والاقتران بالهاتف (Q)',
+                      scale: scale,
+                      onPressed: () => _openQrPairing(context),
+                    ),
+                    SizedBox(width: scale.scale(6, min: 4, max: 12)),
+                    _HeaderNavActionButton(
                       icon: Icons.tune,
                       label: 'المحاكاة',
                       tooltip: 'محاكاة الحالات والمناسبات (T / S)',
@@ -511,17 +598,40 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                           ),
                           textDirection: TextDirection.rtl,
                         ),
-                        if (occasionBanner != null)
+                        if (provider.settings.showGregorianDate &&
+                            provider.gregorianDate.isNotEmpty) ...[
+                          SizedBox(height: scale.scale(2, min: 1, max: 4)),
+                          Text(
+                            provider.gregorianDate,
+                            style: TextStyle(
+                              fontFamily: 'Cairo',
+                              fontSize: scale.scale(17, min: 11, max: 30),
+                              fontWeight: FontWeight.w600,
+                              color: themePalette.primaryAccent.withValues(alpha: 0.95),
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black54,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            textDirection: TextDirection.rtl,
+                          ),
+                        ],
+                        if (occasionBanner != null) ...[
+                          SizedBox(height: scale.scale(2, min: 1, max: 4)),
                           Text(
                             occasionBanner,
                             style: TextStyle(
                               fontFamily: 'Cairo',
-                              fontSize: scale.scale(17, min: 12, max: 30),
-                              color: AppTheme.goldPrimary,
+                              fontSize: scale.scale(15, min: 10, max: 26),
+                              color: AppTheme.goldLight,
                               fontWeight: FontWeight.w600,
                             ),
                             textDirection: TextDirection.rtl,
                           ),
+                        ],
                       ],
                     ),
                   ],
@@ -534,7 +644,11 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
     );
   }
 
-  Widget _buildBody(DisplayProvider provider, PrayerSchedule? schedule) {
+  Widget _buildBody(
+    DisplayProvider provider,
+    PrayerSchedule? schedule,
+    ThemePalette themePalette,
+  ) {
     if (provider.isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: AppTheme.goldPrimary),
@@ -563,7 +677,10 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
         (provider.isRamadan || provider.isFastingDay);
 
     // Compute contextual subtitle and label for Central Gauge
-    String gaugeSubtitle = 'حتى ${nextPrayer.nameAr}';
+    final nextPrayerTitle = (provider.isFriday && nextPrayer == Prayer.dhuhr)
+        ? 'صلاة الجمعة'
+        : nextPrayer.nameAr;
+    String gaugeSubtitle = 'حتى $nextPrayerTitle';
     String gaugeCenterLabel = DisplayProvider.formatDuration(countdown);
     double gaugeProgress = progress;
 
@@ -598,19 +715,85 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
       }
     }
 
-    // Left cards: Fajr, Shuruk, Dhuhr
+    final template = provider.settings.watchFaceTemplate;
+    switch (template) {
+      case 'modernHorizontal':
+        return _buildModernHorizontalBody(
+          provider,
+          schedule,
+          themePalette,
+          currentPrayer,
+          nextPrayer,
+          gaugeProgress,
+          gaugeCenterLabel,
+          gaugeSubtitle,
+          showFastingTimes,
+        );
+      case 'grandClock':
+        return _buildGrandClockBody(
+          provider,
+          schedule,
+          themePalette,
+          currentPrayer,
+          nextPrayer,
+          gaugeProgress,
+          gaugeCenterLabel,
+          gaugeSubtitle,
+          showFastingTimes,
+        );
+      case 'traditionalMinbar':
+        return _buildTraditionalMinbarBody(
+          provider,
+          schedule,
+          themePalette,
+          currentPrayer,
+          nextPrayer,
+          gaugeProgress,
+          gaugeCenterLabel,
+          gaugeSubtitle,
+          showFastingTimes,
+        );
+      case 'classicAstrolabe':
+      default:
+        return _buildClassicAstrolabeBody(
+          provider,
+          schedule,
+          themePalette,
+          currentPrayer,
+          nextPrayer,
+          gaugeProgress,
+          gaugeCenterLabel,
+          gaugeSubtitle,
+          showFastingTimes,
+        );
+    }
+  }
+
+  Widget _buildClassicAstrolabeBody(
+    DisplayProvider provider,
+    PrayerSchedule schedule,
+    ThemePalette themePalette,
+    Prayer? currentPrayer,
+    Prayer nextPrayer,
+    double gaugeProgress,
+    String gaugeCenterLabel,
+    String gaugeSubtitle,
+    bool showFastingTimes,
+  ) {
     final leftPrayers = [Prayer.fajr, Prayer.sunrise, Prayer.dhuhr];
-    // Right cards: Asr, Maghrib, Isha
     final rightPrayers = [Prayer.asr, Prayer.maghrib, Prayer.isha];
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final scale = ScreenScale.of(context);
-        final colWidth = (constraints.maxWidth * 0.28).clamp(180.0, scale.is4k ? 700.0 : 420.0);
-        final cardWidth = (colWidth * 0.88).clamp(170.0, scale.is4k ? 580.0 : 340.0);
+        final scale = ScreenScale.of(context, customScale: provider.settings.uiScaleFactor);
+        final minCol = scale.scaleLayout(180, min: 110);
+        final colWidth = (constraints.maxWidth * 0.28).clamp(minCol, scale.is4k ? 700.0 : 420.0);
+        final minCard = scale.scaleLayout(160, min: 100);
+        final cardWidth = (colWidth * 0.88).clamp(minCard, scale.is4k ? 580.0 : 340.0);
         final maxCenterWidth = constraints.maxWidth - (colWidth * 2);
         final maxSide = (maxCenterWidth < constraints.maxHeight ? maxCenterWidth : constraints.maxHeight);
-        final gaugeSize = (maxSide * 0.82).clamp(240.0, scale.is4k ? 1000.0 : 520.0);
+        final minGauge = scale.scaleLayout(200, min: 140);
+        final gaugeSize = (maxSide * 0.82).clamp(minGauge, scale.is4k ? 1000.0 : 520.0);
 
         return Row(
           children: [
@@ -626,16 +809,22 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                     final timeStr =
                         '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
                     final isFajr = p == Prayer.fajr;
-                    return PrayerCardWidget(
-                      prayerNameAr: p.nameAr,
-                      time: timeStr,
-                      isActive: currentPrayer == p,
-                      isNext: nextPrayer == p,
-                      width: cardWidth,
-                      auxiliaryLabel:
-                          showFastingTimes && isFajr ? 'الإمساك' : null,
-                      auxiliaryTime:
-                          showFastingTimes && isFajr ? schedule.imsakFormatted : null,
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: scale.scale(3, min: 1, max: 6)),
+                        child: PrayerCardWidget(
+                          prayerNameAr: _getPrayerDisplayName(provider, p),
+                          time: timeStr,
+                          isActive: currentPrayer == p,
+                          isNext: nextPrayer == p,
+                          width: cardWidth,
+                          palette: themePalette,
+                          auxiliaryLabel:
+                              showFastingTimes && isFajr ? 'الإمساك' : null,
+                          auxiliaryTime:
+                              showFastingTimes && isFajr ? schedule.imsakFormatted : null,
+                        ),
+                      ),
                     );
                   }).toList(),
                 ),
@@ -650,6 +839,7 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                   centerLabel: gaugeCenterLabel,
                   subtitle: gaugeSubtitle,
                   size: gaugeSize,
+                  palette: themePalette,
                 ),
               ),
             ),
@@ -665,16 +855,22 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
                     final timeStr =
                         '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
                     final isMaghrib = p == Prayer.maghrib;
-                    return PrayerCardWidget(
-                      prayerNameAr: p.nameAr,
-                      time: timeStr,
-                      isActive: currentPrayer == p,
-                      isNext: nextPrayer == p,
-                      width: cardWidth,
-                      auxiliaryLabel:
-                          showFastingTimes && isMaghrib ? 'الإفطار' : null,
-                      auxiliaryTime:
-                          showFastingTimes && isMaghrib ? schedule.iftarFormatted : null,
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: scale.scale(3, min: 1, max: 6)),
+                        child: PrayerCardWidget(
+                          prayerNameAr: _getPrayerDisplayName(provider, p),
+                          time: timeStr,
+                          isActive: currentPrayer == p,
+                          isNext: nextPrayer == p,
+                          width: cardWidth,
+                          palette: themePalette,
+                          auxiliaryLabel:
+                              showFastingTimes && isMaghrib ? 'الإفطار' : null,
+                          auxiliaryTime:
+                              showFastingTimes && isMaghrib ? schedule.iftarFormatted : null,
+                        ),
+                      ),
                     );
                   }).toList(),
                 ),
@@ -686,8 +882,512 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
     );
   }
 
-  Widget _buildTicker(DisplayProvider provider) {
-    final scale = ScreenScale.of(context);
+  Widget _buildModernHorizontalBody(
+    DisplayProvider provider,
+    PrayerSchedule schedule,
+    ThemePalette themePalette,
+    Prayer? currentPrayer,
+    Prayer nextPrayer,
+    double gaugeProgress,
+    String gaugeCenterLabel,
+    String gaugeSubtitle,
+    bool showFastingTimes,
+  ) {
+    final allPrayers = [
+      Prayer.fajr,
+      Prayer.sunrise,
+      Prayer.dhuhr,
+      Prayer.asr,
+      Prayer.maghrib,
+      Prayer.isha,
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = ScreenScale.of(context, customScale: provider.settings.uiScaleFactor);
+        final isNarrowGrid = scale.isNarrow || constraints.maxWidth < 1200;
+        final upperGaugeSize = (constraints.maxHeight * (isNarrowGrid ? 0.38 : 0.44)).clamp(160.0, scale.is4k ? 550.0 : 360.0);
+
+        Widget buildPrayerCard(Prayer p) {
+          final t = schedule.getTime(p);
+          final timeStr =
+              '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+          final isFajr = p == Prayer.fajr;
+          final isMagMaghrib = p == Prayer.maghrib;
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: scale.scale(4, min: 2, max: 8),
+                vertical: isNarrowGrid ? scale.scale(2, min: 1, max: 4) : 0,
+              ),
+              child: PrayerCardWidget(
+                prayerNameAr: _getPrayerDisplayName(provider, p),
+                time: timeStr,
+                isActive: currentPrayer == p,
+                isNext: nextPrayer == p,
+                palette: themePalette,
+                auxiliaryLabel: showFastingTimes
+                    ? (isFajr ? 'الإمساك' : (isMagMaghrib ? 'الإفطار' : null))
+                    : null,
+                auxiliaryTime: showFastingTimes
+                    ? (isFajr ? schedule.imsakFormatted : (isMagMaghrib ? schedule.iftarFormatted : null))
+                    : null,
+              ),
+            ),
+          );
+        }
+
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: scale.scale(20, min: 12, max: 40),
+            vertical: scale.scale(8, min: 4, max: 16),
+          ),
+          child: Column(
+            children: [
+              // Top countdown & gauge showcase
+              Expanded(
+                flex: isNarrowGrid ? 4 : 5,
+                child: Row(
+                  children: [
+                    // Next prayer spotlight card
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        margin: EdgeInsets.all(scale.scale(8, min: 4, max: 14)),
+                        padding: EdgeInsets.all(scale.scale(16, min: 12, max: 28)),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomLeft,
+                            colors: [
+                              themePalette.primaryAccent.withValues(alpha: 0.20),
+                              themePalette.backgroundTop.withValues(alpha: 0.85),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(scale.scale(18, min: 12, max: 28)),
+                          border: Border.all(color: themePalette.primaryAccent, width: 1.8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: themePalette.glowAccent,
+                              blurRadius: 18,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'الصلاة القادمة: صلاة ${(provider.isFriday && nextPrayer == Prayer.dhuhr) ? 'الجمعة' : nextPrayer.nameAr}',
+                                  style: TextStyle(
+                                    fontFamily: 'Cairo',
+                                    fontSize: scale.scale(22, min: 16, max: 36),
+                                    fontWeight: FontWeight.bold,
+                                    color: themePalette.primaryAccent,
+                                  ),
+                                  textDirection: TextDirection.rtl,
+                                ),
+                                SizedBox(height: scale.scale(8, min: 4, max: 14)),
+                                Text(
+                                  gaugeCenterLabel,
+                                  style: TextStyle(
+                                    fontFamily: 'Cairo',
+                                    fontSize: scale.scale(42, min: 28, max: 72),
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                                SizedBox(height: scale.scale(6, min: 2, max: 10)),
+                                Text(
+                                  gaugeSubtitle,
+                                  style: TextStyle(
+                                    fontFamily: 'Cairo',
+                                    fontSize: scale.scale(16, min: 12, max: 24),
+                                    color: themePalette.textSecondary,
+                                  ),
+                                  textDirection: TextDirection.rtl,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Central circular gauge
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: CircularGaugeWidget(
+                          progress: gaugeProgress,
+                          centerLabel: gaugeCenterLabel,
+                          subtitle: (provider.isFriday && nextPrayer == Prayer.dhuhr)
+                              ? 'الجمعة'
+                              : nextPrayer.nameAr,
+                          size: upperGaugeSize,
+                          palette: themePalette,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: scale.scale(8, min: 4, max: 14)),
+              // Bottom prayer cards (Row on wide, 2x3 Grid on narrow)
+              Expanded(
+                flex: isNarrowGrid ? 5 : 4,
+                child: isNarrowGrid
+                    ? Column(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                buildPrayerCard(Prayer.fajr),
+                                buildPrayerCard(Prayer.sunrise),
+                                buildPrayerCard(Prayer.dhuhr),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: scale.scale(4, min: 2, max: 6)),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                buildPrayerCard(Prayer.asr),
+                                buildPrayerCard(Prayer.maghrib),
+                                buildPrayerCard(Prayer.isha),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        children: allPrayers.map(buildPrayerCard).toList(),
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGrandClockBody(
+    DisplayProvider provider,
+    PrayerSchedule schedule,
+    ThemePalette themePalette,
+    Prayer? currentPrayer,
+    Prayer nextPrayer,
+    double gaugeProgress,
+    String gaugeCenterLabel,
+    String gaugeSubtitle,
+    bool showFastingTimes,
+  ) {
+    final allPrayers = [
+      Prayer.fajr,
+      Prayer.sunrise,
+      Prayer.dhuhr,
+      Prayer.asr,
+      Prayer.maghrib,
+      Prayer.isha,
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = ScreenScale.of(context, customScale: provider.settings.uiScaleFactor);
+        final gaugeSize = (constraints.maxHeight * (scale.isCompact ? 0.42 : 0.48)).clamp(160.0, scale.is4k ? 600.0 : 380.0);
+
+        return Row(
+          children: [
+            // Left: Grand Clock & Astrolabe Gauge Focus
+            Expanded(
+              flex: 4,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: scale.scale(24, min: 14, max: 40)),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Big Digital Time Card
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: scale.scale(32, min: 20, max: 60),
+                        vertical: scale.scale(12, min: 8, max: 24),
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            themePalette.cardBackground,
+                            themePalette.backgroundTop.withValues(alpha: 0.9),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(scale.scale(24, min: 16, max: 36)),
+                        border: Border.all(color: themePalette.primaryAccent, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: themePalette.glowAccent,
+                            blurRadius: 24,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _timeStr,
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: scale.scale(68, min: 44, max: 120),
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: 4,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: scale.scale(16, min: 10, max: 28)),
+                    // Circular countdown gauge
+                    CircularGaugeWidget(
+                      progress: gaugeProgress,
+                      centerLabel: gaugeCenterLabel,
+                      subtitle: gaugeSubtitle,
+                      size: gaugeSize,
+                      palette: themePalette,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Right: Prayer Timetable Column
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: scale.scale(18, min: 10, max: 32),
+                  vertical: scale.isCompact
+                      ? scale.scale(4, min: 2, max: 8)
+                      : scale.scale(10, min: 6, max: 18),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: allPrayers.map((p) {
+                    final t = schedule.getTime(p);
+                    final timeStr =
+                        '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+                    final isFajr = p == Prayer.fajr;
+                    final isMaghrib = p == Prayer.maghrib;
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: scale.isCompact
+                              ? scale.scale(1, min: 0.5, max: 2)
+                              : scale.scale(2, min: 1, max: 4),
+                        ),
+                        child: PrayerCardWidget(
+                          prayerNameAr: _getPrayerDisplayName(provider, p),
+                          time: timeStr,
+                          isActive: currentPrayer == p,
+                          isNext: nextPrayer == p,
+                          palette: themePalette,
+                          auxiliaryLabel: showFastingTimes
+                              ? (isFajr ? 'الإمساك' : (isMaghrib ? 'الإفطار' : null))
+                              : null,
+                          auxiliaryTime: showFastingTimes
+                              ? (isFajr ? schedule.imsakFormatted : (isMaghrib ? schedule.iftarFormatted : null))
+                              : null,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTraditionalMinbarBody(
+    DisplayProvider provider,
+    PrayerSchedule schedule,
+    ThemePalette themePalette,
+    Prayer? currentPrayer,
+    Prayer nextPrayer,
+    double gaugeProgress,
+    String gaugeCenterLabel,
+    String gaugeSubtitle,
+    bool showFastingTimes,
+  ) {
+    final leftPrayers = [Prayer.fajr, Prayer.sunrise, Prayer.dhuhr];
+    final rightPrayers = [Prayer.asr, Prayer.maghrib, Prayer.isha];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = ScreenScale.of(context, customScale: provider.settings.uiScaleFactor);
+        final minCol = scale.scaleLayout(180, min: 110);
+        final colWidth = (constraints.maxWidth * 0.28).clamp(minCol, scale.is4k ? 700.0 : 420.0);
+        final minCard = scale.scaleLayout(160, min: 100);
+        final cardWidth = (colWidth * 0.88).clamp(minCard, scale.is4k ? 580.0 : 340.0);
+        final crownHeight = scale.scaleLayout(55, min: 35, max: 80);
+        final availableHeight = (constraints.maxHeight - crownHeight).clamp(100.0, constraints.maxHeight);
+        final maxCenterWidth = constraints.maxWidth - (colWidth * 2);
+        final maxSide = (maxCenterWidth < availableHeight ? maxCenterWidth : availableHeight);
+        final minGauge = scale.scaleLayout(200, min: 140);
+        final gaugeSize = (maxSide * 0.78).clamp(minGauge, scale.is4k ? 950.0 : 480.0);
+
+        return Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: scale.scale(16, min: 10, max: 28),
+            vertical: scale.scale(6, min: 4, max: 12),
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(scale.isNarrow ? scale.scale(35, min: 20, max: 50) : scale.scale(70, min: 40, max: 100)),
+              bottom: Radius.circular(scale.scale(16, min: 12, max: 24)),
+            ),
+            border: Border.all(
+              color: themePalette.primaryAccent.withValues(alpha: 0.45),
+              width: 2.0,
+            ),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                themePalette.primaryAccent.withValues(alpha: 0.08),
+                Colors.transparent,
+              ],
+            ),
+          ),
+          child: Column(
+            children: [
+              // Minbar Arch Crown Header
+              Padding(
+                padding: EdgeInsets.only(top: scale.scale(8, min: 4, max: 14)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: scale.scale(20, min: 14, max: 36),
+                        vertical: scale.scale(4, min: 2, max: 8),
+                      ),
+                      decoration: BoxDecoration(
+                        color: themePalette.primaryAccent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: themePalette.primaryAccent, width: 1.2),
+                      ),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          '🕌 مِحْرَابُ الصَّلَاةِ وَالمَوَاقِيتِ المَعْمُورَةِ 🕌',
+                          style: TextStyle(
+                            fontFamily: 'Amiri',
+                            fontSize: scale.scale(16, min: 12, max: 24),
+                            fontWeight: FontWeight.bold,
+                            color: themePalette.primaryAccent,
+                          ),
+                          textDirection: TextDirection.rtl,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    // Left prayers
+                    Expanded(
+                      flex: 2,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: scale.scale(14, min: 8, max: 28)),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: leftPrayers.map((p) {
+                            final t = schedule.getTime(p);
+                            final timeStr =
+                                '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+                            final isFajr = p == Prayer.fajr;
+                            return Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: scale.scale(3, min: 1, max: 6)),
+                                child: PrayerCardWidget(
+                                  prayerNameAr: _getPrayerDisplayName(provider, p),
+                                  time: timeStr,
+                                  isActive: currentPrayer == p,
+                                  isNext: nextPrayer == p,
+                                  width: cardWidth,
+                                  palette: themePalette,
+                                  auxiliaryLabel:
+                                      showFastingTimes && isFajr ? 'الإمساك' : null,
+                                  auxiliaryTime:
+                                      showFastingTimes && isFajr ? schedule.imsakFormatted : null,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    // Central Astrolabe
+                    Expanded(
+                      flex: 3,
+                      child: Center(
+                        child: CircularGaugeWidget(
+                          progress: gaugeProgress,
+                          centerLabel: gaugeCenterLabel,
+                          subtitle: gaugeSubtitle,
+                          size: gaugeSize,
+                          palette: themePalette,
+                        ),
+                      ),
+                    ),
+                    // Right prayers
+                    Expanded(
+                      flex: 2,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: scale.scale(14, min: 8, max: 28)),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: rightPrayers.map((p) {
+                            final t = schedule.getTime(p);
+                            final timeStr =
+                                '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+                            final isMaghrib = p == Prayer.maghrib;
+                            return Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: scale.scale(3, min: 1, max: 6)),
+                                child: PrayerCardWidget(
+                                  prayerNameAr: _getPrayerDisplayName(provider, p),
+                                  time: timeStr,
+                                  isActive: currentPrayer == p,
+                                  isNext: nextPrayer == p,
+                                  width: cardWidth,
+                                  palette: themePalette,
+                                  auxiliaryLabel:
+                                      showFastingTimes && isMaghrib ? 'الإفطار' : null,
+                                  auxiliaryTime:
+                                      showFastingTimes && isMaghrib ? schedule.iftarFormatted : null,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTicker(DisplayProvider provider, ThemePalette themePalette) {
+    final scale = ScreenScale.of(context, customScale: provider.settings.uiScaleFactor);
     final custom = provider.settings.marqueeText.trim();
     final customLines = custom.isNotEmpty
         ? custom
@@ -722,6 +1422,17 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
 
   void _openSimulationDialog(BuildContext context) {
     SimulationControlDialog.show(context);
+  }
+
+  void _openQrPairing(BuildContext context) {
+    QrPairingDialog.show(context);
+  }
+
+  String _getPrayerDisplayName(DisplayProvider provider, Prayer p) {
+    if (provider.isFriday && p == Prayer.dhuhr) {
+      return 'الجمعة';
+    }
+    return p.nameAr;
   }
 
   Widget _buildOccasionBanner(IslamicOccasion occ, PrayerSchedule? schedule) {
@@ -833,6 +1544,7 @@ class _HeaderNavActionButtonState extends State<_HeaderNavActionButton> {
             (event.logicalKey == LogicalKeyboardKey.select ||
              event.logicalKey == LogicalKeyboardKey.enter ||
              event.logicalKey == LogicalKeyboardKey.numpadEnter ||
+             event.logicalKey == LogicalKeyboardKey.space ||
              event.logicalKey == LogicalKeyboardKey.gameButtonA)) {
           widget.onPressed();
           return KeyEventResult.handled;
@@ -886,17 +1598,19 @@ class _HeaderNavActionButtonState extends State<_HeaderNavActionButton> {
                     color: active ? AppTheme.goldPrimary : AppTheme.goldDim,
                     size: widget.scale.scale(20, min: 15, max: 34),
                   ),
-                  SizedBox(width: widget.scale.scale(5, min: 3, max: 10)),
-                  Text(
-                    widget.label,
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize: widget.scale.scale(14, min: 11, max: 24),
-                      fontWeight: active ? FontWeight.bold : FontWeight.w600,
-                      color: active ? AppTheme.goldPrimary : AppTheme.textPrimary,
+                  if (!widget.scale.isNarrow || widget.scale.width >= 1200) ...[
+                    SizedBox(width: widget.scale.scale(5, min: 3, max: 10)),
+                    Text(
+                      widget.label,
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: widget.scale.scale(14, min: 11, max: 24),
+                        fontWeight: active ? FontWeight.bold : FontWeight.w600,
+                        color: active ? AppTheme.goldPrimary : AppTheme.textPrimary,
+                      ),
+                      textDirection: TextDirection.rtl,
                     ),
-                    textDirection: TextDirection.rtl,
-                  ),
+                  ],
                 ],
               ),
             ),

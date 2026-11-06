@@ -93,7 +93,8 @@ class _SalatBlackoutScreenState extends State<SalatBlackoutScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 child: Builder(
                   builder: (context) {
-                    final scale = ScreenScale.of(context);
+                    final scale = ScreenScale.of(context,
+                        customScale: provider.settings.uiScaleFactor);
                     return Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: scale.scale(32, min: 16, max: 64),
@@ -162,27 +163,30 @@ class _SalatBlackoutScreenState extends State<SalatBlackoutScreen> {
                               ),
                               borderRadius: BorderRadius.circular(scale.scale(16, min: 12, max: 28)),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.phone_android,
-                                  color: const Color(0xFFB8962E),
-                                  size: scale.scale(24, min: 16, max: 40),
-                                ),
-                                SizedBox(width: scale.scale(12, min: 8, max: 20)),
-                                Text(
-                                  'يُرْجَى التَّأَكُّدُ مِنْ إِغْلَاقِ الْهَوَاتِفِ النَّقَّالَةِ',
-                                  style: TextStyle(
-                                    fontFamily: 'Cairo',
-                                    fontSize: scale.scale(24, min: 15, max: 40),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.phone_android,
                                     color: const Color(0xFFB8962E),
-                                    fontWeight: FontWeight.w500,
+                                    size: scale.scale(24, min: 16, max: 40),
                                   ),
-                                  textDirection: TextDirection.rtl,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
+                                  SizedBox(width: scale.scale(12, min: 8, max: 20)),
+                                  Text(
+                                    'يُرْجَى التَّأَكُّدُ مِنْ إِغْلَاقِ الْهَوَاتِفِ النَّقَّالَةِ',
+                                    style: TextStyle(
+                                      fontFamily: 'Cairo',
+                                      fontSize: scale.scale(24, min: 15, max: 40),
+                                      color: const Color(0xFFB8962E),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    textDirection: TextDirection.rtl,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           SizedBox(height: scale.scale(28, min: 14, max: 44)),

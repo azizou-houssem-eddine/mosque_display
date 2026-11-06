@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/display_provider.dart';
@@ -21,7 +22,19 @@ class SimulationControlDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<DisplayProvider>();
 
-    return Dialog(
+    return Focus(
+      autofocus: true,
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent &&
+            (event.logicalKey == LogicalKeyboardKey.escape ||
+             event.logicalKey == LogicalKeyboardKey.goBack ||
+             event.logicalKey == LogicalKeyboardKey.browserBack)) {
+          Navigator.of(context).pop();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       child: Container(
@@ -187,6 +200,21 @@ class SimulationControlDialog extends StatelessWidget {
                         DisplayState.iqamahCountdown,
                         prayer: Prayer.isha,
                         customDuration: const Duration(minutes: 5),
+                      );
+                      Navigator.of(context).pop();
+                    },
+                  ),
+
+                  // Friday Jumu'ah Khutbah (Dedicated Mode)
+                  _SimButton(
+                    label: 'خطبة الجمعة (وضع الإنصات والسكينة)',
+                    icon: Icons.mosque,
+                    isSelected:
+                        provider.displayState == DisplayState.jumuahKhutbah,
+                    onTap: () {
+                      provider.simulateDisplayState(
+                        DisplayState.jumuahKhutbah,
+                        prayer: Prayer.dhuhr,
                       );
                       Navigator.of(context).pop();
                     },
@@ -375,8 +403,9 @@ class SimulationControlDialog extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSectionTitle({required IconData icon, required String title}) {
     return Row(

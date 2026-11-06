@@ -13,6 +13,8 @@ import '../../domain/calculation/hijri_calculator.dart';
 import '../../data/repositories/settings_repository.dart';
 import 'dua_showcase_screen.dart';
 import '../widgets/simulation_control_dialog.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import '../widgets/qr_pairing_dialog.dart';
 
 /// D-Pad navigable settings menu.
 /// Accessible via long-press OK on main dashboard.
@@ -26,10 +28,12 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   int _selectedPage = 0;
+  final GlobalKey<_WilayaPageState> _wilayaPageKey = GlobalKey<_WilayaPageState>();
 
   static const _pages = [
     'الولاية',
     'معايرة المواقيت',
+    'المظهر والواجهة',
     'الخطوط والأدعية',
     'تأخير الإقامة',
     'صلاة الجماعة',
@@ -37,76 +41,111 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'إعدادات المسجد',
     'PIN الأمان',
     'محاكاة واختبار',
+    'التحكم عن بعد (QR)',
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      onKeyEvent: (node, event) {
-        if (event is KeyDownEvent &&
-            (event.logicalKey == LogicalKeyboardKey.escape ||
-             event.logicalKey == LogicalKeyboardKey.goBack ||
-             event.logicalKey == LogicalKeyboardKey.browserBack)) {
-          final currentFocus = FocusManager.instance.primaryFocus;
-          if (currentFocus != null &&
-              (currentFocus.context?.widget is EditableText ||
-               currentFocus.context?.findAncestorWidgetOfExactType<EditableText>() != null)) {
-            currentFocus.unfocus();
+    final provider = context.watch<DisplayProvider>();
+    final themePalette = AppTheme.getThemePalette(provider.settings.colorTheme);
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        final currentFocus = FocusManager.instance.primaryFocus;
+        if (currentFocus != null &&
+            (currentFocus.context?.widget is EditableText ||
+             currentFocus.context?.findAncestorWidgetOfExactType<EditableText>() != null)) {
+          currentFocus.unfocus();
+          return;
+        }
+        if (_selectedPage == 0 && _wilayaPageKey.currentState?.canHandleBack == true) {
+          _wilayaPageKey.currentState?.handleBack();
+          return;
+        }
+        Navigator.of(context).pop();
+      },
+      child: Focus(
+        onKeyEvent: (node, event) {
+          if (event is KeyDownEvent &&
+              (event.logicalKey == LogicalKeyboardKey.escape ||
+               event.logicalKey == LogicalKeyboardKey.goBack ||
+               event.logicalKey == LogicalKeyboardKey.browserBack)) {
+            final currentFocus = FocusManager.instance.primaryFocus;
+            if (currentFocus != null &&
+                (currentFocus.context?.widget is EditableText ||
+                 currentFocus.context?.findAncestorWidgetOfExactType<EditableText>() != null)) {
+              currentFocus.unfocus();
+              return KeyEventResult.handled;
+            }
+            if (_selectedPage == 0 && _wilayaPageKey.currentState?.canHandleBack == true) {
+              _wilayaPageKey.currentState?.handleBack();
+              return KeyEventResult.handled;
+            }
+            Navigator.of(context).pop();
             return KeyEventResult.handled;
           }
-          Navigator.of(context).pop();
-          return KeyEventResult.handled;
-        }
-        return KeyEventResult.ignored;
-      },
-      child: Scaffold(
-        backgroundColor: AppTheme.emeraldDeep,
-        body: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                gradient: AppTheme.backgroundGradient,
+          return KeyEventResult.ignored;
+        },
+        child: Scaffold(
+          backgroundColor: themePalette.backgroundTop,
+          body: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  gradient: themePalette.backgroundGradient,
+                ),
               ),
-            ),
-            Row(
-              children: [
-                // Sidebar nav
-                _buildSidebar(),
-                // Page content
-                Expanded(child: _buildPage()),
-              ],
-            ),
-          ],
+              Row(
+                children: [
+                  // Sidebar nav
+                  _buildSidebar(themePalette),
+                  // Page content
+                  Expanded(child: _buildPage()),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSidebar() {
+  Widget _buildSidebar(ThemePalette themePalette) {
+    final provider = context.watch<DisplayProvider>();
+    final scale = ScreenScale.of(context, customScale: provider.settings.uiScaleFactor);
+    final sidebarWidth = scale.scale(230, min: 175, max: 280);
+
     return Container(
-      width: 290,
-      color: AppTheme.emeraldDeep.withValues(alpha: 0.8),
+      width: sidebarWidth,
+      color: themePalette.backgroundTop.withValues(alpha: 0.95),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+            padding: EdgeInsets.fromLTRB(
+              scale.scale(12, min: 8, max: 16),
+              scale.scale(14, min: 8, max: 20),
+              scale.scale(12, min: 8, max: 16),
+              scale.scale(8, min: 4, max: 12),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new,
-                      color: AppTheme.goldPrimary, size: 22),
+                  icon: Icon(Icons.arrow_back_ios_new,
+                      color: AppTheme.goldPrimary, size: scale.scale(18, min: 15, max: 22)),
                   tooltip: 'رجوع للشاشة الرئيسية (Esc)',
                   onPressed: () => Navigator.of(context).pop(),
                 ),
-                const Flexible(
+                Flexible(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
                       'الإعدادات',
                       style: TextStyle(
                         fontFamily: 'Cairo',
-                        fontSize: 30,
+                        fontSize: scale.scale(22, min: 17, max: 28),
                         color: AppTheme.goldPrimary,
                         fontWeight: FontWeight.w700,
                       ),
@@ -119,6 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Expanded(
             child: ListView.builder(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               itemCount: _pages.length,
               itemBuilder: (ctx, i) {
                 return _SidebarItem(
@@ -132,7 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           // Back button
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(scale.scale(12, min: 8, max: 16)),
             child: _SettingsButton(
               label: 'رجوع للشاشة الرئيسية',
               onTap: () => Navigator.of(context).pop(),
@@ -147,28 +187,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final provider = context.watch<DisplayProvider>();
     final settings = provider.settings;
 
-    switch (_selectedPage) {
-      case 0:
-        return _WilayaPage(settings: settings);
-      case 1:
-        return _PrayerOffsetsPage(settings: settings);
-      case 2:
-        return _FontsAndDuaPage(settings: settings);
-      case 3:
-        return _IqamahPage(settings: settings);
-      case 4:
-        return _BlackoutPage(settings: settings);
-      case 5:
-        return _HijriPage(settings: settings);
-      case 6:
-        return _MosqueInfoPage(settings: settings);
-      case 7:
-        return _PinPage(settings: settings);
-      case 8:
-        return const _SimulationPage();
-      default:
-        return const SizedBox.shrink();
-    }
+    return IndexedStack(
+      index: _selectedPage,
+      children: [
+        _WilayaPage(key: _wilayaPageKey, settings: settings),
+        _PrayerOffsetsPage(settings: settings),
+        _WatchFaceDesignPage(settings: settings),
+        _FontsAndDuaPage(settings: settings),
+        _IqamahPage(settings: settings),
+        _BlackoutPage(settings: settings),
+        _HijriPage(settings: settings),
+        _MosqueInfoPage(settings: settings),
+        _PinPage(settings: settings),
+        const _SimulationPage(),
+        _RemoteAdminPage(settings: settings),
+      ],
+    );
   }
 }
 
@@ -176,7 +210,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 class _WilayaPage extends StatefulWidget {
   final MosqueSettings settings;
-  const _WilayaPage({required this.settings});
+  const _WilayaPage({super.key, required this.settings});
 
   @override
   State<_WilayaPage> createState() => _WilayaPageState();
@@ -188,6 +222,16 @@ class _WilayaPageState extends State<_WilayaPage> {
   int? _activeWilayaCode;
   List<Commune> _communes = [];
   bool _loadingCommunes = false;
+
+  bool get canHandleBack => _viewMode == 1;
+
+  void handleBack() {
+    if (_viewMode == 1) {
+      setState(() {
+        _viewMode = 0;
+      });
+    }
+  }
 
   String _wilayaQuery = '';
   String _communeQuery = '';
@@ -377,7 +421,7 @@ class _WilayaPageState extends State<_WilayaPage> {
             textInputAction: TextInputAction.search,
             onSubmitted: (_) => _wilayaFocusNode.unfocus(),
             onTapOutside: (_) => _wilayaFocusNode.unfocus(),
-            enableInteractiveSelection: false,
+            enableInteractiveSelection: true,
             onChanged: (v) => setState(() => _wilayaQuery = v.trim()),
             textDirection: TextDirection.rtl,
             style: const TextStyle(
@@ -429,6 +473,7 @@ class _WilayaPageState extends State<_WilayaPage> {
                   ),
                 )
               : ListView.builder(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   itemCount: filtered.length,
                   itemBuilder: (ctx, i) {
                     final w = filtered[i];
@@ -536,7 +581,7 @@ class _WilayaPageState extends State<_WilayaPage> {
                   textInputAction: TextInputAction.search,
                   onSubmitted: (_) => _communeFocusNode.unfocus(),
                   onTapOutside: (_) => _communeFocusNode.unfocus(),
-                  enableInteractiveSelection: false,
+                  enableInteractiveSelection: true,
                   onChanged: (v) => setState(() => _communeQuery = v.trim()),
                   textDirection: TextDirection.rtl,
                   style: const TextStyle(
@@ -580,6 +625,7 @@ class _WilayaPageState extends State<_WilayaPage> {
         ),
         Expanded(
           child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             children: [
               // Default: Chef-lieu (Centre de Wilaya)
               _FocusableListTile(
@@ -807,30 +853,34 @@ class _FontsAndDuaPage extends StatelessWidget {
                     );
                   },
                 ),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'معرض الأدعية التفاعلي المباشر',
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.goldPrimary,
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'معرض الأدعية التفاعلي المباشر',
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.goldPrimary,
+                        ),
+                        textDirection: TextDirection.rtl,
                       ),
-                      textDirection: TextDirection.rtl,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'استعراض أكثر من 60 دعاءً وحديثاً مأثوراً ومقارنة الخطوط بالكامل',
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 15,
-                        color: AppTheme.textSecondary,
+                      SizedBox(height: 4),
+                      Text(
+                        'استعراض أكثر من 60 دعاءً وحديثاً مأثوراً ومقارنة الخطوط بالكامل',
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: 15,
+                          color: AppTheme.textSecondary,
+                        ),
+                        textDirection: TextDirection.rtl,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      textDirection: TextDirection.rtl,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -879,6 +929,7 @@ class _PrayerOffsetsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scale = ScreenScale.of(context);
     final provider = context.watch<DisplayProvider>();
     final offsets = settings.offsets;
     final schedule = provider.todaySchedule;
@@ -903,19 +954,28 @@ class _PrayerOffsetsPage extends StatelessWidget {
       return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
     }
 
+    final maghribOffset = offsets.maghrib;
+    final maghribOffsetStr = maghribOffset == 0
+        ? '0 دقيقة'
+        : (maghribOffset > 0 ? '+$maghribOffset د' : '$maghribOffset د');
+
     return _PageWrapper(
       title: 'معايرة المواقيت يدوياً (تعديل الدقائق ±15)',
       child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Active Location & Baseline Info Card
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              margin: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: scale.scale(16, min: 10, max: 24),
+                vertical: scale.scale(10, min: 6, max: 16),
+              ),
+              margin: EdgeInsets.only(bottom: scale.scale(10, min: 6, max: 14)),
               decoration: BoxDecoration(
                 color: AppTheme.emeraldDeep.withValues(alpha: 0.9),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(scale.scale(12, min: 8, max: 16)),
                 border: Border.all(color: AppTheme.goldDim, width: 1.5),
               ),
               child: Column(
@@ -924,22 +984,22 @@ class _PrayerOffsetsPage extends StatelessWidget {
                   Text(
                     'الموقع المعتمد: ولاية ${currentWilaya.nameAr} (${currentWilaya.code.toString().padLeft(2, '0')})'
                     '${settings.selectedCommuneName != null ? ' - بلدية ${settings.selectedCommuneName}' : ' - مركز الولاية'}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Cairo',
-                      fontSize: 16,
+                      fontSize: scale.scale(15, min: 12, max: 20),
                       fontWeight: FontWeight.bold,
                       color: AppTheme.goldPrimary,
                     ),
                     textDirection: TextDirection.rtl,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
                     activeCommune != null && activeCommune.minuteOffset != 0
                         ? 'فارق التوقيت الرسمي للوزارة: ${activeCommune.minuteOffset >= 0 ? '+' : ''}${activeCommune.minuteOffset} دقيقة (مطبق تلقائياً على الرزنامة الرسمية)'
                         : 'توقيت رسمي معتمد من وزارة الشؤون الدينية ومركز CRAAG (فارق 0 دقيقة)',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Cairo',
-                      fontSize: 13,
+                      fontSize: scale.scale(12, min: 10, max: 16),
                       color: AppTheme.textSecondary,
                     ),
                     textDirection: TextDirection.rtl,
@@ -948,13 +1008,82 @@ class _PrayerOffsetsPage extends StatelessWidget {
               ),
             ),
 
+            // Highlighted Maghrib Quick Calibration Card
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: scale.scale(16, min: 10, max: 24),
+                vertical: scale.scale(10, min: 8, max: 16),
+              ),
+              margin: EdgeInsets.only(bottom: scale.scale(10, min: 6, max: 14)),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.goldPrimary.withValues(alpha: 0.18),
+                    AppTheme.emeraldMid.withValues(alpha: 0.85),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(scale.scale(12, min: 8, max: 16)),
+                border: Border.all(color: AppTheme.goldPrimary, width: 1.8),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.goldPrimary.withValues(alpha: 0.15),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                runSpacing: 8,
+                spacing: 12,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.goldPrimary,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'معايرة صلاة المغرب: $maghribOffsetStr',
+                      style: const TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.emeraldDeep,
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.wb_twilight, color: AppTheme.goldPrimary, size: 20),
+                      const SizedBox(width: 6),
+                      Text(
+                        'موعد المغرب والإفطار: ${fmtTime(Prayer.maghrib)}',
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: scale.scale(15, min: 13, max: 20),
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.goldPrimary,
+                        ),
+                        textDirection: TextDirection.rtl,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
             // Help Banner with Reset Button
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              margin: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: scale.scale(14, min: 10, max: 20),
+                vertical: scale.scale(8, min: 6, max: 14),
+              ),
+              margin: EdgeInsets.only(bottom: scale.scale(10, min: 6, max: 14)),
               decoration: BoxDecoration(
                 color: AppTheme.emeraldMid,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(scale.scale(12, min: 8, max: 16)),
                 border: Border.all(color: AppTheme.emeraldLight, width: 1.2),
               ),
               child: Row(
@@ -971,13 +1100,13 @@ class _PrayerOffsetsPage extends StatelessWidget {
                       await SettingsRepository.save(newSettings);
                     },
                   ),
-                  const SizedBox(width: 14),
-                  const Expanded(
+                  SizedBox(width: scale.scale(12, min: 8, max: 16)),
+                  Expanded(
                     child: Text(
                       'استخدم الأسهم ◀ ▶ لتعديل دقائق كل صلاة بشكل منفصل لمطابقة رزنامة المسجد المحلية بدقة تامة.',
                       style: TextStyle(
                         fontFamily: 'Cairo',
-                        fontSize: 15,
+                        fontSize: scale.scale(13, min: 11, max: 17),
                         color: AppTheme.textSecondary,
                       ),
                       textDirection: TextDirection.rtl,
@@ -987,17 +1116,22 @@ class _PrayerOffsetsPage extends StatelessWidget {
               ),
             ),
 
-            // Per-Prayer Calibration Steppers
+            // Per-Prayer Calibration Steppers (All 6 prayers with auto-scroll)
             ...prayers.map((entry) {
               final (prayer, val) = entry;
               final valStr = val == 0
                   ? '0 د'
                   : (val > 0 ? '+$val د' : '$val د');
+              final isMaghrib = prayer == Prayer.maghrib;
               return _NumberStepper(
                 label: '${prayer.nameAr}  [الموعد الحالي: ${fmtTime(prayer)}] ($valStr)',
                 value: val,
                 min: PrayerOffsets.minOffsetMinutes,
                 max: PrayerOffsets.maxOffsetMinutes,
+                isHighlighted: isMaghrib,
+                helperText: isMaghrib
+                    ? 'لحظة الإفطار في رمضان وأذان صلاة المغرب — مضبوط بدقة'
+                    : null,
                 onChanged: (v) async {
                   final newOffsets = _updateOffset(offsets, prayer, v);
                   final newSettings = settings.copyWith(offsets: newOffsets);
@@ -1032,6 +1166,285 @@ class _PrayerOffsetsPage extends StatelessWidget {
   }
 }
 
+// ── Watch Face Design & Appearance Page ──────────────────────────────────────
+
+class _WatchFaceDesignPage extends StatefulWidget {
+  final MosqueSettings settings;
+  const _WatchFaceDesignPage({required this.settings});
+
+  @override
+  State<_WatchFaceDesignPage> createState() => _WatchFaceDesignPageState();
+}
+
+class _WatchFaceDesignPageState extends State<_WatchFaceDesignPage> {
+  int _activeTab = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = ScreenScale.of(context);
+    final provider = context.watch<DisplayProvider>();
+    final settings = provider.settings;
+
+    return _PageWrapper(
+      title: 'تخصيص الواجهة ومظهر الشاشة',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Section Tabs
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                _TabButton(
+                  label: 'خيارات العرض',
+                  isActive: _activeTab == 3,
+                  onTap: () => setState(() => _activeTab = 3),
+                ),
+                const SizedBox(width: 8),
+                _TabButton(
+                  label: 'مقياس الشاشة',
+                  isActive: _activeTab == 2,
+                  onTap: () => setState(() => _activeTab = 2),
+                ),
+                const SizedBox(width: 8),
+                _TabButton(
+                  label: 'الطابع اللوني',
+                  isActive: _activeTab == 1,
+                  onTap: () => setState(() => _activeTab = 1),
+                ),
+                const SizedBox(width: 8),
+                _TabButton(
+                  label: 'قوالب الساعة',
+                  isActive: _activeTab == 0,
+                  onTap: () => setState(() => _activeTab = 0),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: scale.scale(10, min: 6, max: 14)),
+          Expanded(
+            child: SingleChildScrollView(
+              child: _buildTabContent(settings, provider, scale),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabContent(
+    MosqueSettings settings,
+    DisplayProvider provider,
+    ScreenScale scale,
+  ) {
+    switch (_activeTab) {
+      case 0:
+        return _buildTemplatesTab(settings, provider, scale);
+      case 1:
+        return _buildThemesTab(settings, provider, scale);
+      case 2:
+        return _buildScaleTab(settings, provider, scale);
+      case 3:
+        return _buildOptionsTab(settings, provider, scale);
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildTemplatesTab(
+    MosqueSettings settings,
+    DisplayProvider provider,
+    ScreenScale scale,
+  ) {
+    final templates = [
+      (
+        'classicAstrolabe',
+        'الأسطرلاب الكلاسيكي المتوازن',
+        'التصميم المعتمد الأصلي: 3 صلوات على اليمين و 3 على اليسار، تتوسطها ساعة أسطرلاب ذهبية دائرية مع عداد تنازلي نيون.',
+        Icons.timelapse,
+      ),
+      (
+        'modernHorizontal',
+        'الشريط الأفقي العصري',
+        'عرض كامل ومريح: شبكة أفقية لجميع الصلوات الست في صف واحد أسفل الشاشة، مع ساعة وبانر تنازلي عريض في الأعلى.',
+        Icons.view_column,
+      ),
+      (
+        'grandClock',
+        'الساعة الملكية الكبرى',
+        'وضوح فائق للمساجد الكبيرة: ساعة رقمية عملاقة وعداد تنازلي بارز في المنتصف، مع عمود مواقيت جانبي عريض.',
+        Icons.access_time_filled,
+      ),
+      (
+        'traditionalMinbar',
+        'المحراب الأندلسي التقليدي',
+        'طابع إسلامي عريق: تصميم مؤطر بأقواس المحراب وزخارف ذهبية مستوحاة من العمارة الإسلامية والمآذن المغاربية.',
+        Icons.mosque,
+      ),
+    ];
+
+    return Column(
+      children: templates.map((tmpl) {
+        final (key, title, desc, icon) = tmpl;
+        final isSelected = settings.watchFaceTemplate == key;
+        return _DesignCard(
+          title: title,
+          description: desc,
+          icon: icon,
+          isSelected: isSelected,
+          onTap: () async {
+            final newSettings = settings.copyWith(watchFaceTemplate: key);
+            await provider.updateSettings(newSettings);
+            await SettingsRepository.save(newSettings);
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildThemesTab(
+    MosqueSettings settings,
+    DisplayProvider provider,
+    ScreenScale scale,
+  ) {
+    final themes = [
+      (
+        'royalEmerald',
+        'الزمرد الملكي الذهبي (الافتراضي)',
+        'تدرجات الأخضر المسجدي العميق مع الذهب الإسلامي الفاخر — الطابع الأصيل لبيوت الله.',
+        const [Color(0xFF042217), Color(0xFF0D5C3A), Color(0xFFD4AF37)],
+      ),
+      (
+        'midnightSapphire',
+        'الياقوت الأزرق الليلي',
+        'أزرق ليلي ملكي هادئ مع إضاءة فضية ذهبية — يمنح راحة بصرية فائقة ووقاراً للمصلين.',
+        const [Color(0xFF031424), Color(0xFF0B2D4D), Color(0xFF4FA3E2)],
+      ),
+      (
+        'andalusianOnyx',
+        'العقيق الأندلسي الداكن',
+        'فحم دمشقي داكن مع عنبر دافئ ولمسات ذهبية رصينة — فخامة معمارية متميزة.',
+        const [Color(0xFF151515), Color(0xFF262626), Color(0xFFE5A93C)],
+      ),
+      (
+        'kiswahBlack',
+        'سواد الكسوة الشريفة (OLED)',
+        'أسود نقي مخصص لشاشات OLED مع حروف ذهبية براقة مستوحاة من كسوة الكعبة المشرفة.',
+        const [Color(0xFF050505), Color(0xFF141414), Color(0xFFFFD700)],
+      ),
+    ];
+
+    return Column(
+      children: themes.map((thm) {
+        final (key, title, desc, colors) = thm;
+        final isSelected = settings.colorTheme == key;
+        return _DesignCard(
+          title: title,
+          description: desc,
+          isSelected: isSelected,
+          colors: colors,
+          onTap: () async {
+            final newSettings = settings.copyWith(colorTheme: key);
+            await provider.updateSettings(newSettings);
+            await SettingsRepository.save(newSettings);
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildScaleTab(
+    MosqueSettings settings,
+    DisplayProvider provider,
+    ScreenScale scale,
+  ) {
+    final scales = [
+      (
+        0.80,
+        'صغير جداً (80%)',
+        'مخصص للشاشات الصغيرة أو شاشات 720p HD Ready لتقليص حجم القوائم ومنع خروج العناصر عن الحواف.',
+      ),
+      (
+        0.90,
+        'مدمج ومتوازن (90%) - موصى به',
+        'النسبة المثالية لشاشات التلفزيون المنزلية والمسجدية 720p و 1080p — تناسق كامل وأناقة متناهية.',
+      ),
+      (
+        1.00,
+        'قياسي افتراضي (100%)',
+        'المقياس القياسي المعتمد للشاشات العريضة والشاشات ذات المسافة المعتدلة.',
+      ),
+      (
+        1.10,
+        'كبير وبارز (110%)',
+        'مخصص للمساجد الواسعة جداً ذات المسافة البعيدة (15-20 متراً) أو شاشات 4K فائقة الوضوح.',
+      ),
+    ];
+
+    return Column(
+      children: scales.map((sc) {
+        final (val, title, desc) = sc;
+        final isSelected = (settings.uiScaleFactor - val).abs() < 0.02;
+        return _DesignCard(
+          title: title,
+          description: desc,
+          isSelected: isSelected,
+          badgeText: '${(val * 100).toInt()}%',
+          onTap: () async {
+            final newSettings = settings.copyWith(uiScaleFactor: val);
+            await provider.updateSettings(newSettings);
+            await SettingsRepository.save(newSettings);
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildOptionsTab(
+    MosqueSettings settings,
+    DisplayProvider provider,
+    ScreenScale scale,
+  ) {
+    return Column(
+      children: [
+        _ToggleRow(
+          label: 'إظهار الثواني في الساعة الرئيسية',
+          value: settings.showSeconds,
+          onChanged: (v) async {
+            final newSettings = settings.copyWith(showSeconds: v);
+            await provider.updateSettings(newSettings);
+            await SettingsRepository.save(newSettings);
+          },
+        ),
+        SizedBox(height: scale.scale(12, min: 8, max: 16)),
+        _ToggleRow(
+          label: 'إظهار التاريخ الميلادي تحت التاريخ الهجري',
+          value: settings.showGregorianDate,
+          onChanged: (v) async {
+            final newSettings = settings.copyWith(showGregorianDate: v);
+            await provider.updateSettings(newSettings);
+            await SettingsRepository.save(newSettings);
+          },
+        ),
+        SizedBox(height: scale.scale(12, min: 8, max: 16)),
+        _NumberStepper(
+          label: 'مدة بقاء كاروسيل أذكار ما بعد الصلاة (بالدقائق)',
+          value: settings.adhkarDurationMinutes,
+          min: 2,
+          max: 20,
+          helperText: 'تختفي شاشة الأذكار تلقائياً وتعود إلى الواجهة الرئيسية بعد انقضاء هذه المدة.',
+          onChanged: (v) async {
+            final newSettings = settings.copyWith(adhkarDurationMinutes: v);
+            await provider.updateSettings(newSettings);
+            await SettingsRepository.save(newSettings);
+          },
+        ),
+      ],
+    );
+  }
+}
+
 // ── Iqamah Delays ─────────────────────────────────────────────────────────────
 
 class _IqamahPage extends StatelessWidget {
@@ -1050,22 +1463,40 @@ class _IqamahPage extends StatelessWidget {
     ];
     return _PageWrapper(
       title: 'تأخير الإقامة (دقائق)',
-      child: Column(
-        children: prayers.map((entry) {
-          final (prayer, value, minVal, maxVal) = entry;
-          return _NumberStepper(
-            label: prayer.nameAr,
-            value: value,
-            min: minVal,
-            max: maxVal,
-            onChanged: (v) async {
-              final newDelays = _updateDelay(delays, prayer, v);
-              final newSettings = settings.copyWith(iqamahDelays: newDelays);
-              await context.read<DisplayProvider>().updateSettings(newSettings);
-              await SettingsRepository.save(newSettings);
-            },
-          );
-        }).toList(),
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          children: [
+            ...prayers.map((entry) {
+              final (prayer, value, minVal, maxVal) = entry;
+              return _NumberStepper(
+                label: prayer.nameAr,
+                value: value,
+                min: minVal,
+                max: maxVal,
+                onChanged: (v) async {
+                  final newDelays = _updateDelay(delays, prayer, v);
+                  final newSettings = settings.copyWith(iqamahDelays: newDelays);
+                  await context.read<DisplayProvider>().updateSettings(newSettings);
+                  await SettingsRepository.save(newSettings);
+                },
+              );
+            }),
+            const SizedBox(height: 8),
+            _NumberStepper(
+              label: 'خطبة وانتظار الجمعة',
+              value: delays.jumuah,
+              min: 15,
+              max: 90,
+              onChanged: (v) async {
+                final newDelays = delays.copyWith(jumuah: v);
+                final newSettings = settings.copyWith(iqamahDelays: newDelays);
+                await context.read<DisplayProvider>().updateSettings(newSettings);
+                await SettingsRepository.save(newSettings);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1098,31 +1529,34 @@ class _BlackoutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return _PageWrapper(
       title: 'وضع صلاة الجماعة',
-      child: Column(
-        children: [
-          _NumberStepper(
-            label: 'مدة الصلاة (دقيقة)',
-            value: settings.blackoutDurationMinutes,
-            min: 5,
-            max: 45,
-            onChanged: (v) async {
-              final newSettings =
-                  settings.copyWith(blackoutDurationMinutes: v);
-              await context.read<DisplayProvider>().updateSettings(newSettings);
-              await SettingsRepository.save(newSettings);
-            },
-          ),
-          const SizedBox(height: 24),
-          _ToggleRow(
-            label: 'وضع خافت (بدلاً من الإسود الكامل)',
-            value: settings.blackoutDimMode,
-            onChanged: (v) async {
-              final newSettings = settings.copyWith(blackoutDimMode: v);
-              await context.read<DisplayProvider>().updateSettings(newSettings);
-              await SettingsRepository.save(newSettings);
-            },
-          ),
-        ],
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          children: [
+            _NumberStepper(
+              label: 'مدة الصلاة (دقيقة)',
+              value: settings.blackoutDurationMinutes,
+              min: 5,
+              max: 45,
+              onChanged: (v) async {
+                final newSettings =
+                    settings.copyWith(blackoutDurationMinutes: v);
+                await context.read<DisplayProvider>().updateSettings(newSettings);
+                await SettingsRepository.save(newSettings);
+              },
+            ),
+            const SizedBox(height: 24),
+            _ToggleRow(
+              label: 'وضع خافت (بدلاً من الإسود الكامل)',
+              value: settings.blackoutDimMode,
+              onChanged: (v) async {
+                final newSettings = settings.copyWith(blackoutDimMode: v);
+                await context.read<DisplayProvider>().updateSettings(newSettings);
+                await SettingsRepository.save(newSettings);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1315,37 +1749,42 @@ class _MosqueInfoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return _PageWrapper(
       title: 'معلومات المسجد',
-      child: Column(
-        children: [
-          _EditableField(
-            label: 'اسم المسجد',
-            value: settings.mosqueName,
-            onSaved: (v) async {
-              if (v.isNotEmpty) {
-                final newSettings = settings.copyWith(mosqueName: v);
-                await context
-                    .read<DisplayProvider>()
-                    .updateSettings(newSettings);
-                await SettingsRepository.save(newSettings);
-              }
-            },
-          ),
-          const SizedBox(height: 24),
-          _EditableField(
-            label: 'نصوص الإعلانات والتذكيرات (أدخل كل إعلان في سطر منفصل)',
-            value: settings.marqueeText,
-            maxLines: 5,
-            onSaved: (v) async {
-              if (v.isNotEmpty) {
-                final newSettings = settings.copyWith(marqueeText: v);
-                await context
-                    .read<DisplayProvider>()
-                    .updateSettings(newSettings);
-                await SettingsRepository.save(newSettings);
-              }
-            },
-          ),
-        ],
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _EditableField(
+              label: 'اسم المسجد',
+              value: settings.mosqueName,
+              onSaved: (v) async {
+                if (v.isNotEmpty) {
+                  final newSettings = settings.copyWith(mosqueName: v);
+                  await context
+                      .read<DisplayProvider>()
+                      .updateSettings(newSettings);
+                  await SettingsRepository.save(newSettings);
+                }
+              },
+            ),
+            const SizedBox(height: 24),
+            _EditableField(
+              label: 'نصوص الإعلانات والتذكيرات (أدخل كل إعلان في سطر منفصل)',
+              value: settings.marqueeText,
+              maxLines: 5,
+              onSaved: (v) async {
+                if (v.isNotEmpty) {
+                  final newSettings = settings.copyWith(marqueeText: v);
+                  await context
+                      .read<DisplayProvider>()
+                      .updateSettings(newSettings);
+                  await SettingsRepository.save(newSettings);
+                }
+              },
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
@@ -1402,6 +1841,7 @@ class _PinPageState extends State<_PinPage> {
     return _PageWrapper(
       title: 'رمز الأمان (PIN)',
       child: Focus(
+        autofocus: true,
         onKeyEvent: (node, event) {
           if (event is KeyDownEvent) {
             final key = event.logicalKey;
@@ -1591,7 +2031,10 @@ class _NumpadKeyState extends State<_NumpadKey> {
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent &&
             (event.logicalKey == LogicalKeyboardKey.select ||
-             event.logicalKey == LogicalKeyboardKey.enter)) {
+             event.logicalKey == LogicalKeyboardKey.enter ||
+             event.logicalKey == LogicalKeyboardKey.numpadEnter ||
+             event.logicalKey == LogicalKeyboardKey.space ||
+             event.logicalKey == LogicalKeyboardKey.gameButtonA)) {
           widget.onTap();
           return KeyEventResult.handled;
         }
@@ -1644,8 +2087,12 @@ class _PageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scale = ScreenScale.of(context);
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.symmetric(
+        horizontal: scale.scale(22, min: 14, max: 32),
+        vertical: scale.scale(14, min: 10, max: 22),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -1653,18 +2100,18 @@ class _PageWrapper extends StatelessWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Cairo',
-                fontSize: 32,
+                fontSize: scale.scale(24, min: 18, max: 30),
                 color: AppTheme.goldPrimary,
                 fontWeight: FontWeight.w700,
               ),
               textDirection: TextDirection.rtl,
             ),
           ),
-          const SizedBox(height: 8),
-          const IslamicDivider(color: AppTheme.goldDim, height: 20),
-          const SizedBox(height: 16),
+          SizedBox(height: scale.scale(6, min: 4, max: 10)),
+          IslamicDivider(color: AppTheme.goldDim, height: scale.scale(14, min: 10, max: 18)),
+          SizedBox(height: scale.scale(10, min: 6, max: 14)),
           Expanded(child: child),
         ],
       ),
@@ -1678,6 +2125,8 @@ class _NumberStepper extends StatefulWidget {
   final int min;
   final int max;
   final ValueChanged<int> onChanged;
+  final String? helperText;
+  final bool isHighlighted;
 
   const _NumberStepper({
     required this.label,
@@ -1685,6 +2134,8 @@ class _NumberStepper extends StatefulWidget {
     required this.min,
     required this.max,
     required this.onChanged,
+    this.helperText,
+    this.isHighlighted = false,
   });
 
   @override
@@ -1694,11 +2145,28 @@ class _NumberStepper extends StatefulWidget {
 class _NumberStepperState extends State<_NumberStepper> {
   bool _isFocused = false;
 
+  void _ensureVisible() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _isFocused) {
+        Scrollable.ensureVisible(
+          context,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final scale = ScreenScale.of(context);
     final display = '${widget.value}';
     return Focus(
-      onFocusChange: (f) => setState(() => _isFocused = f),
+      onFocusChange: (f) {
+        setState(() => _isFocused = f);
+        if (f) _ensureVisible();
+      },
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
@@ -1717,71 +2185,155 @@ class _NumberStepperState extends State<_NumberStepper> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        margin: EdgeInsets.symmetric(vertical: scale.scale(3, min: 2, max: 6)),
+        padding: EdgeInsets.symmetric(
+          vertical: scale.scale(7, min: 5, max: 12),
+          horizontal: scale.scale(14, min: 10, max: 18),
+        ),
         decoration: BoxDecoration(
           color: _isFocused
-              ? AppTheme.emeraldLight.withValues(alpha: 0.4)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          border: _isFocused
-              ? Border.all(color: AppTheme.goldPrimary, width: 2)
-              : Border.all(color: Colors.transparent, width: 2),
+              ? AppTheme.emeraldLight.withValues(alpha: 0.5)
+              : (widget.isHighlighted
+                  ? AppTheme.goldPrimary.withValues(alpha: 0.12)
+                  : AppTheme.emeraldMid.withValues(alpha: 0.5)),
+          borderRadius: BorderRadius.circular(scale.scale(10, min: 8, max: 14)),
+          border: Border.all(
+            color: _isFocused
+                ? AppTheme.goldPrimary
+                : (widget.isHighlighted ? AppTheme.goldDim : AppTheme.emeraldLight),
+            width: _isFocused ? 2.2 : (widget.isHighlighted ? 1.5 : 1.0),
+          ),
+          boxShadow: _isFocused
+              ? [
+                  BoxShadow(
+                    color: AppTheme.goldPrimary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Text(
-              widget.label,
-              style: TextStyle(
-                fontFamily: 'Cairo',
-                fontSize: 22,
-                color: _isFocused ? AppTheme.goldPrimary : AppTheme.textPrimary,
-                fontWeight: _isFocused ? FontWeight.bold : FontWeight.normal,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.label,
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: scale.scale(18, min: 14, max: 22),
+                      color: _isFocused || widget.isHighlighted
+                          ? AppTheme.goldPrimary
+                          : AppTheme.textPrimary,
+                      fontWeight: _isFocused || widget.isHighlighted
+                          ? FontWeight.bold
+                          : FontWeight.w600,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                  if (widget.helperText != null)
+                    Text(
+                      widget.helperText!,
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: scale.scale(12, min: 10, max: 15),
+                        color: AppTheme.textSecondary,
+                      ),
+                      textDirection: TextDirection.rtl,
+                    ),
+                ],
               ),
-              textDirection: TextDirection.rtl,
             ),
-            const Spacer(),
+            const SizedBox(width: 8),
             if (_isFocused)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppTheme.goldPrimary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
                 child: Text(
                   '◀ الأسهم للتعديل ▶',
                   style: TextStyle(
                     fontFamily: 'Cairo',
-                    fontSize: 14,
+                    fontSize: scale.scale(11, min: 9, max: 13),
                     color: AppTheme.goldDim,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-            // Decrement
-            _IconBtn(
-              icon: Icons.remove,
+            const SizedBox(width: 8),
+            // Non-focusing decrement button
+            GestureDetector(
               onTap: widget.value > widget.min
                   ? () => widget.onChanged(widget.value - 1)
                   : null,
+              child: Container(
+                width: scale.scale(36, min: 28, max: 44),
+                height: scale.scale(36, min: 28, max: 44),
+                decoration: BoxDecoration(
+                  color: widget.value > widget.min
+                      ? AppTheme.emeraldLight
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: widget.value > widget.min
+                        ? AppTheme.goldDim
+                        : AppTheme.emeraldLight.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Icon(
+                  Icons.remove,
+                  color: widget.value > widget.min
+                      ? AppTheme.goldPrimary
+                      : AppTheme.textSecondary.withValues(alpha: 0.3),
+                  size: scale.scale(20, min: 16, max: 24),
+                ),
+              ),
             ),
-            const SizedBox(width: 16),
             SizedBox(
-              width: 80,
+              width: scale.scale(60, min: 46, max: 74),
               child: Text(
                 display,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Cairo',
-                  fontSize: 28,
+                  fontSize: scale.scale(22, min: 17, max: 28),
                   color: AppTheme.goldPrimary,
                   fontWeight: FontWeight.w700,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(width: 16),
-            // Increment
-            _IconBtn(
-              icon: Icons.add,
+            // Non-focusing increment button
+            GestureDetector(
               onTap: widget.value < widget.max
                   ? () => widget.onChanged(widget.value + 1)
                   : null,
+              child: Container(
+                width: scale.scale(36, min: 28, max: 44),
+                height: scale.scale(36, min: 28, max: 44),
+                decoration: BoxDecoration(
+                  color: widget.value < widget.max
+                      ? AppTheme.emeraldLight
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: widget.value < widget.max
+                        ? AppTheme.goldDim
+                        : AppTheme.emeraldLight.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Icon(
+                  Icons.add,
+                  color: widget.value < widget.max
+                      ? AppTheme.goldPrimary
+                      : AppTheme.textSecondary.withValues(alpha: 0.3),
+                  size: scale.scale(20, min: 16, max: 24),
+                ),
+              ),
             ),
           ],
         ),
@@ -1807,10 +2359,27 @@ class _ToggleRow extends StatefulWidget {
 class _ToggleRowState extends State<_ToggleRow> {
   bool _isFocused = false;
 
+  void _ensureVisible() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _isFocused) {
+        Scrollable.ensureVisible(
+          context,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final scale = ScreenScale.of(context);
     return Focus(
-      onFocusChange: (f) => setState(() => _isFocused = f),
+      onFocusChange: (f) {
+        setState(() => _isFocused = f);
+        if (f) _ensureVisible();
+      },
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.select ||
@@ -1828,13 +2397,16 @@ class _ToggleRowState extends State<_ToggleRow> {
         onTap: () => widget.onChanged(!widget.value),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          margin: EdgeInsets.symmetric(vertical: scale.scale(3, min: 2, max: 6)),
+          padding: EdgeInsets.symmetric(
+            vertical: scale.scale(6, min: 4, max: 10),
+            horizontal: scale.scale(14, min: 10, max: 18),
+          ),
           decoration: BoxDecoration(
             color: _isFocused
                 ? AppTheme.emeraldLight.withValues(alpha: 0.4)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(scale.scale(10, min: 8, max: 14)),
             border: _isFocused
                 ? Border.all(color: AppTheme.goldPrimary, width: 2)
                 : Border.all(color: Colors.transparent, width: 2),
@@ -1846,7 +2418,7 @@ class _ToggleRowState extends State<_ToggleRow> {
                 widget.label,
                 style: TextStyle(
                   fontFamily: 'Cairo',
-                  fontSize: 22,
+                  fontSize: scale.scale(18, min: 14, max: 22),
                   color: _isFocused ? AppTheme.goldPrimary : AppTheme.textPrimary,
                   fontWeight: _isFocused ? FontWeight.bold : FontWeight.normal,
                 ),
@@ -1894,12 +2466,17 @@ class _EditableFieldState extends State<_EditableField> {
     _focusNode = FocusNode();
     _focusNode.onKeyEvent = (node, event) {
       if (event is KeyDownEvent) {
-        if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-          node.nextFocus();
-          return KeyEventResult.handled;
+        if (widget.maxLines == 1) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+            node.nextFocus();
+            return KeyEventResult.handled;
+          }
+          if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+            node.unfocus();
+            return KeyEventResult.handled;
+          }
         }
-        if (event.logicalKey == LogicalKeyboardKey.arrowUp ||
-            event.logicalKey == LogicalKeyboardKey.escape ||
+        if (event.logicalKey == LogicalKeyboardKey.escape ||
             event.logicalKey == LogicalKeyboardKey.goBack) {
           node.unfocus();
           return KeyEventResult.handled;
@@ -1907,6 +2484,14 @@ class _EditableFieldState extends State<_EditableField> {
       }
       return KeyEventResult.ignored;
     };
+  }
+
+  @override
+  void didUpdateWidget(covariant _EditableField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value && !_focusNode.hasFocus) {
+      _ctrl.text = widget.value;
+    }
   }
 
   @override
@@ -1935,9 +2520,14 @@ class _EditableFieldState extends State<_EditableField> {
           textInputAction: widget.maxLines == 1
               ? TextInputAction.done
               : TextInputAction.newline,
-          onSubmitted: (_) => _focusNode.unfocus(),
+          onSubmitted: (text) {
+            _focusNode.unfocus();
+            if (widget.maxLines == 1) {
+              widget.onSaved(text.trim());
+            }
+          },
           onTapOutside: (_) => _focusNode.unfocus(),
-          enableInteractiveSelection: false,
+          enableInteractiveSelection: true,
           textDirection: TextDirection.rtl,
           style: const TextStyle(
               fontFamily: 'Cairo', fontSize: 22, color: AppTheme.textPrimary),
@@ -2033,73 +2623,6 @@ class _SettingsButtonState extends State<_SettingsButton> {
   }
 }
 
-class _IconBtn extends StatefulWidget {
-  final IconData icon;
-  final VoidCallback? onTap;
-  const _IconBtn({required this.icon, this.onTap});
-
-  @override
-  State<_IconBtn> createState() => _IconBtnState();
-}
-
-class _IconBtnState extends State<_IconBtn> {
-  bool _isFocused = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Focus(
-      onFocusChange: (f) => setState(() => _isFocused = f),
-      onKeyEvent: (node, event) {
-        if (widget.onTap != null && event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.select ||
-              event.logicalKey == LogicalKeyboardKey.enter ||
-              event.logicalKey == LogicalKeyboardKey.numpadEnter ||
-              event.logicalKey == LogicalKeyboardKey.gameButtonA) {
-            widget.onTap!();
-            return KeyEventResult.handled;
-          }
-        }
-        return KeyEventResult.ignored;
-      },
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: _isFocused
-                ? AppTheme.goldPrimary
-                : (widget.onTap != null ? AppTheme.emeraldLight : Colors.transparent),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: _isFocused
-                  ? Colors.white
-                  : (widget.onTap != null ? AppTheme.goldDim : AppTheme.emeraldLight),
-              width: _isFocused ? 2 : 1,
-            ),
-            boxShadow: _isFocused
-                ? [
-                    BoxShadow(
-                      color: AppTheme.goldPrimary.withValues(alpha: 0.5),
-                      blurRadius: 8,
-                    ),
-                  ]
-                : null,
-          ),
-          child: Icon(
-            widget.icon,
-            color: _isFocused
-                ? AppTheme.emeraldDeep
-                : (widget.onTap != null ? AppTheme.goldPrimary : AppTheme.textSecondary),
-            size: 28,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ── Sidebar Item ─────────────────────────────────────────────────────────────
 
 class _SidebarItem extends StatefulWidget {
@@ -2122,11 +2645,28 @@ class _SidebarItem extends StatefulWidget {
 class _SidebarItemState extends State<_SidebarItem> {
   bool _isFocused = false;
 
+  void _ensureVisible() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _isFocused) {
+        Scrollable.ensureVisible(
+          context,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final scale = ScreenScale.of(context);
     return Focus(
       autofocus: widget.autofocus,
-      onFocusChange: (f) => setState(() => _isFocused = f),
+      onFocusChange: (f) {
+        setState(() => _isFocused = f);
+        if (f) _ensureVisible();
+      },
       onKeyEvent: (node, event) {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.select ||
@@ -2143,14 +2683,20 @@ class _SidebarItemState extends State<_SidebarItem> {
         onTap: widget.onSelect,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          margin: EdgeInsets.symmetric(
+            horizontal: scale.scale(8, min: 4, max: 12),
+            vertical: scale.scale(2, min: 1, max: 4),
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: scale.scale(12, min: 8, max: 16),
+            vertical: scale.scale(7, min: 5, max: 11),
+          ),
           decoration: _isFocused
               ? AppTheme.focusedDecoration()
               : (widget.isSelected
                   ? BoxDecoration(
                       color: AppTheme.emeraldLight.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(scale.scale(10, min: 8, max: 14)),
                       border: Border.all(color: AppTheme.goldDim, width: 1.5),
                     )
                   : AppTheme.unfocusedDecoration()),
@@ -2158,13 +2704,188 @@ class _SidebarItemState extends State<_SidebarItem> {
             widget.label,
             style: TextStyle(
               fontFamily: 'Cairo',
-              fontSize: 22,
+              fontSize: scale.scale(15, min: 13, max: 19),
               color: _isFocused || widget.isSelected
                   ? AppTheme.goldPrimary
                   : AppTheme.textSecondary,
               fontWeight: _isFocused || widget.isSelected ? FontWeight.w700 : FontWeight.w400,
             ),
             textDirection: TextDirection.rtl,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Design Selection Card ───────────────────────────────────────────────────
+
+class _DesignCard extends StatefulWidget {
+  final String title;
+  final String description;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final IconData? icon;
+  final List<Color>? colors;
+  final String? badgeText;
+
+  const _DesignCard({
+    required this.title,
+    required this.description,
+    required this.isSelected,
+    required this.onTap,
+    this.icon,
+    this.colors,
+    this.badgeText,
+  });
+
+  @override
+  State<_DesignCard> createState() => _DesignCardState();
+}
+
+class _DesignCardState extends State<_DesignCard> {
+  bool _isFocused = false;
+
+  void _ensureVisible() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _isFocused) {
+        Scrollable.ensureVisible(
+          context,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = ScreenScale.of(context);
+    return Focus(
+      onFocusChange: (f) {
+        setState(() => _isFocused = f);
+        if (f) _ensureVisible();
+      },
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.select ||
+              event.logicalKey == LogicalKeyboardKey.enter ||
+              event.logicalKey == LogicalKeyboardKey.numpadEnter ||
+              event.logicalKey == LogicalKeyboardKey.space ||
+              event.logicalKey == LogicalKeyboardKey.gameButtonA) {
+            widget.onTap();
+            return KeyEventResult.handled;
+          }
+        }
+        return KeyEventResult.ignored;
+      },
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          margin: EdgeInsets.only(bottom: scale.scale(7, min: 4, max: 10)),
+          padding: EdgeInsets.symmetric(
+            horizontal: scale.scale(14, min: 10, max: 20),
+            vertical: scale.scale(10, min: 7, max: 14),
+          ),
+          decoration: _isFocused
+              ? AppTheme.focusedDecoration()
+              : BoxDecoration(
+                  color: widget.isSelected
+                      ? AppTheme.emeraldLight.withValues(alpha: 0.6)
+                      : AppTheme.emeraldMid.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(scale.scale(12, min: 8, max: 16)),
+                  border: Border.all(
+                    color: widget.isSelected ? AppTheme.goldPrimary : AppTheme.emeraldLight,
+                    width: widget.isSelected ? 2 : 1,
+                  ),
+                ),
+          child: Row(
+            children: [
+              Icon(
+                widget.isSelected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_off,
+                color: widget.isSelected
+                    ? AppTheme.goldPrimary
+                    : AppTheme.textSecondary,
+                size: scale.scale(22, min: 18, max: 26),
+              ),
+              SizedBox(width: scale.scale(12, min: 8, max: 16)),
+              if (widget.colors != null) ...[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: widget.colors!.map((c) => Container(
+                    width: scale.scale(20, min: 16, max: 24),
+                    height: scale.scale(20, min: 16, max: 24),
+                    margin: const EdgeInsets.only(left: 4),
+                    decoration: BoxDecoration(
+                      color: c,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppTheme.goldDim, width: 1.2),
+                    ),
+                  )).toList(),
+                ),
+                SizedBox(width: scale.scale(12, min: 8, max: 16)),
+              ],
+              if (widget.badgeText != null) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: widget.isSelected ? AppTheme.goldPrimary : AppTheme.emeraldLight,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    widget.badgeText!,
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: scale.scale(13, min: 11, max: 15),
+                      fontWeight: FontWeight.bold,
+                      color: widget.isSelected ? AppTheme.emeraldDeep : AppTheme.textPrimary,
+                    ),
+                  ),
+                ),
+                SizedBox(width: scale.scale(12, min: 8, max: 16)),
+              ],
+              if (widget.icon != null) ...[
+                Icon(
+                  widget.icon,
+                  color: widget.isSelected ? AppTheme.goldPrimary : AppTheme.textSecondary,
+                  size: scale.scale(26, min: 20, max: 32),
+                ),
+                SizedBox(width: scale.scale(12, min: 8, max: 16)),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: scale.scale(17, min: 14, max: 21),
+                        fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.w600,
+                        color: widget.isSelected || _isFocused
+                            ? AppTheme.goldPrimary
+                            : AppTheme.textPrimary,
+                      ),
+                      textDirection: TextDirection.rtl,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.description,
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: scale.scale(12, min: 10, max: 15),
+                        color: AppTheme.textSecondary,
+                      ),
+                      textDirection: TextDirection.rtl,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -2712,3 +3433,268 @@ class _SimulationPage extends StatelessWidget {
     );
   }
 }
+
+// ── Remote Administration & QR Pairing Page ──────────────────────────────────
+
+class _RemoteAdminPage extends StatelessWidget {
+  final MosqueSettings settings;
+  const _RemoteAdminPage({required this.settings});
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<DisplayProvider>();
+    final isRunning = provider.isRemoteAdminRunning;
+    final url = provider.remoteAdminUrl ?? provider.remoteAdminDirectUrl ?? '';
+    final ip = provider.remoteAdminIp ?? '127.0.0.1';
+    final port = provider.remoteAdminPort ?? settings.remoteAdminPort;
+
+    return _PageWrapper(
+      title: 'التحكم عن بعد والاقتران اللاسلكي (QR)',
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Enable Server Toggle
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppTheme.emeraldDeep,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.goldDim.withValues(alpha: 0.4)),
+              ),
+              child: _ToggleRow(
+                label: 'تفعيل خادم الإدارة اللاسلكية عبر شبكة Wi-Fi المحلية',
+                value: settings.remoteAdminEnabled,
+                onChanged: (val) async {
+                  final newSettings = settings.copyWith(remoteAdminEnabled: val);
+                  await context.read<DisplayProvider>().updateSettings(newSettings);
+                  await SettingsRepository.save(newSettings);
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            if (!settings.remoteAdminEnabled || !isRunning)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.redAccent.withValues(alpha: 0.6)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.wifi_off, color: Colors.redAccent, size: 36),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'الخادم اللاسلكي متوقف حالياً',
+                            style: TextStyle(
+                              fontFamily: 'Cairo',
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textDirection: TextDirection.rtl,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'قم بتفعيل الخيار أعلاه للسماح للأئمة والمشرفين بالتحكم في شاشة المسجد وتعديل الإعدادات لاسلكياً من الهاتف.',
+                            style: TextStyle(
+                              fontFamily: 'Cairo',
+                              fontSize: 14,
+                              color: Colors.white.withValues(alpha: 0.8),
+                            ),
+                            textDirection: TextDirection.rtl,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppTheme.emeraldDeep,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.goldPrimary.withValues(alpha: 0.6), width: 1.5),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Left: QR Code Box
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppTheme.goldPrimary, width: 2),
+                          ),
+                          child: url.isNotEmpty
+                              ? QrImageView(
+                                  data: url,
+                                  version: QrVersions.auto,
+                                  size: 170,
+                                  backgroundColor: Colors.white,
+                                  eyeStyle: const QrEyeStyle(
+                                    eyeShape: QrEyeShape.square,
+                                    color: Color(0xFF06231A),
+                                  ),
+                                  dataModuleStyle: const QrDataModuleStyle(
+                                    dataModuleShape: QrDataModuleShape.square,
+                                    color: Color(0xFF06231A),
+                                  ),
+                                )
+                              : const SizedBox(
+                                  width: 170,
+                                  height: 170,
+                                  child: Center(child: CircularProgressIndicator()),
+                                ),
+                        ),
+                        const SizedBox(width: 20),
+
+                        // Right: Instructions & Credentials
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF27AE60).withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: const Color(0xFF2ECC71)),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.check_circle, color: Color(0xFF2ECC71), size: 16),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          'الخادم نشط ويعمل على الشبكة المحلية',
+                                          style: TextStyle(
+                                            fontFamily: 'Cairo',
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF2ECC71),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'امسح رمز الـ QR بكاميرا هاتفك المحمول المتصل بنفس شبكة Wi-Fi للتحكم الفوري في إعدادات المسجد والمواقيت.',
+                                style: TextStyle(
+                                  fontFamily: 'Cairo',
+                                  fontSize: 15,
+                                  color: AppTheme.textPrimary.withValues(alpha: 0.95),
+                                  height: 1.5,
+                                ),
+                                textDirection: TextDirection.rtl,
+                              ),
+                              const SizedBox(height: 14),
+                              // Connection info strip
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.emeraldMid,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppTheme.goldDim.withValues(alpha: 0.4)),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Text('الرابط المباشر: ', style: TextStyle(color: AppTheme.textSecondary, fontFamily: 'Cairo')),
+                                        SelectableText('http://$ip:$port', style: const TextStyle(color: AppTheme.goldLight, fontWeight: FontWeight.bold, fontFamily: 'Courier')),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        const Text('رمز PIN للدخول: ', style: TextStyle(color: AppTheme.textSecondary, fontFamily: 'Cairo')),
+                                        Text(settings.pinCode, style: const TextStyle(color: AppTheme.goldPrimary, fontWeight: FontWeight.bold, fontSize: 16)),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+                    const Divider(color: AppTheme.emeraldLight),
+                    const SizedBox(height: 12),
+
+                    // Actions Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.qr_code_scanner),
+                          label: const Text('عرض رمز الـ QR بحجم شاشة كامل (Q)'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.goldPrimary,
+                            foregroundColor: AppTheme.emeraldDeep,
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () => QrPairingDialog.show(context),
+                        ),
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('تحديث الرمز السري (Token)'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.goldLight,
+                            side: const BorderSide(color: AppTheme.goldDim),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            provider.regenerateRemoteAdminToken();
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+            const SizedBox(height: 20),
+
+            // Server Port Setting
+            _NumberStepper(
+              label: 'منفذ خادم الويب (Port)',
+              value: settings.remoteAdminPort,
+              min: 1024,
+              max: 9999,
+              helperText: 'المنفذ الافتراضي هو 8080. يمكنك تغييره في حال كان المنفذ مستخدماً من تطبيق آخر.',
+              onChanged: (v) async {
+                final newSettings = settings.copyWith(remoteAdminPort: v);
+                await context.read<DisplayProvider>().updateSettings(newSettings);
+                await SettingsRepository.save(newSettings);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

@@ -9,6 +9,7 @@ class IqamahDelays {
   final int asr;
   final int maghrib;
   final int isha;
+  final int jumuah;
 
   const IqamahDelays({
     this.fajr = 20,
@@ -16,6 +17,7 @@ class IqamahDelays {
     this.asr = 15,
     this.maghrib = 5,
     this.isha = 15,
+    this.jumuah = 40,
   })  : assert(fajr >= 5 && fajr <= 60,
             'Fajr Iqamah delay must be between 5 and 60 minutes'),
         assert(dhuhr >= 5 && dhuhr <= 45,
@@ -25,10 +27,15 @@ class IqamahDelays {
         assert(maghrib >= 3 && maghrib <= 30,
             'Maghrib Iqamah delay must be between 3 and 30 minutes'),
         assert(isha >= 5 && isha <= 45,
-            'Isha Iqamah delay must be between 5 and 45 minutes');
+            'Isha Iqamah delay must be between 5 and 45 minutes'),
+        assert(jumuah >= 15 && jumuah <= 90,
+            'Jumuah Iqamah delay must be between 15 and 90 minutes');
 
   /// Returns the configured Iqamah delay for the given [prayer].
-  int getDelayFor(Prayer prayer) {
+  int getDelayFor(Prayer prayer, {bool isFriday = false}) {
+    if (prayer == Prayer.dhuhr && isFriday) {
+      return jumuah;
+    }
     switch (prayer) {
       case Prayer.fajr:
         return fajr;
@@ -51,6 +58,7 @@ class IqamahDelays {
     int? asr,
     int? maghrib,
     int? isha,
+    int? jumuah,
   }) {
     return IqamahDelays(
       fajr: fajr != null ? fajr.clamp(5, 60) : this.fajr,
@@ -58,6 +66,7 @@ class IqamahDelays {
       asr: asr != null ? asr.clamp(5, 45) : this.asr,
       maghrib: maghrib != null ? maghrib.clamp(3, 30) : this.maghrib,
       isha: isha != null ? isha.clamp(5, 45) : this.isha,
+      jumuah: jumuah != null ? jumuah.clamp(15, 90) : this.jumuah,
     );
   }
 
@@ -68,6 +77,7 @@ class IqamahDelays {
       'asr': asr,
       'maghrib': maghrib,
       'isha': isha,
+      'jumuah': jumuah,
     };
   }
 
@@ -78,6 +88,7 @@ class IqamahDelays {
       asr: ((json['asr'] as num?)?.toInt() ?? 15).clamp(5, 45),
       maghrib: ((json['maghrib'] as num?)?.toInt() ?? 5).clamp(3, 30),
       isha: ((json['isha'] as num?)?.toInt() ?? 15).clamp(5, 45),
+      jumuah: ((json['jumuah'] as num?)?.toInt() ?? 40).clamp(15, 90),
     );
   }
 
@@ -90,12 +101,13 @@ class IqamahDelays {
           dhuhr == other.dhuhr &&
           asr == other.asr &&
           maghrib == other.maghrib &&
-          isha == other.isha;
+          isha == other.isha &&
+          jumuah == other.jumuah;
 
   @override
-  int get hashCode => Object.hash(fajr, dhuhr, asr, maghrib, isha);
+  int get hashCode => Object.hash(fajr, dhuhr, asr, maghrib, isha, jumuah);
 
   @override
   String toString() =>
-      'IqamahDelays(fajr: $fajr, dhuhr: $dhuhr, asr: $asr, maghrib: $maghrib, isha: $isha)';
+      'IqamahDelays(fajr: $fajr, dhuhr: $dhuhr, asr: $asr, maghrib: $maghrib, isha: $isha, jumuah: $jumuah)';
 }

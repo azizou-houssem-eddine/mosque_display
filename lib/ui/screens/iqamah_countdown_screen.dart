@@ -127,21 +127,22 @@ class _IqamahCountdownScreenState extends State<IqamahCountdownScreen> {
             SafeArea(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final scale = ScreenScale.of(context);
+                  final scale = ScreenScale.of(context,
+                      customScale: provider.settings.uiScaleFactor);
                   final h = constraints.maxHeight;
                   final isCompact = scale.isCompact;
                   final gaugeSize = scale.is4k
-                      ? (h * 0.42).clamp(420.0, 850.0)
-                      : isCompact
-                          ? (h * 0.38).clamp(210.0, 290.0)
-                          : (h * 0.42).clamp(320.0, 480.0);
-                  final titleSize = scale.scale(54.0, min: 36.0, max: 96.0);
-                  final duaFontSize = scale.scale(26.0, min: 19.0, max: 48.0);
-                  final verticalPadding = scale.scale(16.0, min: 8.0, max: 32.0);
+                      ? (h * 0.40).clamp(360.0, 750.0)
+                      : (scale.isNarrow || isCompact)
+                          ? (h * 0.28).clamp(160.0, 240.0)
+                          : (h * 0.36).clamp(220.0, 420.0);
+                  final titleSize = scale.scaleFont(54.0, min: 32.0, max: 96.0);
+                  final duaFontSize = scale.scaleFont(26.0, min: 18.0, max: 48.0);
+                  final verticalPadding = scale.scaleLayout(scale.isNarrow ? 8.0 : 14.0, min: 4.0, max: 28.0);
 
                   return Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: scale.scale(28, min: 16, max: 56),
+                      horizontal: scale.scaleLayout(24, min: 12, max: 56),
                       vertical: verticalPadding,
                     ),
                     child: Column(
@@ -171,14 +172,21 @@ class _IqamahCountdownScreenState extends State<IqamahCountdownScreen> {
                         const Spacer(flex: 1),
 
                         // ── 3. Date-Specific / Adhan Du'a Box ─────────────────
-                        _buildSupplicationBox(
-                          provider,
-                          fontSize: duaFontSize,
-                          isCompact: isCompact,
-                          scale: scale,
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.center,
+                            child: _buildSupplicationBox(
+                              provider,
+                              fontSize: duaFontSize,
+                              isCompact: isCompact,
+                              scale: scale,
+                            ),
+                          ),
                         ),
 
-                        SizedBox(height: scale.scale(16, min: 8, max: 28)),
+                        SizedBox(height: scale.scaleLayout(scale.isNarrow ? 8 : 14, min: 4, max: 24)),
 
                         // ── 4. Bottom Mosque Etiquette & Guidance Bar ────────
                         _buildBottomGuidanceBar(
@@ -217,15 +225,15 @@ class _IqamahCountdownScreenState extends State<IqamahCountdownScreen> {
         const SizedBox(height: 4),
 
         // Main Title
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.star,
-                color: AppTheme.goldPrimary, size: titleSize > 44 ? 22 : 18),
-            const SizedBox(width: 12),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.star,
+                  color: AppTheme.goldPrimary, size: titleSize > 44 ? 22 : 18),
+              const SizedBox(width: 12),
+              Text(
                 isAdhanAlert
                     ? 'حَانَ الآنَ مَوْعِدُ أَذَانِ $prayerName'
                     : 'إِقَامَةُ صَلَاةِ $prayerName',
@@ -248,11 +256,11 @@ class _IqamahCountdownScreenState extends State<IqamahCountdownScreen> {
                 ),
                 textDirection: TextDirection.rtl,
               ),
-            ),
-            const SizedBox(width: 12),
-            Icon(Icons.star,
-                color: AppTheme.goldPrimary, size: titleSize > 44 ? 22 : 18),
-          ],
+              const SizedBox(width: 12),
+              Icon(Icons.star,
+                  color: AppTheme.goldPrimary, size: titleSize > 44 ? 22 : 18),
+            ],
+          ),
         ),
       ],
     );
@@ -575,34 +583,40 @@ class _AdhanPulseWidgetState extends State<_AdhanPulseWidget>
           ],
         ),
         child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'اللهُ أَكْبَرُ',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Amiri',
-                  fontSize: textSize,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.goldPrimary,
-                  height: 1.2,
-                ),
-                textDirection: TextDirection.rtl,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'اللهُ أَكْبَرُ',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Amiri',
+                      fontSize: textSize,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.goldPrimary,
+                      height: 1.2,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                  Text(
+                    'اللهُ أَكْبَرُ',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Amiri',
+                      fontSize: textSize,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.goldPrimary,
+                      height: 1.2,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                ],
               ),
-              Text(
-                'اللهُ أَكْبَرُ',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Amiri',
-                  fontSize: textSize,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.goldPrimary,
-                  height: 1.2,
-                ),
-                textDirection: TextDirection.rtl,
-              ),
-            ],
+            ),
           ),
         ),
       ),
