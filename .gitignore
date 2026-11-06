@@ -48,5 +48,7 @@ app.*.map.json
 # Agent and workspace artifacts
 .agents/
 graphify-out/
+AGENTS.md
+agent.md
 
 *.apk
